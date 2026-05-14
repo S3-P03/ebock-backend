@@ -1,0 +1,52 @@
+plugins {
+    id 'java'
+    id 'io.quarkus'
+}
+
+repositories {
+    mavenCentral()
+    mavenLocal()
+}
+
+dependencies {
+    implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+
+    // Sécurité / OIDC
+    implementation("io.quarkus:quarkus-oidc")
+    implementation("io.quarkus:quarkus-security")
+
+    implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-rest'
+    implementation 'io.quarkus:quarkus-rest-jackson'
+    testImplementation 'io.quarkus:quarkus-junit'
+    testImplementation 'io.rest-assured:rest-assured'
+
+    // MyBatis
+    implementation("io.quarkiverse.mybatis:quarkus-mybatis:$quarkusMybatisVersion")
+
+    // JDBC (PostgreSQL ou autre)
+    implementation("io.quarkus:quarkus-jdbc-postgresql") // adapte selon ton SGBD
+
+    // https://mvnrepository.com/artifact/org.jsoup/jsoup
+    implementation("org.jsoup:jsoup:1.20.1")
+
+    // utilisation avec swagger
+    implementation("io.quarkus:quarkus-smallrye-openapi")
+}
+
+group = 'com.ebock'
+version = '1.0-SNAPSHOT'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+}
+
+compileJava {
+    options.encoding = 'UTF-8'
+    options.compilerArgs << '-parameters'
+}
+
+compileTestJava {
+    options.encoding = 'UTF-8'
+}
