@@ -5,12 +5,15 @@
 <mapper namespace="com.ebock.mapper.ItemMapper">
 
     <select id="getAllItemsInfo" resultType="com.ebock.business.Item">
-        select name,
+        select item_id,
+               name,
                description,
                price,
                added_at,
                updated_at,
+               sold,
                quantity,
+               archived,
                category_id,
                wear_id,
                seller_cip

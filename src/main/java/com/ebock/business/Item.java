@@ -1,17 +1,21 @@
 package com.ebock.business;
 
+import java.math.BigDecimal;
+
 public class Item {
+    public int itemId;
     public String name;
     public String description;
-    public float price;
+    public BigDecimal price;
     public String addedAt;
     public String updatedAt;
+    public Boolean sold;
     public int quantity;
+    public Boolean archived;
     public int categoryId;
     public int wearId;
     public String sellerCip;
 }
-
 /*
    item_id SERIAL,
    name VARCHAR(60)  NOT NULL,

@@ -1,6 +1,8 @@
 package com.ebock.service;
 
 import com.ebock.business.Item;
+import com.ebock.converter.ItemConverter;
+import com.ebock.dto.response.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -25,11 +27,13 @@ public class ItemService {
     SecurityContext securityContext;
     @Inject
     JsonWebToken jwt;
+    @Inject
+    ItemConverter itemConverter;
 
     @GET
     @Path("/list")
     @Authenticated
-    public List<Item> list() {
-        return this.itemMapper.getAllItemsInfo();
+    public List<ItemResponse> list() {
+        return itemConverter.toResponse(this.itemMapper.getAllItemsInfo());
     }
 }
