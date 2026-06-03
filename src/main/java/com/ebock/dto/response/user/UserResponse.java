@@ -1,4 +1,4 @@
-package com.ebock.dto.response;
+package com.ebock.dto.response.user;
 
 public class UserResponse {
     public String cip;

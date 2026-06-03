@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.response.UserResponse;
+import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
