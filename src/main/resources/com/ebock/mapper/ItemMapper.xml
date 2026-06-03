@@ -15,7 +15,7 @@
                wear_id,
                seller_cip
         from ebock.item
-        where not sold or not archived
+        where not sold and not archived
     </select>
 
 </mapper>
