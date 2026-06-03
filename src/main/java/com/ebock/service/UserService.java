@@ -17,7 +17,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.Objects;
 
-@Path("/api/user")
+@Path("/user")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class UserService {
@@ -40,11 +40,12 @@ public class UserService {
         String email = (String)this.jwt.getClaim("email");
         User user = this.userMapper.getUserInfo(cip);
 
-        // The user doesn't exist
         if (user==null){
+            // The user doesn't exist
             userMapper.createUser(cip, email, firstName, lastName);
             user = this.userMapper.getUserInfo(cip);
         } else if (hasChanged(user, email, firstName, lastName)) {
+            // Met à jour le nom de l'utilisateur
             userMapper.updateUser(cip, email, firstName, lastName);
             user.firstName = firstName;
             user.lastName = lastName;

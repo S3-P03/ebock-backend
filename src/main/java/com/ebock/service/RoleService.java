@@ -15,7 +15,6 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.util.List;
 import java.util.Map;
 
-@Path("/api")
 @Produces({"application/json"})
 public class RoleService {
     @Context
