@@ -35,8 +35,8 @@ public class UserService {
     @Authenticated
     public UserResponse me() {
         String cip = this.securityContext.getUserPrincipal().getName();
-        String firstName = (String)this.jwt.getClaim("family_name");
-        String lastName = (String)this.jwt.getClaim("given_name");
+        String firstName = (String)this.jwt.getClaim("given_name");
+        String lastName = (String)this.jwt.getClaim("family_name");
         String email = (String)this.jwt.getClaim("email");
         User user = this.userMapper.getUserInfo(cip);
 
