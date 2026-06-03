@@ -34,6 +34,6 @@ public class ItemService {
     @Path("/list")
     @Authenticated
     public List<ItemResponse> list() {
-        return itemConverter.toResponse(this.itemMapper.getAllItemsInfo());
+        return this.itemMapper.getAllItemsInfo();
     }
 }

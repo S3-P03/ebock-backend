@@ -11,5 +11,6 @@ public class ItemResponse {
     public int quantity;
     public int categoryId;
     public int wearId;
-    public String sellerCip;
+    public String firstName;
+    public String lastName;
 }

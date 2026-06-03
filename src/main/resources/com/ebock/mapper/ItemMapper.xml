@@ -4,21 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ebock.mapper.ItemMapper">
 
-    <select id="getAllItemsInfo" resultType="com.ebock.business.Item">
-        select item_id,
-               name,
-               description,
-               price,
-               added_at,
-               updated_at,
-               sold,
-               quantity,
-               archived,
-               category_id,
-               wear_id,
-               seller_cip
-        from ebock.item
-        where not sold and not archived
+    <select id="getAllItemsInfo" resultType="com.ebock.dto.response.ItemResponse">
+        select i.name,
+               i.description,
+               i.price,
+               i.added_at,
+               i.updated_at,
+               i.quantity,
+               i.category_id,
+               i.wear_id,
+               u.first_name,
+               u.last_name
+        from ebock.item i
+                 inner join ebock.user_ u on i.seller_cip = u.cip
+        where not sold
+          and not archived
     </select>
 
 </mapper>
