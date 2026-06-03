@@ -1,6 +1,6 @@
-package com.ebock.business;
+package com.ebock.dto.response;
 
-public class User {
+public class UserResponse {
     public String cip;
     public String firstName;
     public String lastName;

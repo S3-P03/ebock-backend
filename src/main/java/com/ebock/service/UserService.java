@@ -1,6 +1,8 @@
 package com.ebock.service;
 
 import com.ebock.business.User;
+import com.ebock.converter.UserConverter;
+import com.ebock.dto.response.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
@@ -11,10 +13,6 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import java.util.List;
-import java.util.Map;
 
 @Path("/api/user")
 @Produces(MediaType.APPLICATION_JSON)
@@ -25,14 +23,14 @@ public class UserService {
     @Context
     SecurityContext securityContext;
     @Inject
-    JsonWebToken jwt;
+    UserConverter userConverter;
 
     @GET
     @Path("/me")
     @Authenticated
-    public User me() {
+    public UserResponse me() {
         String cip = this.securityContext.getUserPrincipal().getName();
-
-        return this.userMapper.getUserInfo(cip);
+        User user = this.userMapper.getUserInfo(cip);
+        return userConverter.toResponse(user);
     }
 }
