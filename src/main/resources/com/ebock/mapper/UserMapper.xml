@@ -13,5 +13,24 @@
         from ebock.user_
         where cip = #{cip}
     </select>
+    <insert id="createUser">
+        INSERT INTO ebock.user_ (cip,
+               first_name,
+               last_name,
+               email,
+               is_admin,
+               enabled,
+               created_at,
+               updated_at)
+        VALUES (#{cip}, #{firstName}, #{lastName}, #{email}, false, true, now(), now());
+    </insert>
+    <update id="updateUser">
+        UPDATE ebock.user_
+        SET first_name = #{firstName},
+            last_name = #{lastName},
+            email = #{email},
+            updated_at = now()
+        WHERE cip = #{cip}
+    </update>
 
 </mapper>
