@@ -4,21 +4,22 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ebock.mapper.ItemMapper">
 
-    <select id="getAllItemsInfo" resultType="com.ebock.dto.response.ItemResponse">
-        select i.name,
-               i.description,
-               i.price,
+    <select id="getPaginatedItem" resultType="com.ebock.dto.response.item.ItemResponse">
+        <bind name="offset" value="(pageNumber - 1) * pageSize" />
+
+        SELECT i.name,
+               i.price::numeric AS price,
                i.added_at,
-               i.updated_at,
                i.quantity,
                i.category_id,
                i.wear_id,
                u.first_name,
                u.last_name
-        from ebock.item i
-                 inner join ebock.user_ u on i.seller_cip = u.cip
-        where not sold
-          and not archived
+        FROM ebock.item i
+        INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
+        WHERE i.sold = false AND i.archived = false
+        ORDER BY i.item_id
+        LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
 </mapper>

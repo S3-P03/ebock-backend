@@ -1,15 +1,11 @@
 package com.ebock.service;
 
-import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.response.ItemResponse;
+import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
-import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
@@ -31,9 +27,11 @@ public class ItemService {
     ItemConverter itemConverter;
 
     @GET
-    @Path("/list")
-    @Authenticated
-    public List<ItemResponse> list() {
-        return this.itemMapper.getAllItemsInfo();
+    @Path("/list/{pageNumber}")
+    @PermitAll
+    public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber) {
+        int pageSize = 2;
+
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize);
     }
 }

@@ -22,7 +22,6 @@ public class RoleService {
     @Inject
     JsonWebToken jwt;
 
-
     @GET
     @Path("/teacher")
     @RolesAllowed({Roles.TEACHER})
