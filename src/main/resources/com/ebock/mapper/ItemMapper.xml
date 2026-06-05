@@ -20,7 +20,7 @@
         </collection>
     </resultMap>
 
-    <select id="getPaginatedItem" resultType="com.ebock.dto.response.item.ItemResponse">
+    <select id="getPaginatedItem" resultMap="ItemResponseMap">
         <bind name="offset" value="(pageNumber - 1) * pageSize" />
 
         WITH PaginatedItems AS (
