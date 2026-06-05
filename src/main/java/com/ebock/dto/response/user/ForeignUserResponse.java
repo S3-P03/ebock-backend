@@ -1,10 +1,8 @@
-package com.ebock.business;
+package com.ebock.dto.response.user;
 
-public class User {
-    public String cip;
+public class ForeignUserResponse {
     public String firstName;
     public String lastName;
-    public String email;
     public String profilePictureUrl;
     public String createdAt;
 }
