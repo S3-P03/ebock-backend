@@ -1,15 +1,11 @@
 package com.ebock.service;
 
-import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.response.ItemResponse;
+import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
@@ -35,5 +31,14 @@ public class ItemService {
     @Authenticated
     public List<ItemResponse> list() {
         return this.itemMapper.getAllItemsInfo();
+    }
+
+    @GET
+    @Path("/{cip}/storefront")
+    @Authenticated
+    public List<ItemResponse> cipStorefront(
+            @PathParam("cip") String cip
+    ) {
+        return this.itemMapper.getAllItemsSeller(cip);
     }
 }

@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ebock.mapper.ItemMapper">
 
-    <select id="getAllItemsInfo" resultType="com.ebock.dto.response.ItemResponse">
+    <select id="getAllItemsInfo" resultType="com.ebock.dto.response.item.ItemResponse">
         select i.name,
                i.description,
                i.price,
@@ -18,6 +18,23 @@
         from ebock.item i
                  inner join ebock.user_ u on i.seller_cip = u.cip
         where not sold
+          and not archived
+    </select>
+
+    <select id="getAllItemsSeller" resultType="com.ebock.dto.response.item.ItemResponse">
+        select i.name,
+               i.description,
+               i.price,
+               i.added_at,
+               i.updated_at,
+               i.quantity,
+               i.category_id,
+               i.wear_id,
+               u.first_name,
+               u.last_name
+        from ebock.item i
+                 inner join ebock.user_ u on i.seller_cip = u.cip
+        where i.seller_cip = #{cip}
           and not archived
     </select>
 

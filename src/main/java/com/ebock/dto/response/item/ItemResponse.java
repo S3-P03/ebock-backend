@@ -1,4 +1,4 @@
-package com.ebock.dto.response;
+package com.ebock.dto.response.item;
 
 import java.math.BigDecimal;
 
