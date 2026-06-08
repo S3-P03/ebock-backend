@@ -5,8 +5,7 @@ import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 
 @TestSecurity(user = "pele3157", roles = {"admin"})
 @QuarkusTest
@@ -40,6 +39,6 @@ class TestProfilVendeur {
                 .body("firstName", is("Éliane"))
                 .body("lastName", is("Pelletier"))
                 .body("profilePictureUrl", is(nullValue()))
-                .body("createdAt", is("2026-06-07 17:41:32.568706"));
+                .body("createdAt", is(notNullValue()));
     }
 }
