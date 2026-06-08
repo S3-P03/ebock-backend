@@ -13,4 +13,8 @@
         insert into ebock.wear (name) values (#{wear.name})
     </insert>
 
+    <update id="update">
+        update ebock.wear set name = #{wear.name} where wear_id = #{wear.wearId}
+    </update>
+
 </mapper>

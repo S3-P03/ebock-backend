@@ -42,4 +42,14 @@ public class WearService {
         return wearConverter.toResponse(wear);
     }
 
+    @PUT
+    @Path("/update/{id}")
+    @Authenticated
+    public WearResponse insert(@PathParam("id") int id, WearPayload payload) {
+        Wear wear = wearConverter.toBusiness(payload);
+        wear.wearId = id;
+        this.wearMapper.update(wear);
+        return wearConverter.toResponse(wear);
+    }
+
 }

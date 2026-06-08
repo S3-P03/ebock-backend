@@ -2,10 +2,8 @@ package com.ebock.service;
 
 import com.ebock.business.Tag;
 import com.ebock.converter.TagConverter;
-import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.dto.response.tag.TagPayload;
 import com.ebock.dto.response.tag.TagResponse;
-import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.TagMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
@@ -42,6 +40,16 @@ public class TagService {
     public TagResponse insert(TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         this.tagMapper.insert(tag);
+        return tagConverter.toResponse(tag);
+    }
+
+    @PUT
+    @Path("/update/{id}")
+    @Authenticated
+    public TagResponse insert(@PathParam("id") int id, TagPayload payload) {
+        Tag tag = tagConverter.toBusiness(payload);
+        tag.tagId = id;
+        this.tagMapper.update(tag);
         return tagConverter.toResponse(tag);
     }
 }

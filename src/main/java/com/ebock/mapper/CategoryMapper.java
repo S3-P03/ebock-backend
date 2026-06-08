@@ -11,4 +11,5 @@ import java.util.List;
 public interface CategoryMapper {
     List<Category> getAllCategories();
     void insert(@Param("category") Category category);
+    void update(@Param("category") Category category);
 }

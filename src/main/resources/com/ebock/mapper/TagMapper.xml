@@ -13,4 +13,8 @@
         insert into ebock.tag (name) values (#{tag.name})
     </insert>
 
+    <update id="update">
+        update ebock.tag set name = #{tag.name} where tag_id = #{tag.tagId}
+    </update>
+
 </mapper>

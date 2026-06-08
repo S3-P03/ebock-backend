@@ -13,4 +13,8 @@
         insert into ebock.category (name, parent_category) values (#{category.name}, #{category.parentCategory})
     </insert>
 
+    <update id="update">
+        update ebock.category set name = #{category.name}, parent_category=#{category.parentCategory} where category_id = #{category.categoryId}
+    </update>
+
 </mapper>

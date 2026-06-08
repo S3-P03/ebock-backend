@@ -10,4 +10,5 @@ import java.util.List;
 public interface TagMapper {
     List<Tag> getAllTags();
     void insert(@Param("tag") Tag tag);
+    void update(@Param("tag") Tag tag);
 }

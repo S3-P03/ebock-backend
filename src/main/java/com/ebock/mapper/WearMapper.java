@@ -11,4 +11,5 @@ import java.util.List;
 public interface WearMapper {
     List<Wear> getAllWears();
     void insert(@Param("wear") Wear wear);
+    void update(@Param("wear") Wear wear);
 }

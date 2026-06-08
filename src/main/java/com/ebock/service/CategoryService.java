@@ -42,4 +42,14 @@ public class CategoryService {
         this.categoryMapper.insert(category);
         return categoryConverter.toResponse(category);
     }
+
+    @PUT
+    @Path("/update/{id}")
+    @Authenticated
+    public CategoryResponse insert(@PathParam("id") int id, CategoryPayload payload) {
+        Category category = categoryConverter.toBusiness(payload);
+        category.categoryId = id;
+        this.categoryMapper.update(category);
+        return categoryConverter.toResponse(category);
+    }
 }
