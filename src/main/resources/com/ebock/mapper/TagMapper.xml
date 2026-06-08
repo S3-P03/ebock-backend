@@ -9,4 +9,8 @@
         from ebock.tag
     </select>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="tagId">
+        insert into ebock.tag (name) values (#{tag.name})
+    </insert>
+
 </mapper>

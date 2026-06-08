@@ -1,7 +1,6 @@
 package com.ebock.dto.response.category;
 
-public class CategoryResponse {
-    public int categoryId;
+public class CategoryPayload {
     public String name;
     public Integer parentCategory;
 }

@@ -3,9 +3,11 @@ package com.ebock.service;
 import com.ebock.business.Tag;
 import com.ebock.converter.TagConverter;
 import com.ebock.dto.response.item.ItemResponse;
+import com.ebock.dto.response.tag.TagPayload;
 import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.TagMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -32,5 +34,14 @@ public class TagService {
     public List<TagResponse> list() {
         List<Tag> tags = this.tagMapper.getAllTags();
         return tagConverter.toResponse(tags);
+    }
+
+    @POST
+    @Path("/insert/")
+    @Authenticated
+    public TagResponse insert(TagPayload payload) {
+        Tag tag = tagConverter.toBusiness(payload);
+        this.tagMapper.insert(tag);
+        return tagConverter.toResponse(tag);
     }
 }

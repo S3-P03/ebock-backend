@@ -2,14 +2,13 @@ package com.ebock.service;
 
 import com.ebock.business.Category;
 import com.ebock.converter.CategoryConverter;
+import com.ebock.dto.response.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
@@ -33,5 +32,14 @@ public class CategoryService {
     public List<CategoryResponse> list() {
         List<Category> categories = this.categoryMapper.getAllCategories();
         return categoryConverter.toResponse(categories);
+    }
+
+    @POST
+    @Path("/insert/")
+    @Authenticated
+    public CategoryResponse insert(CategoryPayload payload) {
+        Category category = categoryConverter.toBusiness(payload);
+        this.categoryMapper.insert(category);
+        return categoryConverter.toResponse(category);
     }
 }
