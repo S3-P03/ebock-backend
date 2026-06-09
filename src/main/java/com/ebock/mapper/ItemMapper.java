@@ -10,8 +10,7 @@ import java.util.List;
 
 @Mapper
 public interface ItemMapper {
-    //tous les items pas sold et pas archived
-    List<ItemResponse> getAllItemsInfo();
     //tous les items pas archived du vendeur
     List<ItemResponse> getAllItemsSeller(@Param("cip") String cip);
+    List<ItemResponse> getPaginatedItem(@Param("pageNumber") int pageNumber, @Param("pageSize") int pageSize);
 }

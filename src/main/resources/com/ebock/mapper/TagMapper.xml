@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.TagMapper">
+
+    <select id="getAllTags" resultType="com.ebock.business.Tag">
+        select *
+        from ebock.tag
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="tag.tagId">
+        insert into ebock.tag (name) values (#{tag.name})
+    </insert>
+
+    <update id="update">
+        update ebock.tag set name = #{tag.name} where tag_id = #{tag.tagId}
+    </update>
+
+</mapper>
