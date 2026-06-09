@@ -22,5 +22,5 @@ jobs:
           path: ~/.gradle/caches
           key: gradle-${{ hashFiles('**/*.gradle') }}
 
-      - name: Unit tests
-        run: ./gradlew test
+      - name: Running all tests
+        run: ./gradlew test --info 2>&1 | tail -200
