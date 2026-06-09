@@ -26,3 +26,5 @@ jobs:
 
       - name: Integration tests
         run: ./gradlew quarkusIntTest
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: true
