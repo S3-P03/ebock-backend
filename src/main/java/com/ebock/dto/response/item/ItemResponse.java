@@ -1,16 +1,17 @@
-package com.ebock.dto.response;
+package com.ebock.dto.response.item;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class ItemResponse {
+    public int itemId;
     public String name;
-    public String description;
     public BigDecimal price;
     public String addedAt;
-    public String updatedAt;
     public int quantity;
     public int categoryId;
     public int wearId;
     public String firstName;
     public String lastName;
+    public List<Integer> tags;
 }
