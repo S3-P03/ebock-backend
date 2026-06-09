@@ -7,6 +7,17 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: ebock_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v4
 
@@ -27,4 +38,4 @@ jobs:
       - name: Integration tests
         run: ./gradlew quarkusIntTest
         env:
-          TESTCONTAINERS_RYUK_DISABLED: true
+          QUARKUS_PROFILE: ci
