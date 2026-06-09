@@ -9,7 +9,7 @@
         from ebock.category
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="categoryId">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="category.categoryId">
         insert into ebock.category (name, parent_category) values (#{category.name}, #{category.parentCategory})
     </insert>
 

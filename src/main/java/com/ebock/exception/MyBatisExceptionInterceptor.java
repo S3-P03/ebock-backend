@@ -1,5 +1,6 @@
 package com.ebock.exception;
 
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.core.Response;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
@@ -7,6 +8,7 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import java.sql.SQLException;
 import java.util.Map;
 
+@ApplicationScoped
 public class MyBatisExceptionInterceptor {
 
     @ServerExceptionMapper(PersistenceException.class)

@@ -1,6 +1,5 @@
 package com.ebock.mapper;
 
-import com.ebock.business.Tag;
 import com.ebock.business.Wear;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

@@ -46,7 +46,7 @@ public class CategoryService {
     @PUT
     @Path("/update/{id}")
     @Authenticated
-    public CategoryResponse insert(@PathParam("id") int id, CategoryPayload payload) {
+    public CategoryResponse update(@PathParam("id") int id, CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         category.categoryId = id;
         this.categoryMapper.update(category);

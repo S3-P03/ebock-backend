@@ -19,18 +19,16 @@ import java.util.List;
 public class ItemService {
     @Inject
     ItemMapper itemMapper;
-    @Context
-    SecurityContext securityContext;
-    @Inject
-    JsonWebToken jwt;
-    @Inject
-    ItemConverter itemConverter;
 
     @GET
     @Path("/list/{pageNumber}")
     @PermitAll
     public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber) {
         int pageSize = 25;
+
+        if (pageNumber < 1) {
+            throw new BadRequestException("pageNumber must be >= 1");
+        }
 
         return this.itemMapper.getPaginatedItem(pageNumber, pageSize);
     }

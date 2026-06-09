@@ -46,7 +46,7 @@ public class TagService {
     @PUT
     @Path("/update/{id}")
     @Authenticated
-    public TagResponse insert(@PathParam("id") int id, TagPayload payload) {
+    public TagResponse update(@PathParam("id") int id, TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         tag.tagId = id;
         this.tagMapper.update(tag);

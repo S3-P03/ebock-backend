@@ -9,7 +9,7 @@
         from ebock.wear
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="wearId">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="wear.wearId">
         insert into ebock.wear (name) values (#{wear.name})
     </insert>
 
