@@ -30,7 +30,7 @@ public class ItemService {
     @Path("/list/{pageNumber}")
     @PermitAll
     public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber) {
-        int pageSize = 2;
+        int pageSize = 25;
 
         return this.itemMapper.getPaginatedItem(pageNumber, pageSize);
     }
