@@ -66,6 +66,6 @@ public class UserService {
     public SellerUserResponse cipStorefront(
             @PathParam("cip") String cip
     ) {
-        return userConverter.toForeignUserResponse(this.userMapper.getUserInfo(cip));
+        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
     }
 }

@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "cdi")
 public interface UserConverter {
     UserResponse toResponse(User user);
-    SellerUserResponse toForeignUserResponse(User user);
+    SellerUserResponse toSellerUserResponse(User user);
 }
