@@ -22,7 +22,7 @@ public class MyBatisExceptionInterceptor {
             String sqlState = sqlException.getSQLState();
 
             // Log the SQL error
-            System.err.println("MyBatis Database Error Code caught. SQLState: " + sqlState);
+            LOG.errorf("MyBatis Database Error Code caught. SQLState: %s", sqlState);
 
             // "23505" = Unique/Duplicate Key Violations
             if ("23505".equals(sqlState)) {
