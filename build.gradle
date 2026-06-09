@@ -22,6 +22,7 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation("io.quarkus:quarkus-test-security")
     testImplementation("io.quarkus:quarkus-test-security-jwt")
+    testImplementation 'io.quarkus:quarkus-junit5-mockito'
     implementation("io.quarkus:quarkus-smallrye-jwt")
 
     // MyBatis
@@ -56,4 +57,16 @@ compileJava {
 
 compileTestJava {
     options.encoding = 'UTF-8'
+}
+
+test {
+    useJUnitPlatform {
+        excludeTags 'integration'
+    }
+}
+
+quarkusIntTest {
+    useJUnitPlatform {
+        includeTags 'integration'
+    }
 }
