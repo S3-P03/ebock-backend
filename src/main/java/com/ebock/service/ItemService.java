@@ -4,6 +4,7 @@ import com.ebock.converter.ItemConverter;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -35,7 +36,7 @@ public class ItemService {
 
     @GET
     @Path("/{cip}/storefront")
-    @Authenticated
+    @PermitAll
     public List<ItemResponse> cipStorefront(
             @PathParam("cip") String cip
     ) {

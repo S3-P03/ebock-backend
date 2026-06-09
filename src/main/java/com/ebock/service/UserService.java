@@ -6,6 +6,7 @@ import com.ebock.dto.response.user.ForeignUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -61,7 +62,7 @@ public class UserService {
 
     @GET
     @Path("/{cip}/storefront")
-    @Authenticated
+    @PermitAll
     public ForeignUserResponse cipStorefront(
             @PathParam("cip") String cip
     ) {
