@@ -59,7 +59,7 @@ pipeline {
             steps {
                 sh 'chmod +x gradlew'
                 sh './gradlew clean test \
-                      -Dquarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5433/testdb \
+                      -Dquarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/testdb \
                       -Dquarkus.datasource.username=postgres \
                       -Dquarkus.datasource.password=postgres \
                       -Dquarkus.datasource.devservices.enabled=false \
