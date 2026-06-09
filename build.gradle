@@ -20,9 +20,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest-jackson'
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
-    testImplementation("io.quarkus:quarkus-test-security")
-    testImplementation("io.quarkus:quarkus-test-security-jwt")
+    testImplementation 'io.quarkus:quarkus-test-security'
+    testImplementation 'io.quarkus:quarkus-test-security-jwt'
     testImplementation 'io.quarkus:quarkus-junit5-mockito'
+    testImplementation 'org.testcontainers:postgresql:1.20.4'
     implementation("io.quarkus:quarkus-smallrye-jwt")
 
     // MyBatis
