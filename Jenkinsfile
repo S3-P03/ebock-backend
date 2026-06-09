@@ -1,28 +1,64 @@
 pipeline {
-    agent {
-        docker {
-            image 'eclipse-temurin:21-jdk'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
 
     stages {
+
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        stage('Build and Test') {
-            when {
-                anyOf {
-                    changeRequest target: 'main'
-                    changeRequest target: 'dev'
-                }
+        stage('Wait for PostgreSQL') {
+            steps {
+                sh '''
+                apt-get update >/dev/null 2>&1 || true
+                apt-get install -y postgresql-client >/dev/null 2>&1 || true
+
+                until PGPASSWORD=postgres pg_isready \
+                    -h postgres \
+                    -U postgres
+                do
+                    sleep 2
+                done
+                '''
             }
+        }
+
+        stage('Reset Database') {
+            steps {
+                sh '''
+                PGPASSWORD=postgres psql \
+                    -h postgres \
+                    -U postgres \
+                    -d testdb \
+                    -c "DROP SCHEMA public CASCADE;"
+
+                PGPASSWORD=postgres psql \
+                    -h postgres \
+                    -U postgres \
+                    -d testdb \
+                    -c "CREATE SCHEMA public;"
+                '''
+            }
+        }
+
+        stage('Initialize Database') {
+            steps {
+                sh '''
+                PGPASSWORD=postgres psql \
+                    -h postgres \
+                    -U postgres \
+                    -d testdb \
+                    -f src/test/resources/schema.sql
+                '''
+            }
+        }
+
+        stage('Build and Test') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean test --stacktrace'
+                sh './gradlew clean test -Dquarkus.profile=ci --stacktrace'
             }
         }
     }
@@ -30,12 +66,6 @@ pipeline {
     post {
         always {
             junit '**/build/test-results/test/*.xml'
-        }
-        success {
-            echo 'Tests passed'
-        }
-        failure {
-            echo 'Tests failed'
         }
     }
 }
