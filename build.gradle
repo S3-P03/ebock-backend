@@ -66,12 +66,9 @@ test {
     }
 }
 
-quarkusIntTest {
+tasks.named('quarkusIntTest') {
     useJUnitPlatform {
         includeTags 'integration'
     }
-}
-
-tasks.named('quarkusIntTest') {
     systemProperty 'quarkus.test.profile', System.getenv('QUARKUS_PROFILE') ?: 'test'
 }
