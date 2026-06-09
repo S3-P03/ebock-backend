@@ -61,14 +61,5 @@ compileTestJava {
 }
 
 test {
-    useJUnitPlatform {
-        excludeTags 'integration'
-    }
-}
-
-tasks.named('quarkusIntTest') {
-    useJUnitPlatform {
-        includeTags 'integration'
-    }
-    systemProperty 'quarkus.test.profile', 'test'
+    useJUnitPlatform()
 }
