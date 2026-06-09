@@ -8,6 +8,8 @@ import org.jboss.resteasy.reactive.server.ServerExceptionMapper;
 import java.sql.SQLException;
 import java.util.Map;
 
+import static io.quarkus.arc.ComponentsProvider.LOG;
+
 @ApplicationScoped
 public class MyBatisExceptionInterceptor {
 
