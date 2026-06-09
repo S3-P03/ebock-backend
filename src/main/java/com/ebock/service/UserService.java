@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.response.user.ForeignUserResponse;
+import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
@@ -63,7 +63,7 @@ public class UserService {
     @GET
     @Path("/{cip}/storefront")
     @PermitAll
-    public ForeignUserResponse cipStorefront(
+    public SellerUserResponse cipStorefront(
             @PathParam("cip") String cip
     ) {
         return userConverter.toForeignUserResponse(this.userMapper.getUserInfo(cip));

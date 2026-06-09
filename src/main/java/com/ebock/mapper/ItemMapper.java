@@ -1,8 +1,6 @@
 package com.ebock.mapper;
 
-import com.ebock.business.Item;
 import com.ebock.dto.response.item.ItemResponse;
-import com.ebock.dto.response.user.ForeignUserResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
