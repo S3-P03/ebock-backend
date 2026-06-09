@@ -58,7 +58,14 @@ pipeline {
         stage('Build and Test') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean test -Dquarkus.profile=ci --stacktrace'
+                sh './gradlew clean test \
+                      -Dquarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5433/testdb \
+                      -Dquarkus.datasource.username=postgres \
+                      -Dquarkus.datasource.password=postgres \
+                      -Dquarkus.datasource.devservices.enabled=false \
+                      -Dquarkus.devservices.enabled=false \
+                      -Dquarkus.profile=ci \
+                      --stacktrace'
             }
         }
     }
