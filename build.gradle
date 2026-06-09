@@ -71,3 +71,7 @@ quarkusIntTest {
         includeTags 'integration'
     }
 }
+
+tasks.named('quarkusIntTest') {
+    systemProperty 'quarkus.profile', System.getProperty('quarkus.profile', 'test')
+}
