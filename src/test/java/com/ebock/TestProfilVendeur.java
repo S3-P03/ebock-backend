@@ -6,20 +6,20 @@ import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.Matchers.empty;
 
-@TestSecurity(user = "pele3157", roles = {"admin"})
 @QuarkusTest
 class TestProfilVendeur {
     @Test
-    void testRequeteItem() {
+    void queryItemExistingUser() {
         given()
-                .pathParam("cip","pele3157")
+                .pathParam("cip", "pele3157")
                 .when()
                 .get("/item/{cip}/storefront")
                 .then()
                 .statusCode(200)
+                .body("[0].itemId", is(5))
                 .body("[0].name", is("Prise de laptop"))
-                .body("[0].description", is("Une prise de laptop vraiment longue"))
                 .body("[0].price", is(10.0f))
                 .body("[0].quantity", is(1))
                 .body("[0].categoryId", is(2))
@@ -29,9 +29,9 @@ class TestProfilVendeur {
     }
 
     @Test
-    void testRequeteUser() {
+    void queryUserExistingUser() {
         given()
-                .pathParam("cip","pele3157")
+                .pathParam("cip", "pele3157")
                 .when()
                 .get("/user/{cip}/storefront")
                 .then()
@@ -40,5 +40,38 @@ class TestProfilVendeur {
                 .body("lastName", is("Pelletier"))
                 .body("profilePictureUrl", is(nullValue()))
                 .body("createdAt", is(notNullValue()));
+    }
+
+    @Test
+    void queryItemNonExistingUserReturns204() {
+        given()
+                .pathParam("cip", "abcd1234")
+                .when()
+                .get("/item/{cip}/storefront")
+                .then()
+                .statusCode(200)
+                .body("$", empty());
+
+    }
+
+    @Test
+    void queryUserNonExistingUserReturns204() {
+        given()
+                .pathParam("cip", "abcd1234")
+                .when()
+                .get("/user/{cip}/storefront")
+                .then()
+                .statusCode(204);
+    }
+
+    @Test
+    void queryItemReturnsEmptyList() {
+        given()
+                .pathParam("cip", "test1234")
+                .when()
+                .get("/item/{cip}/storefront")
+                .then()
+                .statusCode(200)
+                .body("$", empty());
     }
 }
