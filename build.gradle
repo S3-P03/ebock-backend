@@ -72,12 +72,6 @@ quarkusIntTest {
     }
 }
 
-tasks.named('quarkusBuild') {
-    def profile = System.getenv('QUARKUS_PROFILE') ?: 'test'
-    systemProperty 'quarkus.profile', profile
-}
-
 tasks.named('quarkusIntTest') {
-    def profile = System.getenv('QUARKUS_PROFILE') ?: 'test'
-    systemProperty 'quarkus.profile', profile
+    systemProperty 'quarkus.test.profile', System.getenv('QUARKUS_PROFILE') ?: 'test'
 }
