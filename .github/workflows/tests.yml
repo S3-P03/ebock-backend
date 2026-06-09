@@ -42,5 +42,3 @@ jobs:
 
       - name: Integration tests
         run: ./gradlew quarkusIntTest --info 2>&1 | tail -200
-        env:
-          QUARKUS_PROFILE: ci
