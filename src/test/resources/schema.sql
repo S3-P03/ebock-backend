@@ -1,5 +1,3 @@
-create schema ebock;
-
 set search_path = ebock;
 
 CREATE TABLE user_(

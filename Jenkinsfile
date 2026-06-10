@@ -32,13 +32,13 @@ pipeline {
                     -h postgres \
                     -U postgres \
                     -d testdb \
-                    -c "DROP SCHEMA public CASCADE;"
+                    -c "DROP SCHEMA ebock CASCADE;"
 
                 PGPASSWORD=postgres psql \
                     -h postgres \
                     -U postgres \
                     -d testdb \
-                    -c "CREATE SCHEMA public;"
+                    -c "CREATE SCHEMA ebock;"
                 '''
             }
         }
