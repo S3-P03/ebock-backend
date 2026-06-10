@@ -25,13 +25,13 @@
 
         WITH PaginatedItems AS (
             SELECT i.item_id,
-            i.name,
-            i.price::numeric AS price,
-            i.added_at,
-            i.quantity,
-            i.category_id,
-            i.wear_id,
-            i.seller_cip
+                   i.name,
+                   i.price::numeric AS price,
+                   i.added_at,
+                   i.quantity,
+                   i.category_id,
+                   i.wear_id,
+                   i.seller_cip
             FROM ebock.item i
             WHERE i.sold = false AND i.archived = false
             ORDER BY i.item_id
@@ -39,9 +39,9 @@
         )
 
         SELECT p.*,
-            u.first_name,
-            u.last_name,
-            it.tag_id
+               u.first_name,
+               u.last_name,
+               it.tag_id
         FROM PaginatedItems p
         INNER JOIN ebock.user_ u ON p.seller_cip = u.cip
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
