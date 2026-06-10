@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.Category;
 import com.ebock.converter.CategoryConverter;
-import com.ebock.dto.response.category.CategoryPayload;
+import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
 import io.quarkus.security.Authenticated;

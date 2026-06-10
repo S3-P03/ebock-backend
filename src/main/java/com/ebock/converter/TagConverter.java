@@ -1,7 +1,7 @@
 package com.ebock.converter;
 
 import com.ebock.business.Tag;
-import com.ebock.dto.response.tag.TagPayload;
+import com.ebock.dto.request.tag.TagPayload;
 import com.ebock.dto.response.tag.TagResponse;
 import org.mapstruct.Mapper;
 
