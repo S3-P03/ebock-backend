@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.WearMapper">
+
+    <select id="getAllWears" resultType="com.ebock.business.Wear">
+        select *
+        from ebock.wear
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="wear.wearId">
+        insert into ebock.wear (name) values (#{wear.name})
+    </insert>
+
+    <update id="update">
+        update ebock.wear set name = #{wear.name} where wear_id = #{wear.wearId}
+    </update>
+
+</mapper>

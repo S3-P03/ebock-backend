@@ -2,10 +2,11 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.response.user.ForeignUserResponse;
+import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -61,10 +62,12 @@ public class UserService {
 
     @GET
     @Path("/{cip}/storefront")
-    @Authenticated
-    public ForeignUserResponse cipStorefront(
+    @PermitAll
+    public SellerUserResponse cipStorefront(
             @PathParam("cip") String cip
     ) {
-        return userConverter.toForeignUserResponse(this.userMapper.getUserInfo(cip));
+        if(userMapper.findUserByCip(cip) == 0)
+            throw new NotFoundException("User not found");
+        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
     }
 }
