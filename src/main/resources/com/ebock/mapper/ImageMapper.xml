@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.CategoryMapper">
+
+    <select id="getAllCategories" resultType="com.ebock.business.Category">
+        select *
+        from ebock.category
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="category.categoryId">
+        insert into ebock.category (name, parent_category) values (#{category.name}, #{category.parentCategory})
+    </insert>
+
+    <update id="update">
+        update ebock.category set name = #{category.name}, parent_category=#{category.parentCategory} where category_id = #{category.categoryId}
+    </update>
+
+</mapper>
