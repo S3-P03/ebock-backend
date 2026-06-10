@@ -2,14 +2,13 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.Consumes;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
@@ -59,5 +58,16 @@ public class UserService {
         return !Objects.equals(user.firstName, firstName)
                 || !Objects.equals(user.lastName, lastName)
                 || !Objects.equals(user.email, email);
+    }
+
+    @GET
+    @Path("/{cip}/storefront")
+    @PermitAll
+    public SellerUserResponse cipStorefront(
+            @PathParam("cip") String cip
+    ) {
+        if(userMapper.findUserByCip(cip) == 0)
+            throw new NotFoundException("User not found");
+        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
     }
 }

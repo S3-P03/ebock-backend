@@ -20,6 +20,9 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest-jackson'
     testImplementation 'io.quarkus:quarkus-junit'
     testImplementation 'io.rest-assured:rest-assured'
+    testImplementation("io.quarkus:quarkus-test-security")
+    testImplementation("io.quarkus:quarkus-test-security-jwt")
+    implementation("io.quarkus:quarkus-smallrye-jwt")
 
     // MyBatis
     implementation("io.quarkiverse.mybatis:quarkus-mybatis:$quarkusMybatisVersion")
