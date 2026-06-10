@@ -43,25 +43,26 @@ class TestProfilVendeur {
     }
 
     @Test
-    void queryItemNonExistingUserReturns204() {
+    void queryItemNonExistingUserReturns404() {
         given()
+                .log().all()
                 .pathParam("cip", "abcd1234")
                 .when()
                 .get("/item/{cip}/storefront")
                 .then()
-                .statusCode(200)
-                .body("$", empty());
+                .statusCode(404);
 
     }
 
     @Test
-    void queryUserNonExistingUserReturns204() {
+    void queryUserNonExistingUserReturns404() {
         given()
+                .log().all()
                 .pathParam("cip", "abcd1234")
                 .when()
                 .get("/user/{cip}/storefront")
                 .then()
-                .statusCode(204);
+                .statusCode(404);
     }
 
     @Test

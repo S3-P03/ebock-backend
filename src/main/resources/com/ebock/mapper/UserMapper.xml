@@ -34,4 +34,10 @@
         WHERE cip = #{cip}
     </update>
 
+    <select id="findUserByCip" resultType="int">
+        SELECT COUNT(*)
+        FROM ebock.user_ u
+        WHERE u.cip = #{cip};
+    </select>
+
 </mapper>

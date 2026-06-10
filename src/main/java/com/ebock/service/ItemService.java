@@ -3,6 +3,7 @@ package com.ebock.service;
 import com.ebock.converter.ItemConverter;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
+import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -20,6 +21,9 @@ import java.util.List;
 public class ItemService {
     @Inject
     ItemMapper itemMapper;
+
+    @Inject
+    UserMapper userMapper;
 
     @GET
     @Path("/list/{pageNumber}")
@@ -40,6 +44,8 @@ public class ItemService {
     public List<ItemResponse> cipStorefront(
             @PathParam("cip") String cip
     ) {
+        if(userMapper.findUserByCip(cip) == 0)
+            throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }
 }
