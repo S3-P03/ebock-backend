@@ -2,9 +2,10 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.response.user.ForeignUserResponse;
+import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.BeforeEach;
@@ -107,6 +108,7 @@ public class UserServiceTest {
 
     @Test
     void testMeReturnsUserResponse() {
+        // arrange
         User existingUser = new User();
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");
@@ -122,31 +124,36 @@ public class UserServiceTest {
         when(userMapper.getUserInfo("larj4236")).thenReturn(existingUser);
         when(userConverter.toResponse(existingUser)).thenReturn(expected);
 
+        // act
         UserResponse result = userService.me();
 
+        // assert
         assertEquals(expected, result);
     }
 
     @Test
     void testCipStorefrontReturnsCorrectUser() {
+        // arrange
         User user = new User();
-        ForeignUserResponse expected = new ForeignUserResponse();
+        SellerUserResponse expected = new SellerUserResponse();
+        when(userMapper.findUserByCip("larj4236")).thenReturn(1);
         when(userMapper.getUserInfo("larj4236")).thenReturn(user);
-        when(userConverter.toForeignUserResponse(user)).thenReturn(expected);
+        when(userConverter.toSellerUserResponse(user)).thenReturn(expected);
 
-        ForeignUserResponse result = userService.cipStorefront("larj4236");
+        // act
+        SellerUserResponse result = userService.cipStorefront("larj4236");
 
+        // assert
         assertEquals(expected, result);
     }
 
     @Test
-    void testCipStorefrontUnknownCipReturnsNull() {
-        when(userMapper.getUserInfo("abcd1234")).thenReturn(null);
-        when(userConverter.toForeignUserResponse(null)).thenReturn(null);
+    void testCipStorefrontUnknownCipThrowsNotFound() {
+        // arrange
+        when(userMapper.findUserByCip("abcd1234")).thenReturn(0);
 
-        ForeignUserResponse result = userService.cipStorefront("abcd1234");
-
-        assertNull(result);
+        // act and assert
+        assertThrows(NotFoundException.class, () -> userService.cipStorefront("abcd1234"));
     }
 
 }
