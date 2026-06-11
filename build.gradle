@@ -22,6 +22,7 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured'
     testImplementation("io.quarkus:quarkus-test-security")
     testImplementation("io.quarkus:quarkus-test-security-jwt")
+    testImplementation 'io.quarkus:quarkus-junit-mockito'
     implementation("io.quarkus:quarkus-smallrye-jwt")
 
     // MyBatis
