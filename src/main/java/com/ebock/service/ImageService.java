@@ -1,6 +1,8 @@
 package com.ebock.service;
 
+import com.ebock.business.Image;
 import com.ebock.dto.request.image.ImagePayload;
+import com.ebock.mapper.ImageMapper;
 import io.quarkus.security.Authenticated;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.PermitAll;
@@ -24,6 +26,9 @@ public class ImageService {
     @ConfigProperty(name = "image.upload.directory")
     String uploadDir;
 
+    @Inject
+    ImageMapper imageMapper;
+
     private static final Map<String, String> MIME_TO_EXTENSION = Map.of(
             "image/jpeg", ".jpg",
             "image/png", ".png"
@@ -40,9 +45,10 @@ public class ImageService {
             return Response.status(Response.Status.BAD_REQUEST).entity("No file").build();
         }
 
-        try {
-            java.nio.file.Path tempFilePath = data.file.uploadedFile();
+        java.nio.file.Path tempFilePath = data.file.uploadedFile();
+        java.nio.file.Path targetFile = null;
 
+        try {
             // Check Mime type
             String mimeType = detectMimeType(tempFilePath);
             if (mimeType == null) {
@@ -61,54 +67,73 @@ public class ImageService {
             String fileExtension = MIME_TO_EXTENSION.get(mimeType);
             String guid = UUID.randomUUID().toString();
             String guidFileName = guid + fileExtension;
-            java.nio.file.Path targetFile = outputPath.resolve(guidFileName);
+            targetFile = outputPath.resolve(guidFileName);
 
+            // Move the file
             Files.move(data.file.uploadedFile(), targetFile, StandardCopyOption.REPLACE_EXISTING);
 
-            return Response.ok("{\"guid\":\"" + guid + "\"}").build();
+            // Create the record in the db
+            Image image = new Image();
+            image.originalFilename = data.file.fileName();
+            image.fileExtension = fileExtension;
+            image.guid = guid;
+            imageMapper.insert(image);
+
+            return Response.ok(Map.of("guid", guid)).build();
         } catch (IOException e) {
+            // Cleanup the file
+            if (targetFile != null) {
+                try { Files.deleteIfExists(targetFile); } catch (IOException ignored) {}
+            }
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Upload failed").build();
         }
     }
 
     @GET
-    @Path("/{fileName}")
+    @Path("/{guid}")
     @PermitAll
     @Blocking
-    public Response getImage(@PathParam("fileName") String fileName) {
-        // Check the filename is valid
-        if (fileName == null || fileName.isBlank() || !fileName.matches("[a-zA-Z0-9._-]+")) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid filename").build();
+    public Response getImage(@PathParam("guid") String guid) {
+        // Check the guid is valid
+        try {
+            UUID.fromString(guid);
+        } catch (IllegalArgumentException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Invalid GUID format").build();
         }
+
+        Image image = imageMapper.getImageFromGuid(guid);
+        if(image == null){
+            return Response.status(Response.Status.NOT_FOUND).entity("Image not found").build();
+        }
+
+        String filename = image.guid + image.fileExtension;
 
         try {
             // Get the safe path
             java.nio.file.Path baseDir = java.nio.file.Path.of(uploadDir).toRealPath();
-            java.nio.file.Path requestedFile = baseDir.resolve(fileName).normalize();
+            java.nio.file.Path requestedFile = baseDir.resolve(filename).normalize();
 
             // Check the file exists
             if (!Files.exists(requestedFile) || !Files.isRegularFile(requestedFile)) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Image not found").build();
             }
 
-            // Get the real filename
+            // Check for path traversal
             java.nio.file.Path realFile = requestedFile.toRealPath();
             if (!realFile.startsWith(baseDir)) {
                 return Response.status(Response.Status.FORBIDDEN).entity("Invalid filename").build();
             }
 
-            // Check the MIME type
-            String mimeType = detectMimeType(realFile);
-            if (mimeType == null) {
-                return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).build();
-            }
+            // Get MIME type
+            String mimeType = image.fileExtension.equalsIgnoreCase(".png") ? "image/png" : "image/jpeg";
 
-            // Make sure the filename is safe
-            String safeFileName = fileName.replaceAll("[^a-zA-Z0-9._-]", "_");
+            // Use original filename
+            String downloadName = image.originalFilename != null ? image.originalFilename : "image" + image.fileExtension;
+            String safeDownloadName = downloadName.replaceAll("[^a-zA-Z0-9._-]", "_");
 
             return Response.ok(realFile.toFile())
                     .type(mimeType)
-                    .header("Content-Disposition", "inline; filename=\"" + safeFileName + "\"")
+                    .header("Content-Disposition", "inline; filename=\"" + safeDownloadName + "\"")
                     .build();
 
         } catch (IOException e) {

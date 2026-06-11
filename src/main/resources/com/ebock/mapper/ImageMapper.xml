@@ -2,19 +2,15 @@
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.ebock.mapper.CategoryMapper">
+<mapper namespace="com.ebock.mapper.ImageMapper">
 
-    <select id="getAllCategories" resultType="com.ebock.business.Category">
+    <select id="getImageFromGuid" resultType="com.ebock.business.Image">
         select *
-        from ebock.category
+        from ebock.image_
+        where guid=#{guid}
     </select>
 
-    <insert id="insert" useGeneratedKeys="true" keyProperty="category.categoryId">
-        insert into ebock.category (name, parent_category) values (#{category.name}, #{category.parentCategory})
+    <insert id="insert">
+        insert into ebock.image_ (guid, original_filename, file_extension, created_at) values (#{image.guid}, #{image.originalFilename}, #{image.fileExtension}, now())
     </insert>
-
-    <update id="update">
-        update ebock.category set name = #{category.name}, parent_category=#{category.parentCategory} where category_id = #{category.categoryId}
-    </update>
-
 </mapper>

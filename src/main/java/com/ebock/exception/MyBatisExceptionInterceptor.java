@@ -22,11 +22,13 @@ public class MyBatisExceptionInterceptor {
             cause = cause.getCause();
         }
 
+        LOG.errorf(exception, "Caught exception: %s", exception.getMessage());
+
         if (cause instanceof SQLException sqlException) {
             String sqlState = sqlException.getSQLState();
 
             // Log the SQL error
-            LOG.errorf("MyBatis Database Error Code caught. SQLState: %s", sqlState);
+            LOG.errorf("MyBatis Database Error Code caught. SQLState: ", sqlState);
 
             // "23505" = Unique/Duplicate Key Violations
             if ("23505".equals(sqlState)) {

@@ -8,7 +8,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.empty;
 
 @QuarkusTest
-class TestProfilVendeur {
+class ProfilVendeurIT {
     @Test
     void queryItemExistingUser() {
         given()
