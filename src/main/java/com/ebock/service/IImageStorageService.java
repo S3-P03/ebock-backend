@@ -7,5 +7,7 @@ public interface IImageStorageService {
     void moveFile(Path tempPath, String targetFileName) throws IOException;
     void deleteFile(Path path) throws IOException;
     Path getPath(String fileName);
-    String detectMimeType(Path filePath);
+    boolean exists(Path path);
+    boolean isRegularFile(Path path);
+    String detectMimeType(Path filePath) throws IOException;
 }

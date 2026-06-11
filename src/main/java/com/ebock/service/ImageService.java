@@ -91,7 +91,7 @@ public class ImageService {
         java.nio.file.Path requestedFile = imageStorageService.getPath(filename);
 
         // Check the file exists
-        if (!Files.exists(requestedFile) || !Files.isRegularFile(requestedFile)) {
+        if (!imageStorageService.exists(requestedFile) || !imageStorageService.isRegularFile(requestedFile)) {
             return Response.status(Response.Status.NOT_FOUND).entity("Image not found").build();
         }
 

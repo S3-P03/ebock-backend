@@ -35,23 +35,30 @@ public class ImageStorageService implements IImageStorageService {
     }
 
     @Override
-    public String detectMimeType(Path filePath) {
-        try (InputStream is = Files.newInputStream(filePath)) {
-            byte[] header = is.readNBytes(8);
-            if (header.length < 4) return null;
+    public boolean exists(Path path) {
+        return Files.exists(path);
+    }
 
-            // JPEG: FF D8 FF
-            if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF)
-                return "image/jpeg";
+    @Override
+    public boolean isRegularFile(Path path) {
+        return Files.isRegularFile(path);
+    }
 
-            // PNG: 89 50 4E 47
-            if ((header[0] & 0xFF) == 0x89 && (header[1] & 0xFF) == 0x50 &&
-                    (header[2] & 0xFF) == 0x4E && (header[3] & 0xFF) == 0x47)
-                return "image/png";
+    @Override
+    public String detectMimeType(Path filePath) throws IOException {
+        InputStream is = Files.newInputStream(filePath);
+        byte[] header = is.readNBytes(8);
+        if (header.length < 4) return null;
 
-            return null;
-        } catch (IOException e) {
-            return null;
-        }
+        // JPEG: FF D8 FF
+        if ((header[0] & 0xFF) == 0xFF && (header[1] & 0xFF) == 0xD8 && (header[2] & 0xFF) == 0xFF)
+            return "image/jpeg";
+
+        // PNG: 89 50 4E 47
+        if ((header[0] & 0xFF) == 0x89 && (header[1] & 0xFF) == 0x50 &&
+                (header[2] & 0xFF) == 0x4E && (header[3] & 0xFF) == 0x47)
+            return "image/png";
+
+        return null;
     }
 }

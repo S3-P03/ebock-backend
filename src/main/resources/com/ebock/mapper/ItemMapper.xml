@@ -22,7 +22,6 @@
 
     <select id="getPaginatedItem" resultMap="ItemResponseMap">
         <bind name="offset" value="(pageNumber - 1) * pageSize" />
-
         WITH PaginatedItems AS (
             SELECT i.item_id,
             i.name,
@@ -62,8 +61,8 @@
                u.last_name,
                it.tag_id
         FROM ebock.item i
-                 INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
-                 LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
+             INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
+             LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
         WHERE i.seller_cip = #{cip}
           AND NOT i.archived;
     </select>
