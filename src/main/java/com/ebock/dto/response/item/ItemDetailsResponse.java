@@ -6,6 +6,7 @@ import java.util.List;
 public class ItemDetailsResponse {
     public int itemId;
     public String name;
+    public String description;
     public BigDecimal price;
     public String addedAt;
     public int quantity;
