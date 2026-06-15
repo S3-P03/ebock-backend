@@ -1,12 +1,15 @@
 package com.ebock.item;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.Matchers.empty;
 
+@Tag("integration")
 @QuarkusTest
 class ProfilVendeurIT {
     @Test

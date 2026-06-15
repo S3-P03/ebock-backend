@@ -1,6 +1,5 @@
 package com.ebock.service;
 
-import com.ebock.converter.ItemConverter;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
@@ -8,10 +7,7 @@ import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.util.List;
 
