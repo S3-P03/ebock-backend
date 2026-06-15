@@ -12,6 +12,8 @@ public class ItemDetailsResponse {
     public int quantity;
     public String category;
     public String wear;
+    public List<String> paymentOptions;
+    public List<String> deliveryOptions;
     public String sellerCip;
     public List<Integer> tags;
 }

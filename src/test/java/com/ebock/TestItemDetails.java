@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 
 @Tag("integration")
@@ -26,6 +27,8 @@ public class TestItemDetails {
                 .body("quantity", is(1))
                 .body("category", is("Sports"))
                 .body("wear", is("Factory New"))
+                .body("paymentOptions", hasItems("Interac", "Cash"))
+                .body("deliveryOptions", hasItems("Livraison", "À récupérer"))
                 .body("sellerCip", is("larj4236"));
     }
 
