@@ -28,7 +28,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @QuarkusTest
 public class ImageServiceTest {
-
     @Inject
     ImageService imageService;
 
