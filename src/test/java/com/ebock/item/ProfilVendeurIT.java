@@ -1,4 +1,4 @@
-package com.ebock;
+package com.ebock.item;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.empty;
 
 @Tag("integration")
 @QuarkusTest
-class TestProfilVendeur {
+class ProfilVendeurIT {
     @Test
     void queryItemExistingUser() {
         given()

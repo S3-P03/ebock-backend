@@ -22,6 +22,8 @@ public class MyBatisExceptionInterceptor {
             cause = cause.getCause();
         }
 
+        LOG.errorf(exception, "Caught exception: %s", exception.getMessage());
+
         if (cause instanceof SQLException sqlException) {
             String sqlState = sqlException.getSQLState();
 
