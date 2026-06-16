@@ -252,4 +252,33 @@ public class ImageServiceTest {
         // Assert
         assertEquals(404, response.getStatus());
     }
+
+    @Test
+    @TestSecurity(user = "test", roles = {"user"})
+    void getImage_NotAFile_return404() {
+        // Arrange
+        // Create the image and mock service
+        Image mockImage = new Image();
+        mockImage.guid = UUID.randomUUID().toString();
+        mockImage.fileExtension = ".png";
+        mockImage.originalFilename = "idk";
+        String filename = mockImage.guid + mockImage.fileExtension;
+
+        // Mock return of the mapper
+        Mockito.when(imageMapper.getImageFromGuid(mockImage.guid)).thenReturn(mockImage);
+
+        // Fake the file return
+        Path fakePath = Path.of("idk/" + mockImage.guid + ".png");
+        Mockito.when(imageStorageService.getPath(Mockito.anyString())).thenReturn(fakePath);
+
+        // Fake file validity
+        Mockito.when(imageStorageService.exists(fakePath)).thenReturn(true);
+        Mockito.when(imageStorageService.isRegularFile(fakePath)).thenReturn(false);
+
+        // Act
+        Response response = imageService.getImage(mockImage.guid);
+
+        // Assert
+        assertEquals(404, response.getStatus());
+    }
 }
