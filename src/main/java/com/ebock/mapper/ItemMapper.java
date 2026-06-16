@@ -1,5 +1,7 @@
 package com.ebock.mapper;
 
+import com.ebock.business.Item;
+import com.ebock.business.Wear;
 import com.ebock.dto.response.item.ItemResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -11,4 +13,5 @@ public interface ItemMapper {
     //tous les items pas archived du vendeur
     List<ItemResponse> getAllItemsSeller(@Param("cip") String cip);
     List<ItemResponse> getPaginatedItem(@Param("pageNumber") int pageNumber, @Param("pageSize") int pageSize);
+    void insert(@Param("item") Item item);
 }

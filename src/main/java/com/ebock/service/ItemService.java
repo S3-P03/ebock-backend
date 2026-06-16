@@ -1,13 +1,20 @@
 package com.ebock.service;
 
+import com.ebock.business.Item;
+import com.ebock.converter.ItemConverter;
+import com.ebock.dto.payload.item.ItemInsertPayload;
+import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
+import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
@@ -17,9 +24,14 @@ import java.util.List;
 public class ItemService {
     @Inject
     ItemMapper itemMapper;
-
+    @Inject
+    ItemTagMapper itemTagMapper;
     @Inject
     UserMapper userMapper;
+    @Inject
+    ItemConverter itemConverter;
+    @Context
+    SecurityContext securityContext;
 
     @GET
     @Path("/list/{pageNumber}")
@@ -43,5 +55,22 @@ public class ItemService {
         if(userMapper.findUserByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
+    }
+
+    @POST
+    @Path("/insert")
+    @Authenticated
+    public ItemInsertResponse insert(ItemInsertPayload itemInsertPayload){
+        Item item = itemConverter.toBusiness(itemInsertPayload);
+        String cip = this.securityContext.getUserPrincipal().getName();
+        item.sellerCip = cip;
+
+        itemMapper.insert(item);
+
+        if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
+            itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
+        }
+
+        return itemConverter.toInsertResponse(item);
     }
 }
