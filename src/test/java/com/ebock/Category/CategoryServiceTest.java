@@ -1,10 +1,11 @@
-package com.ebock.service;
+package com.ebock.Category;
 
 import com.ebock.business.Category;
 import com.ebock.converter.CategoryConverter;
-import com.ebock.dto.response.category.CategoryPayload;
+import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
+import com.ebock.service.CategoryService;
 import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

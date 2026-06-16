@@ -1,4 +1,4 @@
-package com.ebock;
+package com.ebock.item;
 
 import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.Tag;
@@ -10,7 +10,7 @@ import static org.hamcrest.CoreMatchers.is;
 
 @Tag("integration")
 @QuarkusTest
-public class TestItemDetails {
+public class ItemDetailsIT {
 
     @Test
     void queryItemDetailsExistingItem() {

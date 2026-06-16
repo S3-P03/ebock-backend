@@ -1,9 +1,10 @@
-package com.ebock.service;
+package com.ebock.item;
 
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
+import com.ebock.service.ItemService;
 import jakarta.ws.rs.NotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
