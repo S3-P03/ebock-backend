@@ -51,8 +51,8 @@ class ImageIT {
     }
 
     @Test
-    @TestSecurity(user = "testUser", roles = {"user"})
-    void uploadFile_ValidMultipart_Returns200AndGuid() {
+    @TestSecurity(user = "test", roles = {"etudiant"})
+    void uploadFile_Valid_Returns200AndGuid() {
         // Arrange
         Mockito.doNothing().when(imageMapper).insert(Mockito.any(Image.class));
 
@@ -73,7 +73,43 @@ class ImageIT {
     }
 
     @Test
-    @TestSecurity(user = "testUser", roles = {"user"})
+    void uploadFile_NotAuth_Return401() {
+        given()
+                .multiPart("file", validFile, "image/jpeg")
+                .when()
+                .post("/image/upload")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    @TestSecurity(user = "test", roles = {"etudiant"})
+    void uploadFile_MissingFile_Return500() {
+        given()
+                .contentType(ContentType.MULTIPART)
+                .when()
+                .post("/image/upload")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    @TestSecurity(user = "test", roles = {"etudiant"})
+    void uploadFile_InvalidMimeType_Return400() throws IOException {
+        File badFile = File.createTempFile("bad", ".txt");
+        Files.writeString(badFile.toPath(), "123");
+
+        given().multiPart("file", badFile, "text/plain")
+                .when()
+                .post("/image/upload")
+                .then()
+                .statusCode(400);
+
+        badFile.delete();
+    }
+
+    @Test
+    @TestSecurity(user = "test", roles = {"etudiant"})
     void getImage_ValidGuid_Returns200AndFile() throws IOException {
         // Arrange
         String guid = UUID.randomUUID().toString();
@@ -101,6 +137,49 @@ class ImageIT {
                 .asByteArray();
 
         assertArrayEquals(new byte[]{0x01, 0x02, 0x03}, responseBytes);
+    }
+
+    @Test
+    void getImage_InvalidGuidFormat_Return400() {
+        given()
+                .pathParam("guid", "/../../idk")
+                .when()
+                .get("/image/{guid}")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    void getImage_ValidGuidButNotInDatabase_Return404() {
+        String guid = UUID.randomUUID().toString();
+        Mockito.when(imageMapper.getImageFromGuid(guid)).thenReturn(null);
+
+        given()
+                .pathParam("guid", guid)
+                .when()
+                .get("/image/{guid}")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    void getImage_MissingDisk_Return404() {
+        String guid = UUID.randomUUID().toString();
+
+        Image mockImage = new Image();
+        mockImage.guid = guid;
+        mockImage.fileExtension = ".jpg";
+        mockImage.originalFilename = "idk.jpg";
+
+        Mockito.when(imageMapper.getImageFromGuid(guid)).thenReturn(mockImage);
+
+        given()
+                .pathParam("guid", guid)
+                .when()
+                .get("/image/{guid}")
+                .then()
+                .statusCode(404)
+                .body(is("Image not found"));
     }
 
 }
