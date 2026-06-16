@@ -1,4 +1,4 @@
-package com.ebock.dto.response.tag;
+package com.ebock.dto.request.tag;
 
 public class TagPayload {
     public String name;

@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.Tag;
 import com.ebock.converter.TagConverter;
-import com.ebock.dto.response.tag.TagPayload;
+import com.ebock.dto.request.tag.TagPayload;
 import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.TagMapper;
 import io.quarkus.security.Authenticated;
