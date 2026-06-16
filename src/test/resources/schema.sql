@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict GjmqMxbl9GssftMeQlNDHDkZKGEEEM0q8p57L65bAwEIceUCNCe4gSndAHG33mY
+\restrict NmNl6UmyjJqtJackX4j2a7JO8rBqNPC8G1FRPChi6PK5RWJaNQoyedzI95Sfhbr
 
 -- Dumped from database version 13.23 (Debian 13.23-1.pgdg13+1)
 -- Dumped by pg_dump version 13.23 (Debian 13.23-1.pgdg13+1)
@@ -690,6 +690,8 @@ COPY ebock.favorite (cip, item_id, added_at) FROM stdin;
 --
 
 COPY ebock.image_ (guid, original_filename, file_extension, created_at) FROM stdin;
+bbcdf6e1-214b-4caf-b5fa-27f5fa980e1e	S2_APP7_Classes.png	.png	2026-06-15 20:38:12.559624
+f8c86541-0847-4fdd-a95a-fa3560364c4f	chalk.jpg	.jpg	2026-06-15 20:41:31.859791
 \.
 
 
@@ -722,6 +724,8 @@ COPY ebock.item_del_option (item_id, delivery_optn_id) FROM stdin;
 --
 
 COPY ebock.item_image (item_id, guid, displayorder) FROM stdin;
+4	bbcdf6e1-214b-4caf-b5fa-27f5fa980e1e	1
+4	f8c86541-0847-4fdd-a95a-fa3560364c4f	2
 \.
 
 
@@ -1394,5 +1398,5 @@ ALTER TABLE ONLY ebock.user_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict GjmqMxbl9GssftMeQlNDHDkZKGEEEM0q8p57L65bAwEIceUCNCe4gSndAHG33mY
+\unrestrict NmNl6UmyjJqtJackX4j2a7JO8rBqNPC8G1FRPChi6PK5RWJaNQoyedzI95Sfhbr
 

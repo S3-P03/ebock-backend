@@ -2,7 +2,10 @@ package com.ebock.image;
 
 import com.ebock.business.Image;
 import com.ebock.dto.request.image.ImagePayload;
+import com.ebock.dto.response.image.ItemImageResponse;
+import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ImageMapper;
+import com.ebock.mapper.ItemMapper;
 import com.ebock.service.IImageStorageService;
 import com.ebock.service.ImageService;
 import io.quarkus.test.InjectMock;
@@ -10,6 +13,7 @@ import io.quarkus.test.Mock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 import org.junit.jupiter.api.Test;
@@ -18,13 +22,15 @@ import io.quarkus.test.InjectMock;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import org.mockito.Mockito;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 public class ImageServiceTest {
@@ -33,6 +39,9 @@ public class ImageServiceTest {
 
     @InjectMock
     ImageMapper imageMapper;
+
+    @InjectMock
+    ItemMapper itemMapper;
 
     @InjectMock
     IImageStorageService imageStorageService;
@@ -252,5 +261,30 @@ public class ImageServiceTest {
 
         // Assert
         assertEquals(404, response.getStatus());
+    }
+
+    @Test
+    void testItemImagesReturnsListOfImages() {
+        // arrange
+        List<ItemImageResponse> expected = new ArrayList<>();
+        //Contenu dans la liste pour éviter le flag en cas de liste vide ou null
+        expected.add(new ItemImageResponse());
+        when(itemMapper.findItemById(1)).thenReturn(1);
+        when(imageMapper.getItemImages(1)).thenReturn(expected);
+
+        // act
+        List<ItemImageResponse> result = imageService.getItemImages(1);
+
+        // assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testItemImagesUnknownItemThrowsNotFound() {
+        // arrange
+        when(itemMapper.findItemById(1)).thenReturn(0);
+
+        // act and assert
+        assertThrows(NotFoundException.class, () -> imageService.getItemImages(1));
     }
 }
