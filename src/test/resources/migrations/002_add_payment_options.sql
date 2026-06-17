@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS ebock.payment_option(
    UNIQUE(name)
 );
 
-CREATE TABLE ebock.item_paym_option(
+CREATE TABLE IF NOT EXISTS ebock.item_paym_option(
    item_id INTEGER,
    payment_optn_id INTEGER,
    PRIMARY KEY(item_id, payment_optn_id),
