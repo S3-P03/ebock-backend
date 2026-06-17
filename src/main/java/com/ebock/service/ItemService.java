@@ -79,7 +79,7 @@ public class ItemService {
     @Transactional
     public ItemInsertResponse insert(@Valid ItemPayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
-        String cip = this.securityContext.getUserPrincipal().getName();
+        String cip = securityContext.getUserPrincipal().getName();
         item.sellerCip = cip;
 
         itemMapper.insert(item);
@@ -102,19 +102,26 @@ public class ItemService {
     public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
         item.itemId = itemId;
-        String cip = this.securityContext.getUserPrincipal().getName();
+        String cip = securityContext.getUserPrincipal().getName();
+        Item existingItem = itemMapper.findById(itemId);
 
-        int rowsAffected = itemMapper.update(cip, item);
-
-        if(rowsAffected == 0){
+        if(existingItem == null){
             throw new NotFoundException("Item not found");
         }
 
+        if(!Objects.equals(existingItem.sellerCip, cip)){
+            throw new ForbiddenException("Not your item");
+        }
+
+        itemMapper.update(cip, item);
+
+        // Update tags
         itemTagMapper.deleteByItemId(itemId);
         if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
             itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
         }
 
+        // Update images
         itemImageMapper.deleteByItemId(itemId);
         if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
             itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
