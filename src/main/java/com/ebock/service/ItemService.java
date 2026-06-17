@@ -6,6 +6,7 @@ import com.ebock.dto.payload.item.ItemInsertPayload;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
+import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
@@ -25,6 +26,8 @@ import java.util.List;
 public class ItemService {
     @Inject
     ItemMapper itemMapper;
+    @Inject
+    ItemImageMapper itemImageMapper;
     @Inject
     ItemTagMapper itemTagMapper;
     @Inject
@@ -67,8 +70,6 @@ public class ItemService {
         return this.itemMapper.getItemDetails(id);
     }
 
-
-
     @POST
     @Path("/insert")
     @Authenticated
@@ -81,6 +82,10 @@ public class ItemService {
 
         if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
             itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
+        }
+
+        if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
+            itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
         }
 
         return itemConverter.toInsertResponse(item);
