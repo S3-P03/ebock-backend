@@ -1,6 +1,6 @@
 package com.ebock.mapper;
 
-import com.ebock.dto.payload.item.ItemImageElement;
+import com.ebock.dto.request.item.ItemImageElement;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 

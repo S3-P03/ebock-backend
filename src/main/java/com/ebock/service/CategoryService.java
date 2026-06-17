@@ -8,6 +8,7 @@ import com.ebock.mapper.CategoryMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -35,9 +36,9 @@ public class CategoryService {
     }
 
     @POST
-    @Path("/insert/")
+    @Path("/insert")
     @Authenticated
-    public CategoryResponse insert(CategoryPayload payload) {
+    public CategoryResponse insert(@Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         this.categoryMapper.insert(category);
         return categoryConverter.toResponse(category);
@@ -46,7 +47,7 @@ public class CategoryService {
     @PUT
     @Path("/update/{id}")
     @Authenticated
-    public CategoryResponse update(@PathParam("id") int id, CategoryPayload payload) {
+    public CategoryResponse update(@PathParam("id") int id, @Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         category.categoryId = id;
         this.categoryMapper.update(category);

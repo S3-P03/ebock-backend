@@ -16,5 +16,7 @@ public interface ItemMapper {
     List<ItemResponse> getPaginatedItem(@Param("pageNumber") int pageNumber, @Param("pageSize") int pageSize);
     ItemDetailsResponse getItemDetails(@Param("id") int id);
     int getItemCountById(@Param("id") int id);
+    Item findById(@Param("id") int id);
     void insert(@Param("item") Item item);
+    void update(@Param("itemId") int itemId, @Param("item") Item item);
 }

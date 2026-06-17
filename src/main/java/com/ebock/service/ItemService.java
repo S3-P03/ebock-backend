@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.payload.item.ItemInsertPayload;
+import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
@@ -13,12 +13,15 @@ import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
+import java.util.Objects;
 
 @Path("/item")
 @Produces(MediaType.APPLICATION_JSON)
@@ -73,12 +76,40 @@ public class ItemService {
     @POST
     @Path("/insert")
     @Authenticated
-    public ItemInsertResponse insert(ItemInsertPayload itemInsertPayload){
+    @Transactional
+    public ItemInsertResponse insert(@Valid ItemPayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
         String cip = this.securityContext.getUserPrincipal().getName();
         item.sellerCip = cip;
 
         itemMapper.insert(item);
+
+        if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
+            itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
+        }
+
+        if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
+            itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
+        }
+
+        return itemConverter.toInsertResponse(item);
+    }
+
+    @PUT
+    @Path("/update/{id}")
+    @Authenticated
+    @Transactional
+    public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
+        Item item = itemConverter.toBusiness(itemInsertPayload);
+        String cip = this.securityContext.getUserPrincipal().getName();
+        Item existingItem = itemMapper.findById(itemId);
+
+        // Check the item is his
+        if(!Objects.equals(existingItem.sellerCip, cip)){
+            throw new jakarta.ws.rs.ForbiddenException("You are not the seller");
+        }
+
+        itemMapper.update(itemId, item);
 
         if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
             itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);

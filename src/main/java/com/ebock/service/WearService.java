@@ -8,6 +8,7 @@ import com.ebock.mapper.WearMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -34,9 +35,9 @@ public class WearService {
     }
 
     @POST
-    @Path("/insert/")
+    @Path("/insert")
     @Authenticated
-    public WearResponse insert(WearPayload payload) {
+    public WearResponse insert(@Valid WearPayload payload) {
         Wear wear = wearConverter.toBusiness(payload);
         this.wearMapper.insert(wear);
         return wearConverter.toResponse(wear);
@@ -45,7 +46,7 @@ public class WearService {
     @PUT
     @Path("/update/{id}")
     @Authenticated
-    public WearResponse update(@PathParam("id") int id, WearPayload payload) {
+    public WearResponse update(@PathParam("id") int id, @Valid WearPayload payload) {
         Wear wear = wearConverter.toBusiness(payload);
         wear.wearId = id;
         this.wearMapper.update(wear);

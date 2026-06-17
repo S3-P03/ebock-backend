@@ -8,6 +8,7 @@ import com.ebock.mapper.TagMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -35,9 +36,9 @@ public class TagService {
     }
 
     @POST
-    @Path("/insert/")
+    @Path("/insert")
     @Authenticated
-    public TagResponse insert(TagPayload payload) {
+    public TagResponse insert(@Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         this.tagMapper.insert(tag);
         return tagConverter.toResponse(tag);
@@ -46,7 +47,7 @@ public class TagService {
     @PUT
     @Path("/update/{id}")
     @Authenticated
-    public TagResponse update(@PathParam("id") int id, TagPayload payload) {
+    public TagResponse update(@PathParam("id") int id, @Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         tag.tagId = id;
         this.tagMapper.update(tag);
