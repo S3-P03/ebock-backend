@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_UPLOAD_DIRECTORY = '/tmp/uploads'
+    }
+
     stages {
 
         stage('Checkout') {
