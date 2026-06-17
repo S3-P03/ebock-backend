@@ -5,6 +5,7 @@ import com.ebock.dto.request.image.ImagePayload;
 import com.ebock.dto.response.image.ItemImageResponse;
 import com.ebock.mapper.ImageMapper;
 import com.ebock.mapper.ItemMapper;
+import com.ebock.dto.response.image.ImageUploadResponse;
 import io.quarkus.security.Authenticated;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.PermitAll;
@@ -14,7 +15,6 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -40,16 +40,16 @@ public class ImageService {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @Authenticated
-    public Response uploadFile(ImagePayload data) {
+    public ImageUploadResponse uploadFile(ImagePayload data) {
         if (data.file == null) {
-            return Response.status(Response.Status.BAD_REQUEST).entity("No file").build();
+            throw new IllegalArgumentException("No file");
         }
 
         try {
             String mimeType = imageStorageService.detectMimeType(data.file.uploadedFile());
             if(mimeType == null){
                 imageStorageService.deleteFile(data.file.uploadedFile());
-                return Response.status(Response.Status.UNSUPPORTED_MEDIA_TYPE).build();
+                throw new UnsupportedOperationException("Invalid file");
             }
 
             String guid = UUID.randomUUID().toString();
@@ -66,14 +66,18 @@ public class ImageService {
             image.guid = guid;
             imageMapper.insert(image);
 
-            return Response.ok(Map.of("guid", guid)).build();
+            // Return
+            ImageUploadResponse imageUploadResponse = new ImageUploadResponse();
+            imageUploadResponse.guid = guid;
+
+            return imageUploadResponse;
         } catch (IOException e) {
             // Cleanup the file
             try {
                 imageStorageService.deleteFile(data.file.uploadedFile());
             } catch (IOException ignored) {}
 
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Upload failed").build();
+            throw new RuntimeException("Upload failed", e);
         }
     }
 

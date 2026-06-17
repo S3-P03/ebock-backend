@@ -6,6 +6,7 @@ import com.ebock.dto.response.image.ItemImageResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ImageMapper;
 import com.ebock.mapper.ItemMapper;
+import com.ebock.dto.response.image.ImageUploadResponse;
 import com.ebock.service.IImageStorageService;
 import com.ebock.service.ImageService;
 import io.quarkus.test.InjectMock;
@@ -64,10 +65,11 @@ public class ImageServiceTest {
         Mockito.when(imageStorageService.detectMimeType(fakePath)).thenReturn("image/jpeg");
 
         // Act
-        Response response = imageService.uploadFile(payload);
+        ImageUploadResponse response = imageService.uploadFile(payload);
 
         // Assert
-        assertEquals(200, response.getStatus());
+        assertNotNull(response);
+        assertFalse(response.guid.isEmpty());
 
         Mockito.verify(imageStorageService, Mockito.times(1))
                 .moveFile(Mockito.eq(fakePath), Mockito.endsWith(".jpg"));
@@ -94,10 +96,11 @@ public class ImageServiceTest {
         Mockito.when(imageStorageService.detectMimeType(fakePath)).thenReturn("image/png");
 
         // Act
-        Response response = imageService.uploadFile(payload);
+        ImageUploadResponse response = imageService.uploadFile(payload);
 
         // Assert
-        assertEquals(200, response.getStatus());
+        assertNotNull(response);
+        assertFalse(response.guid.isEmpty());
 
         Mockito.verify(imageStorageService, Mockito.times(1))
                 .moveFile(Mockito.eq(fakePath), Mockito.endsWith(".png"));
@@ -108,7 +111,7 @@ public class ImageServiceTest {
 
     @Test
     @TestSecurity(user = "test", roles = {"user"})
-    void uploadFile_FormatInvalide_return415() throws IOException {
+    void uploadFile_FormatInvalide_throwException() throws IOException {
         // Arrange
         // Create and mock payload data
         FileUpload mockFileUpload = Mockito.mock(FileUpload.class);
@@ -123,11 +126,10 @@ public class ImageServiceTest {
 
         Mockito.when(imageStorageService.detectMimeType(fakePath)).thenReturn(null);
 
-        // Act
-        Response response = imageService.uploadFile(payload);
-
-        // Assert
-        assertEquals(415, response.getStatus());
+        // Act and assert
+        assertThrows(UnsupportedOperationException.class, () -> {
+            imageService.uploadFile(payload);
+        });
 
         Mockito.verify(imageStorageService, Mockito.times(1))
                 .deleteFile(Mockito.eq(fakePath));
@@ -141,11 +143,10 @@ public class ImageServiceTest {
         ImagePayload payload = new ImagePayload();
         payload.file = null;
 
-        // Act
-        Response response = imageService.uploadFile(payload);
-
-        // Assert
-        assertEquals(400, response.getStatus());
+        // Act and assert
+        assertThrows(IllegalArgumentException.class, () -> {
+            imageService.uploadFile(payload);
+        });
     }
 
     @Test
@@ -165,11 +166,10 @@ public class ImageServiceTest {
 
         Mockito.when(imageStorageService.detectMimeType(Mockito.any())).thenThrow(new IOException("Erreur ben random"));
 
-        // Act
-        Response response = imageService.uploadFile(payload);
-
-        // Assert
-        assertEquals(500, response.getStatus());
+        // Act and assert
+        assertThrows(RuntimeException.class, () -> {
+            imageService.uploadFile(payload);
+        });
 
         Mockito.verify(imageStorageService, Mockito.times(1)).deleteFile(Mockito.eq(fakePath));
     }
@@ -185,12 +185,13 @@ public class ImageServiceTest {
         mockImage.originalFilename = "idk";
         String filename = mockImage.guid + mockImage.fileExtension;
 
-        // Mock return of the service
+        // Mock return of the mapper
         Mockito.when(imageMapper.getImageFromGuid(mockImage.guid)).thenReturn(mockImage);
 
         // Fake the file return
         Path fakePath = Path.of("idk/" + mockImage.guid + ".png");
-        Mockito.when(imageStorageService.getPath(Mockito.anyString())).thenReturn(fakePath);
+
+        Mockito.when(imageStorageService.getPath(mockImage.guid + ".png")).thenReturn(fakePath);
 
         // Fake file validity
         Mockito.when(imageStorageService.exists(fakePath)).thenReturn(true);
@@ -224,7 +225,7 @@ public class ImageServiceTest {
         // Arrange
         String uuid = UUID.randomUUID().toString();
 
-        // Mock return of the service
+        // Mock return of the mapper
         Mockito.when(imageMapper.getImageFromGuid(uuid)).thenReturn(null);
 
         // Act
@@ -245,7 +246,7 @@ public class ImageServiceTest {
         mockImage.originalFilename = "idk";
         String filename = mockImage.guid + mockImage.fileExtension;
 
-        // Mock return of the service
+        // Mock return of the mapper
         Mockito.when(imageMapper.getImageFromGuid(mockImage.guid)).thenReturn(mockImage);
 
         // Fake the file return
@@ -255,6 +256,34 @@ public class ImageServiceTest {
         // Fake file validity
         Mockito.when(imageStorageService.exists(fakePath)).thenReturn(false);
         Mockito.when(imageStorageService.isRegularFile(fakePath)).thenReturn(true);
+
+        // Act
+        Response response = imageService.getImage(mockImage.guid);
+
+        // Assert
+        assertEquals(404, response.getStatus());
+    }
+
+    @TestSecurity(user = "test", roles = {"user"})
+    void getImage_NotAFile_return404() {
+        // Arrange
+        // Create the image and mock service
+        Image mockImage = new Image();
+        mockImage.guid = UUID.randomUUID().toString();
+        mockImage.fileExtension = ".png";
+        mockImage.originalFilename = "idk";
+        String filename = mockImage.guid + mockImage.fileExtension;
+
+        // Mock return of the mapper
+        Mockito.when(imageMapper.getImageFromGuid(mockImage.guid)).thenReturn(mockImage);
+
+        // Fake the file return
+        Path fakePath = Path.of("idk/" + mockImage.guid + ".png");
+        Mockito.when(imageStorageService.getPath(Mockito.anyString())).thenReturn(fakePath);
+
+        // Fake file validity
+        Mockito.when(imageStorageService.exists(fakePath)).thenReturn(true);
+        Mockito.when(imageStorageService.isRegularFile(fakePath)).thenReturn(false);
 
         // Act
         Response response = imageService.getImage(mockImage.guid);
