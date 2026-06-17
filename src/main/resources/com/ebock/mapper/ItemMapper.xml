@@ -61,10 +61,10 @@
         <where>
             NOT i.sold AND NOT i.archived
             <if test="filters != null and filters.minPrice != null">
-                AND i.price &gt;= #{filters.minPrice}
+                AND i.price::numeric &gt;= #{filters.minPrice}
             </if>
             <if test="filters != null and filters.maxPrice != null">
-                AND #{filters.maxPrice} &gt;= i.price
+                AND #{filters.maxPrice} &gt;= i.price::numeric
             </if>
             <if test="filters != null and filters.listCategoryId != null and filters.listCategoryId.size() > 0">
                 AND i.category_id IN
@@ -88,6 +88,28 @@
         it.tag_id
         FROM PaginatedItems p
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
+        LEFT JOIN ebock.item_del_option ido ON p.item_id = ido.item_id
+        LEFT JOIN ebock.item_paym_option ipo ON p.item_id = ipo.item_id
+        <where>
+            <if test="filters != null and filters.listTagId != null and filters.listTagId.size() > 0">
+                AND it.tag_id IN
+                <foreach item="id" collection="filters.listTagId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="filters != null and filters.listDeliveryId != null and filters.listDeliveryId.size() > 0">
+                AND ido.delivery_optn_id IN
+                <foreach item="id" collection="filters.listDeliveryId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+            <if test="filters != null and filters.listPaymentId != null and filters.listPaymentId.size() > 0">
+                AND ipo.payment_optn_id IN
+                <foreach item="id" collection="filters.listPaymentId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
         ORDER BY p.item_id;
     </select>
 
