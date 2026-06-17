@@ -298,7 +298,7 @@ public class ImageServiceTest {
         List<ItemImageResponse> expected = new ArrayList<>();
         //Contenu dans la liste pour éviter le flag en cas de liste vide ou null
         expected.add(new ItemImageResponse());
-        when(itemMapper.findItemById(1)).thenReturn(1);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
         when(imageMapper.getItemImages(1)).thenReturn(expected);
 
         // act
@@ -311,7 +311,7 @@ public class ImageServiceTest {
     @Test
     void testItemImagesUnknownItemThrowsNotFound() {
         // arrange
-        when(itemMapper.findItemById(1)).thenReturn(0);
+        when(itemMapper.getItemCountById(1)).thenReturn(0);
 
         // act and assert
         assertThrows(NotFoundException.class, () -> imageService.getItemImages(1));

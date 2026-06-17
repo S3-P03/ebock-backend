@@ -115,7 +115,7 @@
           AND NOT i.archived;
     </select>
 
-    <select id="findItemById" resultType="int">
+    <select id="getItemCountById" resultType="int">
         SELECT COUNT(*)
         FROM ebock.item i
         WHERE i.item_id = #{id};

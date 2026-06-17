@@ -125,7 +125,7 @@ public class ImageService {
     @Blocking
     @Produces(MediaType.APPLICATION_JSON)
     public List<ItemImageResponse> getItemImages(@PathParam("id") int id) {
-        if(itemMapper.findItemById(id) == 0)
+        if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
 
         List<ItemImageResponse> images = imageMapper.getItemImages(id);

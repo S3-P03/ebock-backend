@@ -50,7 +50,7 @@ public class ItemService {
     @Path("/{id}")
     @PermitAll
     public ItemDetailsResponse itemDetails(@PathParam("id") int id) {
-        if(itemMapper.findItemById(id) == 0)
+        if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
         return this.itemMapper.getItemDetails(id);
     }

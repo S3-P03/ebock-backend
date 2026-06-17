@@ -48,7 +48,7 @@ public class ItemServiceTest {
     void testItemDetailsReturnsItemInformation() {
         // arrange
         ItemDetailsResponse expected = new ItemDetailsResponse();
-        when(itemMapper.findItemById(1)).thenReturn(1);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
         when(itemMapper.getItemDetails(1)).thenReturn(expected);
 
         // act
