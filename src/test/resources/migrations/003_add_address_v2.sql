@@ -3,14 +3,14 @@ BEGIN;
 ALTER TABLE ebock.user_
 DROP COLUMN IF EXISTS address;
 
-CREATE TABLE ebock.province(
+CREATE TABLE  IF NOT EXISTS ebock.province(
    province_code VARCHAR(2),
    province_name VARCHAR(30) NOT NULL,
    PRIMARY KEY(province_code),
    UNIQUE(province_name)
 );
 
-CREATE TABLE ebock.address(
+CREATE TABLE  IF NOT EXISTS ebock.address(
 	address_id SERIAL,
 	civic_number INT NOT NULL,
 	appt_number INT,

@@ -1,6 +1,6 @@
 BEGIN;
 
-CREATE TABLE ebock.payment_option(
+CREATE TABLE IF NOT EXISTS ebock.payment_option(
    payment_optn_id SERIAL,
    name VARCHAR(50) NOT NULL,
    PRIMARY KEY(payment_optn_id),
