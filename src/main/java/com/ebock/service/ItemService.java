@@ -1,6 +1,8 @@
 package com.ebock.service;
 
 import com.ebock.dto.response.item.ItemDetailsResponse;
+import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
@@ -22,17 +24,17 @@ public class ItemService {
     @Inject
     UserMapper userMapper;
 
-    @GET
+    @POST
     @Path("/list/{pageNumber}")
     @PermitAll
-    public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber) {
+    public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber, FilterItemPayload filterItemPayload) {
         int pageSize = 25;
 
         if (pageNumber < 1) {
             throw new BadRequestException("pageNumber must be >= 1");
         }
 
-        return this.itemMapper.getPaginatedItem(pageNumber, pageSize);
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload);
     }
 
     @GET
@@ -41,7 +43,7 @@ public class ItemService {
     public List<ItemResponse> cipStorefront(
             @PathParam("cip") String cip
     ) {
-        if(userMapper.findUserByCip(cip) == 0)
+        if (userMapper.findUserByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }
