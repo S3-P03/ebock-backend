@@ -11,4 +11,5 @@ public class ItemInsertPayload {
     public int categoryId;
     public int wearId;
     public List<Integer> tagList;
+    public List<ItemImageElement> imageList;
 }
