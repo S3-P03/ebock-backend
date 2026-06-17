@@ -101,20 +101,21 @@ public class ItemService {
     @Transactional
     public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
+        item.itemId = itemId;
         String cip = this.securityContext.getUserPrincipal().getName();
-        Item existingItem = itemMapper.findById(itemId);
 
-        // Check the item is his
-        if(!Objects.equals(existingItem.sellerCip, cip)){
-            throw new jakarta.ws.rs.ForbiddenException("You are not the seller");
+        int rowsAffected = itemMapper.update(cip, item);
+
+        if(rowsAffected == 0){
+            throw new NotFoundException("Item not found");
         }
 
-        itemMapper.update(itemId, item);
-
+        itemTagMapper.deleteByItemId(itemId);
         if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
             itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
         }
 
+        itemImageMapper.deleteByItemId(itemId);
         if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
             itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
         }

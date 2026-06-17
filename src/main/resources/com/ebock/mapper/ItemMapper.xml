@@ -134,4 +134,16 @@
                 #{item.categoryId}, #{item.wearId}, #{item.sellerCip})
     </insert>
 
+    <update id="update">
+        update ebock.item set
+                              name=#{item.name},
+                              description=#{item.description},
+                              price=#{item.price},
+                              updated_at=now(),
+                              quantity=#{item.quantity},
+                              category_id=#{item.categoryId},
+                              wear_id=#{item.wearId}
+        where item_id = #{item.itemId} and seller_cip = #{sellerCip}
+    </update>
+
 </mapper>
