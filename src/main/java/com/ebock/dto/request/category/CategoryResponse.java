@@ -1,4 +1,4 @@
-package com.ebock.dto.response.category;
+package com.ebock.dto.request.category;
 
 public class CategoryResponse {
     public int categoryId;
