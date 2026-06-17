@@ -22,8 +22,6 @@ SET row_security = off;
 -- Name: ebock; Type: SCHEMA; Schema: -; Owner: postgres
 --
 
-DROP SCHEMA IF EXISTS ebock CASCADE;
-
 CREATE SCHEMA ebock;
 
 
