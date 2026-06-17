@@ -2,8 +2,10 @@ package com.ebock.service;
 
 import com.ebock.business.Image;
 import com.ebock.dto.request.image.ImagePayload;
-import com.ebock.dto.response.image.ImageUploadResponse;
+import com.ebock.dto.response.image.ItemImageResponse;
 import com.ebock.mapper.ImageMapper;
+import com.ebock.mapper.ItemMapper;
+import com.ebock.dto.response.image.ImageUploadResponse;
 import io.quarkus.security.Authenticated;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.annotation.security.PermitAll;
@@ -13,6 +15,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +23,10 @@ import java.util.UUID;
 public class ImageService {
     @Inject
     ImageMapper imageMapper;
+
+    @Inject
+    ItemMapper itemMapper;
+
     @Inject
     IImageStorageService imageStorageService;
 
@@ -110,5 +117,23 @@ public class ImageService {
                 .type(mimeType)
                 .header("Content-Disposition", "inline; filename=\"" + safeDownloadName + "\"")
                 .build();
+    }
+
+    @GET
+    @Path("/forItem/{id}")
+    @PermitAll
+    @Blocking
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<ItemImageResponse> getItemImages(@PathParam("id") int id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+
+        List<ItemImageResponse> images = imageMapper.getItemImages(id);
+
+        if (images == null || images.isEmpty()) {
+            throw new NotFoundException("Images not found");
+        }
+
+        return images;
     }
 }

@@ -20,6 +20,28 @@
         </collection>
     </resultMap>
 
+    <resultMap id="ItemDetailsResponseMap" type="com.ebock.dto.response.item.ItemDetailsResponse">
+        <id property="itemId" column="item_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="price" column="price"/>
+        <result property="addedAt" column="added_at"/>
+        <result property="quantity" column="quantity"/>
+        <result property="category" column="category_name"/>
+        <result property="wear" column="wear_name"/>
+        <result property="sellerCip" column="seller_cip"/>
+        <result property="lastName" column="last_name"/>
+        <collection property="paymentOptions" ofType="java.lang.String" notNullColumn="payment_option">
+            <result column="payment_option"/>
+        </collection>
+        <collection property="deliveryOptions" ofType="java.lang.String" notNullColumn="delivery_option">
+            <result column="delivery_option"/>
+        </collection>
+        <collection property="tags" ofType="java.lang.Integer" notNullColumn="tag_id">
+            <result column="tag_id"/>
+        </collection>
+    </resultMap>
+
     <select id="getPaginatedItem" resultMap="ItemResponseMap">
         <bind name="offset" value="(pageNumber - 1) * pageSize" />
         WITH PaginatedItems AS (
@@ -51,7 +73,7 @@
         SELECT i.item_id,
                i.name,
                i.description,
-               i.price,
+               i.price::numeric AS price,
                i.added_at,
                i.updated_at,
                i.quantity,
@@ -65,6 +87,38 @@
              LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
         WHERE i.seller_cip = #{cip}
           AND NOT i.archived;
+    </select>
+
+    <select id="getItemDetails" resultMap="ItemDetailsResponseMap">
+        SELECT i.item_id,
+               i.name,
+               i.description,
+               i.price::numeric AS price,
+               i.added_at,
+               i.updated_at,
+               i.quantity,
+               c.name as category_name,
+               w.name as wear_name,
+               i.seller_cip,
+               p.name as payment_option,
+               d.name as delivery_option,
+               it.tag_id
+        FROM ebock.item i
+                 INNER JOIN ebock.category c ON i.category_id = c.category_id
+                 INNER JOIN ebock.wear w ON i.wear_id = w.wear_id
+                 LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
+                 LEFT JOIN ebock.item_paym_option ip ON ip.item_id = i.item_id
+                 LEFT JOIN ebock.payment_option p ON ip.payment_optn_id = p.payment_optn_id
+                 LEFT JOIN ebock.item_del_option id ON id.item_id = i.item_id
+                 LEFT JOIN ebock.delivery_option d ON id.delivery_optn_id = d.delivery_optn_id
+        WHERE i.item_id = #{id}
+          AND NOT i.archived;
+    </select>
+
+    <select id="getItemCountById" resultType="int">
+        SELECT COUNT(*)
+        FROM ebock.item i
+        WHERE i.item_id = #{id};
     </select>
 
 </mapper>

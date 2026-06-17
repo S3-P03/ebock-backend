@@ -1,5 +1,6 @@
 package com.ebock.service;
 
+import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
@@ -44,4 +45,15 @@ public class ItemService {
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }
+
+    @GET
+    @Path("/{id}")
+    @PermitAll
+    public ItemDetailsResponse itemDetails(@PathParam("id") int id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        return this.itemMapper.getItemDetails(id);
+    }
+
+
 }
