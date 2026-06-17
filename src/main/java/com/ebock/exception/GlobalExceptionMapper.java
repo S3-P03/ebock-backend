@@ -11,7 +11,27 @@ import java.util.Map;
 import static io.quarkus.arc.ComponentsProvider.LOG;
 
 @ApplicationScoped
-public class MyBatisExceptionInterceptor {
+public class GlobalExceptionMapper {
+
+    @ServerExceptionMapper(IllegalArgumentException.class)
+    public Response handleIllegalArgument(IllegalArgumentException exception) {
+        LOG.warnf("Bad request: %s", exception.getMessage());
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(Map.of(
+                    "error", "Bad Request",
+                    "message", exception.getMessage()
+            )).build();
+    }
+
+    @ServerExceptionMapper(UnsupportedOperationException.class)
+    public Response handleUnsupportedOperation(UnsupportedOperationException exception) {
+        LOG.warnf("Unsupported operation: %s", exception.getMessage());
+        return Response.status(Response.Status.BAD_REQUEST)
+            .entity(Map.of(
+                    "error", "Bad Request",
+                    "message", exception.getMessage()
+            )).build();
+    }
 
     @ServerExceptionMapper(PersistenceException.class)
     public Response handleMyBatisPersistenceError(PersistenceException exception) {
@@ -21,6 +41,8 @@ public class MyBatisExceptionInterceptor {
         while (cause != null && !(cause instanceof SQLException)) {
             cause = cause.getCause();
         }
+
+        LOG.errorf(exception, "Caught exception: %s", exception.getMessage());
 
         if (cause instanceof SQLException sqlException) {
             String sqlState = sqlException.getSQLState();

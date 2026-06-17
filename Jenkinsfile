@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        IMAGE_UPLOAD_DIRECTORY = '/tmp/uploads'
+    }
+
     stages {
 
         stage('Checkout') {
@@ -32,13 +36,13 @@ pipeline {
                     -h postgres \
                     -U postgres \
                     -d testdb \
-                    -c "DROP SCHEMA ebock CASCADE;"
+                    -c "DROP SCHEMA IF EXISTS ebock CASCADE;"
 
                 PGPASSWORD=postgres psql \
                     -h postgres \
                     -U postgres \
                     -d testdb \
-                    -c "CREATE SCHEMA ebock;"
+                    -c "CREATE SCHEMA IF NOT EXISTS ebock;"
                 '''
             }
         }

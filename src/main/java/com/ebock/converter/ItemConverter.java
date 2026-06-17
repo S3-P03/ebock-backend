@@ -3,6 +3,7 @@ package com.ebock.converter;
 import com.ebock.business.Item;
 import com.ebock.dto.payload.item.ItemInsertPayload;
 import com.ebock.dto.response.item.ItemInsertResponse;
+import com.ebock.dto.response.image.ItemImageResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import org.mapstruct.Mapper;
 

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.ImageMapper">
+
+    <resultMap id="ItemImageResponseMap" type="com.ebock.dto.response.image.ItemImageResponse">
+        <id property="itemId" column="item_id"/>
+        <id property="guid" column="guid"/>
+        <result property="displayOrder" column="displayorder"/>
+    </resultMap>
+
+    <select id="getImageFromGuid" resultType="com.ebock.business.Image">
+        select *
+        from ebock.image_
+        where guid=#{guid}
+    </select>
+
+    <select id="getItemImages" resultMap="ItemImageResponseMap">
+        SELECT ii.item_id,
+               im.guid,
+               ii.displayorder
+        FROM ebock.image_ im
+        INNER JOIN ebock.item_image ii ON ii.guid = im.guid
+        WHERE ii.item_id=#{id}
+    </select>
+
+    <insert id="insert">
+        insert into ebock.image_ (guid, original_filename, file_extension, created_at) values (#{image.guid}, #{image.originalFilename}, #{image.fileExtension}, now())
+    </insert>
+</mapper>

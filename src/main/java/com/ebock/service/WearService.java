@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.Wear;
 import com.ebock.converter.WearConverter;
-import com.ebock.dto.response.wear.WearPayload;
+import com.ebock.dto.request.wear.WearPayload;
 import com.ebock.dto.response.wear.WearResponse;
 import com.ebock.mapper.WearMapper;
 import io.quarkus.security.Authenticated;

@@ -1,7 +1,7 @@
 package com.ebock.converter;
 
 import com.ebock.business.Category;
-import com.ebock.dto.response.category.CategoryPayload;
+import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import org.mapstruct.Mapper;
 

@@ -4,6 +4,7 @@ import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
 import com.ebock.dto.payload.item.ItemInsertPayload;
 import com.ebock.dto.response.item.ItemInsertResponse;
+import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
@@ -56,6 +57,17 @@ public class ItemService {
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }
+
+    @GET
+    @Path("/{id}")
+    @PermitAll
+    public ItemDetailsResponse itemDetails(@PathParam("id") int id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        return this.itemMapper.getItemDetails(id);
+    }
+
+
 
     @POST
     @Path("/insert")
