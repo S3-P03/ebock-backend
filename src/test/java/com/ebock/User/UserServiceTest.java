@@ -136,7 +136,7 @@ public class UserServiceTest {
         // arrange
         User user = new User();
         SellerUserResponse expected = new SellerUserResponse();
-        when(userMapper.findUserByCip("larj4236")).thenReturn(1);
+        when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(userMapper.getUserInfo("larj4236")).thenReturn(user);
         when(userConverter.toSellerUserResponse(user)).thenReturn(expected);
 
@@ -150,7 +150,7 @@ public class UserServiceTest {
     @Test
     void testCipStorefrontUnknownCipThrowsNotFound() {
         // arrange
-        when(userMapper.findUserByCip("abcd1234")).thenReturn(0);
+        when(userMapper.getUserCountByCip("abcd1234")).thenReturn(0);
 
         // act and assert
         assertThrows(NotFoundException.class, () -> userService.cipStorefront("abcd1234"));

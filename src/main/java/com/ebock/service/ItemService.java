@@ -10,7 +10,6 @@ import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
-import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -59,7 +58,7 @@ public class ItemService {
     public List<ItemResponse> cipStorefront(
             @PathParam("cip") String cip
     ) {
-        if(userMapper.findUserByCip(cip) == 0)
+        if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }
