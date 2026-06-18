@@ -14,6 +14,7 @@
         <result property="wearId" column="wear_id"/>
         <result property="firstName" column="first_name"/>
         <result property="lastName" column="last_name"/>
+        <result property="favorite" column="favorite"/>
 
         <collection property="tags" ofType="java.lang.Integer" notNullColumn="tag_id">
             <result column="tag_id"/>
@@ -55,9 +56,14 @@
         i.wear_id,
         i.seller_cip,
         u.first_name,
-        u.last_name
+        u.last_name,
+        CASE
+            WHEN f.added_at IS NULL THEN FALSE
+            WHEN f.added_at IS NOT NULL THEN TRUE
+        END AS item_is_favorite
         FROM ebock.item i
         INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
+        LEFT JOIN ebock.favorite f ON i.item_id = f.item_id AND f.cip = #{cip}
         <where>
             NOT i.sold AND NOT i.archived
             <if test="filters != null and filters.minPrice != null">
@@ -65,6 +71,9 @@
             </if>
             <if test="filters != null and filters.maxPrice != null">
                 AND #{filters.maxPrice} &gt;= i.price::numeric
+            </if>
+            <if test='filters != null and filters.favorite != null and filters.favorite and cip != ""'>
+                AND f.added_at IS NOT NULL
             </if>
             <if test="filters != null and filters.listCategoryId != null and filters.listCategoryId.size() > 0">
                 AND i.category_id IN

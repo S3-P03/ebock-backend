@@ -16,5 +16,6 @@ public interface ItemMapper {
     int getItemCountById(@Param("id") int id);
     List<ItemResponse> getPaginatedItem(@Param("pageNumber") int pageNumber,
                                         @Param("pageSize") int pageSize,
-                                        @Param("filters") FilterItemPayload filterItemPayload);
+                                        @Param("filters") FilterItemPayload filterItemPayload,
+                                        @Param("cip") String cip);
 }

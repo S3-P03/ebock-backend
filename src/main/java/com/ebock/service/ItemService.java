@@ -10,7 +10,11 @@ import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityScheme;
 
 import java.util.List;
 
@@ -24,17 +28,27 @@ public class ItemService {
     @Inject
     UserMapper userMapper;
 
+    @Context
+    SecurityContext securityContext;
+
     @POST
     @Path("/list/{pageNumber}")
     @PermitAll
+    @SecurityRequirement(name = "SecurityScheme")
     public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber, FilterItemPayload filterItemPayload) {
         int pageSize = 25;
 
         if (pageNumber < 1) {
             throw new BadRequestException("pageNumber must be >= 1");
         }
+        String cip = "";
+        try{
+            cip = securityContext.getUserPrincipal().getName();
+        } catch (Exception e){}
 
-        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload);
+        System.out.println("*" + cip + "*");
+
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload, cip);
     }
 
     @GET
