@@ -1,5 +1,7 @@
 package com.ebock.mapper;
 
+import com.ebock.business.Item;
+import com.ebock.business.Wear;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.response.item.ItemResponse;
@@ -18,4 +20,7 @@ public interface ItemMapper {
                                         @Param("pageSize") int pageSize,
                                         @Param("filters") FilterItemPayload filterItemPayload,
                                         @Param("cip") String cip);
+    Item findById(@Param("id") int id);
+    void insert(@Param("item") Item item);
+    void update(@Param("sellerCip") String sellerCip, @Param("item") Item item);
 }

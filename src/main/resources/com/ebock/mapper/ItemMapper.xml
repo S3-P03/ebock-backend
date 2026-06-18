@@ -179,10 +179,35 @@
           AND NOT i.archived;
     </select>
 
+    <select id="findById" resultType="com.ebock.business.Item">
+        SELECT *
+        FROM ebock.item i
+        WHERE i.item_id = #{id};
+    </select>
+
     <select id="getItemCountById" resultType="int">
         SELECT COUNT(*)
         FROM ebock.item i
         WHERE i.item_id = #{id};
     </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="item.itemId">
+        insert into ebock.item (name, description, price, added_at, updated_at, sold, quantity,
+                                archived, category_id, wear_id, seller_cip)
+        values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity}, false,
+                #{item.categoryId}, #{item.wearId}, #{item.sellerCip})
+    </insert>
+
+    <update id="update">
+        update ebock.item set
+                              name=#{item.name},
+                              description=#{item.description},
+                              price=#{item.price},
+                              updated_at=now(),
+                              quantity=#{item.quantity},
+                              category_id=#{item.categoryId},
+                              wear_id=#{item.wearId}
+        where item_id = #{item.itemId} and seller_cip = #{sellerCip}
+    </update>
 
 </mapper>
