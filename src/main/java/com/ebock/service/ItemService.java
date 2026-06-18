@@ -34,7 +34,7 @@ public class ItemService {
     @POST
     @Path("/list/{pageNumber}")
     @PermitAll
-    @SecurityRequirement(name = "SecurityScheme")
+    //@SecurityRequirement(name = "SecurityScheme")
     public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber, FilterItemPayload filterItemPayload) {
         int pageSize = 25;
 

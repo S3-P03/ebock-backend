@@ -58,8 +58,8 @@
         u.first_name,
         u.last_name,
         CASE
-            WHEN f.added_at IS NULL THEN FALSE
-            WHEN f.added_at IS NOT NULL THEN TRUE
+        WHEN f.added_at IS NULL THEN FALSE
+        WHEN f.added_at IS NOT NULL THEN TRUE
         END AS item_is_favorite
         FROM ebock.item i
         INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
@@ -87,6 +87,33 @@
                     #{id}
                 </foreach>
             </if>
+            <if test="filters != null and filters.listTagId != null and filters.listTagId.size() > 0">
+            AND EXISTS (SELECT 1
+                        FROM ebock.tag_item ti
+                        WHERE ti.item_id = i.item_id AND ti.tag_id IN
+                        <foreach item="id" collection="filters.listTagId" open="(" separator="," close=")">
+                            #{id}
+                        </foreach>
+            )
+            </if>
+            <if test="filters != null and filters.listDeliveryId != null and filters.listDeliveryId.size() > 0">
+            AND EXISTS (SELECT 1
+            FROM ebock.item_del_option ido
+            WHERE ido.item_id = i.item_id AND ido.delivery_optn_id IN
+                <foreach item="id" collection="filters.listDeliveryId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            )
+            </if>
+            <if test="filters != null and filters.listPaymentId != null and filters.listPaymentId.size() > 0">
+            AND EXISTS (SELECT 1
+            FROM ebock.item_paym_option ipo
+            WHERE ipo.item_id = i.item_id AND ipo.payment_optn_id IN
+                <foreach item="id" collection="filters.listPaymentId" open="(" separator="," close=")">
+                    #{id}
+                </foreach>
+            )
+            </if>
         </where>
 
         ORDER BY i.item_id
@@ -97,28 +124,6 @@
         it.tag_id
         FROM PaginatedItems p
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
-        LEFT JOIN ebock.item_del_option ido ON p.item_id = ido.item_id
-        LEFT JOIN ebock.item_paym_option ipo ON p.item_id = ipo.item_id
-        <where>
-            <if test="filters != null and filters.listTagId != null and filters.listTagId.size() > 0">
-                AND it.tag_id IN
-                <foreach item="id" collection="filters.listTagId" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
-            <if test="filters != null and filters.listDeliveryId != null and filters.listDeliveryId.size() > 0">
-                AND ido.delivery_optn_id IN
-                <foreach item="id" collection="filters.listDeliveryId" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
-            <if test="filters != null and filters.listPaymentId != null and filters.listPaymentId.size() > 0">
-                AND ipo.payment_optn_id IN
-                <foreach item="id" collection="filters.listPaymentId" open="(" separator="," close=")">
-                    #{id}
-                </foreach>
-            </if>
-        </where>
         ORDER BY p.item_id;
     </select>
 

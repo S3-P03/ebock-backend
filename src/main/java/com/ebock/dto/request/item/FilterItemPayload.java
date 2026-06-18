@@ -8,12 +8,12 @@ public class FilterItemPayload {
     BigDecimal minPrice;
     BigDecimal maxPrice;
     int maxDistance;
-    Boolean favorite; //à ajouterrrr
+    Boolean favorite;
     ArrayList<Integer> listCategoryId;
-    ArrayList<Integer> listTagId; //plusieurs dans item
+    ArrayList<Integer> listTagId;
     ArrayList<Integer> listWearId;
-    ArrayList<Integer> listDeliveryId; //plusieurs dans item
-    ArrayList<Integer> listPaymentId; //plusieurs dans item
+    ArrayList<Integer> listDeliveryId;
+    ArrayList<Integer> listPaymentId;
 
     public BigDecimal getMinPrice() {
         return minPrice;
