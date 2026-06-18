@@ -102,6 +102,7 @@ public class ItemService {
     public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
         item.itemId = itemId;
+
         String cip = securityContext.getUserPrincipal().getName();
         Item existingItem = itemMapper.findById(itemId);
 
