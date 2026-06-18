@@ -2,18 +2,24 @@ package com.ebock.service;
 
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 
+import java.util.List;
 import java.util.Objects;
 
 @Path("/user")
@@ -28,6 +34,8 @@ public class UserService {
     UserConverter userConverter;
     @Inject
     JsonWebToken jwt;
+    @Inject
+    Keycloak keycloak;
 
     @GET
     @Path("/me")
@@ -69,5 +77,54 @@ public class UserService {
         if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+    }
+
+    @PUT
+    @Path("/changepassword")
+    @Authenticated
+    public void changeUserPassword(UserChangePasswordPayload payload) {
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(payload.newPassword);
+        credential.setTemporary(false);
+
+        List<UserRepresentation> users = keycloak.realm("ebock").users().search(cip, true);
+
+        if (users.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+
+        String userId = users.getFirst().getId();
+        keycloak.realm("ebock")
+                .users()
+                .get(userId)
+                .resetPassword(credential);
+    }
+
+    @PUT
+    @Path("/edit")
+    @Authenticated
+    @Transactional
+    public void edit(UserChangePasswordPayload payload) {
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(payload.newPassword);
+        credential.setTemporary(false);
+
+        List<UserRepresentation> users = keycloak.realm("ebock").users().search(cip, true);
+
+        if (users.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+
+        String userId = users.getFirst().getId();
+        keycloak.realm("ebock")
+                .users()
+                .get(userId)
+                .resetPassword(credential);
     }
 }
