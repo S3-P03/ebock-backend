@@ -14,6 +14,7 @@ import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -47,15 +48,10 @@ public class MessageService {
     @Authenticated
     public RoomDetailsResponse getRoomInformation(@PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
-        if(userMapper.getUserCountByCip(cip) == 0)
-            throw new NotFoundException("Connected user not found");
-        if(messageMapper.getRoomCountById(id) == 0)
-            throw new NotFoundException("Room not found");
+        validateUser(cip);
+        validateRoom(id);
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
-
-        // Check if one of the 2 users in the room is the one making the request
-        if (!roomResponse.sellerCip.equals(cip) && !roomResponse.buyerCip.equals(cip))
-            throw new UnauthorizedException("Access not authorized");
+        validateAuthorization(cip, roomResponse);
 
         return roomResponse;
     }
@@ -65,27 +61,21 @@ public class MessageService {
     @Authenticated
     public List<MessageResponse> listRoomMessages(@PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
-        if(userMapper.getUserCountByCip(cip) == 0)
-            throw new NotFoundException("Connected user not found");
-        if(messageMapper.getRoomCountById(id) == 0)
-            throw new NotFoundException("Room not found");
+        validateUser(cip);
+        validateRoom(id);
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
-
-        // Check if one of the 2 users in the room is the one making the request
-        if (!roomResponse.sellerCip.equals(cip) && !roomResponse.buyerCip.equals(cip))
-            throw new UnauthorizedException("Access not authorized");
-
+        validateAuthorization(cip, roomResponse);
         return this.messageMapper.getAllRoomMessages(id);
     }
 
     @POST
     @Path("/room")
     @Authenticated
-    public RoomResponse post(RoomPayload room) {
+    public RoomResponse post(@Valid RoomPayload room) {
         String cip = this.securityContext.getUserPrincipal().getName();
-        if(userMapper.getUserCountByCip(cip) == 0 || !cip.equals(room.buyerCip))
+        if (userMapper.getUserCountByCip(cip) == 0 || !cip.equals(room.buyerCip))
             throw new NotFoundException("Connected user not found");
-        if(itemMapper.getItemCountById(room.itemId) == 0)
+        if (itemMapper.getItemCountById(room.itemId) == 0)
             throw new NotFoundException("Item not fonud");
         return messageMapper.createRoom(room.itemId, cip);
     }
@@ -94,20 +84,30 @@ public class MessageService {
     @Path("/room/{id}")
     @Transactional
     @Authenticated
-    public MessageResponse post(MessagePayload message, @PathParam("id") int id) {
+    public MessageResponse post(@Valid MessagePayload message, @PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
-        if(userMapper.getUserCountByCip(cip) == 0)
-            throw new NotFoundException("Connected user not found");
-        if(messageMapper.getRoomCountById(id) == 0)
-            throw new NotFoundException("Room not found");
+        validateUser(cip);
+        validateRoom(id);
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
-
-        // Check if one of the 2 users in the room is the one connected
-        if (!roomResponse.sellerCip.equals(cip) && !roomResponse.buyerCip.equals(cip))
-            throw new UnauthorizedException("Access not authorized");
-
+        validateAuthorization(cip, roomResponse);
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
         messageBroadcaster.broadcast(saved);
         return saved;
+    }
+
+    void validateUser(String cip) {
+        if (userMapper.getUserCountByCip(cip) == 0)
+            throw new NotFoundException("Connected user not found");
+    }
+
+    void validateRoom(int id) {
+        if (messageMapper.getRoomCountById(id) == 0)
+            throw new NotFoundException("Room not found");
+    }
+
+    void validateAuthorization(String cip, RoomDetailsResponse roomResponse) {
+        // Check if one of the 2 users in the room is the one connected
+        if (!roomResponse.sellerCip.equals(cip) && !roomResponse.buyerCip.equals(cip))
+            throw new UnauthorizedException("Access not authorized");
     }
 }
