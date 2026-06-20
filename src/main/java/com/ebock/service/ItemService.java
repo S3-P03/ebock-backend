@@ -44,9 +44,6 @@ public class ItemService {
     @Context
     SecurityContext securityContext;
 
-    @Context
-    SecurityContext securityContext;
-
     @POST
     @Path("/list/{pageNumber}")
     @PermitAll
