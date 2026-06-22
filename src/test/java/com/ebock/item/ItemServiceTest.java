@@ -2,6 +2,7 @@ package com.ebock.item;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.request.item.ItemImageElement;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
@@ -11,6 +12,7 @@ import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.ItemService;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.SecurityContext;
@@ -53,17 +55,71 @@ public class ItemServiceTest {
 
     @Test
     void testListReturnsListOfItems() {
-        /*
         // arrange
+        String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(1, 25)).thenReturn(expected);
+        FilterItemPayload filterItemPayload = new FilterItemPayload();
+        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, requestCip)).thenReturn(expected);
+
+        // Mock request cip
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
 
         // act
-        List<ItemResponse> result = itemService.list(1);
+        List<ItemResponse> result = itemService.list(1, filterItemPayload);
 
         // assert
         assertEquals(expected, result);
-        */
+    }
+
+    @Test
+    void testList_ThrowsBadRequest_WhenNegativePageNumber(){
+        //arrange
+        FilterItemPayload filterItemPayload = new FilterItemPayload();
+
+        //act and assert
+        assertThrows(BadRequestException.class, () -> {
+            itemService.list(-1, filterItemPayload);
+        });
+    }
+
+    @Test
+    void testList_Works_WhenPayloadNoFilters(){
+        // arrange
+        String requestCip = "pele3157";
+        List<ItemResponse> expected = new ArrayList<>();
+        FilterItemPayload filterItemPayload = new FilterItemPayload();
+        filterItemPayload.favorite = false;
+        filterItemPayload.listCategoryId = List.of();
+        filterItemPayload.listTagId = List.of();
+        filterItemPayload.listWearId = List.of();
+        filterItemPayload.listDeliveryId = List.of();
+        filterItemPayload.listPaymentId = List.of();
+        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, requestCip)).thenReturn(expected);
+
+        // Mock request cip
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+
+        // act
+        List<ItemResponse> result = itemService.list(1, filterItemPayload);
+
+        // assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testList_Works_WhenNotConnected(){
+        //arrange
+        List<ItemResponse> expected = new ArrayList<>();
+        FilterItemPayload filterItemPayload = new FilterItemPayload();
+        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, "")).thenReturn(expected);
+
+        //act
+        List<ItemResponse> result = itemService.list(1, filterItemPayload);
+
+        // assert
+        assertEquals(expected, result);
     }
 
     @Test
