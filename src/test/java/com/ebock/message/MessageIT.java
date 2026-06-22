@@ -149,5 +149,52 @@ public class MessageIT {
                 .statusCode(401);
     }
 
+    @Test
+    @TestSecurity(user = "pele3157")
+    void queryUserRoomsReturnsRooms() {
+        Principal mockPrincipal = mock(Principal.class);
+        when(mockPrincipal.getName()).thenReturn("pele3157");
+        when(securityContext.getUserPrincipal()).thenReturn(mockPrincipal);
+        given()
+                .when()
+                .get("/message/room")
+                .then()
+                .statusCode(200)
+                .body("[0].roomId", is(6))
+                .body("[0].itemId", is(5))
+                .body("[0].itemName", is("Prise de laptop"))
+                .body("[0].sellerCip", is("pele3157"))
+                .body("[0].sellerFirstName", is("Éliane"))
+                .body("[0].sellerLastName", is("Pelletier"))
+                .body("[0].buyerCip", is("larj4236"))
+                .body("[0].buyerFirstName", is("Jean-Félix"))
+                .body("[0].buyerLastName", is("Larouche"));
+    }
 
+    @Test
+    @TestSecurity(user = "bela3439")
+    void queryUserRoomsEmptyReturnsEmptyList() {
+        Principal mockPrincipal = mock(Principal.class);
+        when(mockPrincipal.getName()).thenReturn("bela3439");
+        when(securityContext.getUserPrincipal()).thenReturn(mockPrincipal);
+        given()
+                .when()
+                .get("/message/room")
+                .then()
+                .statusCode(200)
+                .body(is("[]"));
+    }
+
+    @Test
+    @TestSecurity(user = "bad1234")
+    void queryUserRoomsNonExistingUserReturns404() {
+        Principal mockPrincipal = mock(Principal.class);
+        when(mockPrincipal.getName()).thenReturn("bad1234");
+        when(securityContext.getUserPrincipal()).thenReturn(mockPrincipal);
+        given()
+                .when()
+                .get("/message/room")
+                .then()
+                .statusCode(404);
+    }
 }

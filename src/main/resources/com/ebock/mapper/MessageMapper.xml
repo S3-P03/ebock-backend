@@ -45,6 +45,23 @@
         ORDER BY timestamp_ ASC
     </select>
 
+    <select id="getAllUserRooms" resultMap="RoomDetailsResponseMap">
+        SELECT o.order_id as room_id,
+               o.item_id as item_id,
+               i.name as item_name,
+               i.seller_cip as seller_cip,
+               u.first_name as seller_first_name,
+               u.last_name as seller_last_name,
+               o.buyer_cip as buyer_cip,
+               u2.first_name as buyer_first_name,
+               u2.last_name as buyer_last_name
+        FROM ebock.order_ o
+                 INNER JOIN ebock.item i ON i.item_id = o.item_id
+                 INNER JOIN ebock.user_ u ON u.cip = i.seller_cip
+                 INNER JOIN ebock.user_ u2 ON u2.cip = o.buyer_cip
+        WHERE u.cip = #{cip} OR u2.cip = #{cip}
+    </select>
+
     <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">
         SELECT o.order_id as room_id,
                o.item_id as item_id,
