@@ -59,7 +59,7 @@ public class ItemService {
     public List<ItemResponse> cipStorefront(
             @PathParam("cip") String cip
     ) {
-        if(userMapper.findUserByCip(cip) == 0)
+        if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return this.itemMapper.getAllItemsSeller(cip);
     }

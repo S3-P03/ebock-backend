@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.MessageMapper">
+
+    <resultMap id="MessageResponseMap" type="com.ebock.dto.response.message.MessageResponse">
+        <id property="roomId" column="room_id"/>
+        <result property="content" column="content"/>
+        <result property="senderCip" column="sender_cip"/>
+        <result property="senderFirstName" column="sender_first_name"/>
+        <result property="senderLastName" column="sender_last_name"/>
+        <result property="sentAt" column="timestamp_"/>
+    </resultMap>
+
+    <resultMap id="RoomResponseMap" type="com.ebock.dto.response.message.RoomResponse">
+        <id property="roomId" column="room_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="sellerCip" column="seller_cip"/>
+        <result property="buyerCip" column="buyer_cip"/>
+    </resultMap>
+
+    <resultMap id="RoomDetailsResponseMap" type="com.ebock.dto.response.message.RoomDetailsResponse">
+        <id property="roomId" column="room_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="itemName" column="item_name"/>
+        <result property="sellerCip" column="seller_cip"/>
+        <result property="sellerFirstName" column="seller_first_name"/>
+        <result property="sellerLastName" column="seller_last_name"/>
+        <result property="buyerCip" column="buyer_cip"/>
+        <result property="buyerFirstName" column="buyer_first_name"/>
+        <result property="buyerLastName" column="buyer_last_name"/>
+    </resultMap>
+
+    <select id="getAllRoomMessages" resultMap="MessageResponseMap">
+        SELECT om.order_id as room_id,
+               om.content as content,
+               om.sender_cip as sender_cip,
+               u.first_name as sender_first_name,
+               u.last_name as sender_last_name,
+               om.timestamp_ as timestamp_
+        FROM ebock.order_message om
+        INNER JOIN ebock.user_ u ON om.sender_cip = u.cip
+        WHERE om.order_id = #{id}
+        ORDER BY timestamp_ ASC
+    </select>
+
+    <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">
+        SELECT o.order_id as room_id,
+               o.item_id as item_id,
+               i.name as item_name,
+               i.seller_cip as seller_cip,
+               u.first_name as seller_first_name,
+               u.last_name as seller_last_name,
+               o.buyer_cip as buyer_cip,
+               u2.first_name as buyer_first_name,
+               u2.last_name as buyer_last_name
+        FROM ebock.order_ o
+        INNER JOIN ebock.item i ON i.item_id = o.item_id
+        INNER JOIN ebock.user_ u ON u.cip = i.seller_cip
+        INNER JOIN ebock.user_ u2 ON u2.cip = o.buyer_cip
+        WHERE o.order_id = #{id}
+    </select>
+
+    <select id="getRoomCountById" resultType="int">
+        SELECT COUNT(*)
+        FROM ebock.order_ o
+        WHERE o.order_id = #{id};
+    </select>
+
+    <select id="createRoom" resultMap="RoomResponseMap">
+            INSERT INTO ebock.order_ (created_at, updated_at, quantity, item_id, buyer_cip)
+            VALUES (NOW(), NOW(), 1, #{itemId}, #{cip})
+            RETURNING
+                order_id as room_id,
+                item_id,
+                buyer_cip,
+            (
+                SELECT seller_cip
+                FROM ebock.item
+                WHERE ebock.item.item_id = ebock.order_.item_id
+            );
+    </select>
+
+    <select id="insert" resultMap="MessageResponseMap">
+        INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip)
+        VALUES (NOW(), #{content}, false, #{roomId}, #{cip})
+        RETURNING
+            order_id as room_id,
+            content,
+            sender_cip,
+            (
+                SELECT
+                u.first_name as sender_first_name
+                FROM ebock.user_ u
+                WHERE u.cip = ebock.order_message.sender_cip
+            ),
+            (
+                SELECT
+                u.last_name as sender_last_name
+                FROM ebock.user_ u
+                WHERE u.cip = ebock.order_message.sender_cip
+            ),
+            timestamp_;
+    </select>
+</mapper>

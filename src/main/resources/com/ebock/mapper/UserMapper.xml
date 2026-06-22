@@ -34,7 +34,7 @@
         WHERE cip = #{cip}
     </update>
 
-    <select id="findUserByCip" resultType="int">
+    <select id="getUserCountByCip" resultType="int">
         SELECT COUNT(*)
         FROM ebock.user_ u
         WHERE u.cip = #{cip};

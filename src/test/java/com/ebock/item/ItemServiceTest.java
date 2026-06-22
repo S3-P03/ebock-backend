@@ -82,7 +82,7 @@ public class ItemServiceTest {
     void testCipStorefrontReturnsAssociatedItems() {
         // arrange
         List<ItemResponse> expected = new ArrayList<>();
-        when(userMapper.findUserByCip("larj4236")).thenReturn(1);
+        when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(itemMapper.getAllItemsSeller("larj4236")).thenReturn(expected);
 
         // act
@@ -95,7 +95,7 @@ public class ItemServiceTest {
     @Test
     void testCipStorefrontUnknownCipThrowsNotFound() {
         // arrange
-        when(userMapper.findUserByCip("abcd1234")).thenReturn(0);
+        when(userMapper.getUserCountByCip("abcd1234")).thenReturn(0);
 
         // act and assert
         assertThrows(NotFoundException.class, () -> itemService.cipStorefront("abcd1234"));
