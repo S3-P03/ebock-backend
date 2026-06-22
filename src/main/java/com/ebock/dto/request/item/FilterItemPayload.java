@@ -1,19 +1,25 @@
 package com.ebock.dto.request.item;
 
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.List;
 
 
 public class FilterItemPayload {
-    BigDecimal minPrice;
-    BigDecimal maxPrice;
+    @Min(0)
+    public BigDecimal minPrice;
+    @Min(0)
+    public BigDecimal maxPrice;
     int maxDistance;
-    Boolean favorite;
-    ArrayList<Integer> listCategoryId;
-    ArrayList<Integer> listTagId;
-    ArrayList<Integer> listWearId;
-    ArrayList<Integer> listDeliveryId;
-    ArrayList<Integer> listPaymentId;
+    @NotNull
+    public Boolean favorite;
+    public List<Integer> listCategoryId;
+    public List<Integer> listTagId;
+    public List<Integer> listWearId;
+    public List<Integer> listDeliveryId;
+    public List<Integer> listPaymentId;
 
     public BigDecimal getMinPrice() {
         return minPrice;
@@ -31,23 +37,23 @@ public class FilterItemPayload {
         return favorite;
     }
 
-    public ArrayList<Integer> getListCategoryId() {
+    public List<Integer> getListCategoryId() {
         return listCategoryId;
     }
 
-    public ArrayList<Integer> getListTagId() {
+    public List<Integer> getListTagId() {
         return listTagId;
     }
 
-    public ArrayList<Integer> getListWearId() {
+    public List<Integer> getListWearId() {
         return listWearId;
     }
 
-    public ArrayList<Integer> getListDeliveryId() {
+    public List<Integer> getListDeliveryId() {
         return listDeliveryId;
     }
 
-    public ArrayList<Integer> getListPaymentId() {
+    public List<Integer> getListPaymentId() {
         return listPaymentId;
     }
 }
