@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict NmNl6UmyjJqtJackX4j2a7JO8rBqNPC8G1FRPChi6PK5RWJaNQoyedzI95Sfhbr
+\restrict ZbUXJyh0QGXxscWKOb6Q9ThbsGNp2JTugoEBb7lMApBZmZkjcgWSTddllASUNAw
 
 -- Dumped from database version 13.23 (Debian 13.23-1.pgdg13+1)
 -- Dumped by pg_dump version 13.23 (Debian 13.23-1.pgdg13+1)
@@ -765,6 +765,16 @@ System Events
 --
 
 COPY ebock.order_ (order_id, created_at, updated_at, quantity, item_id, buyer_cip) FROM stdin;
+1	2026-06-17 13:19:25.189001	2026-06-17 13:19:25.189001-04	1	4	larj4236
+2	2026-06-17 13:19:42.383485	2026-06-17 13:19:42.383485-04	1	4	larj4236
+3	2026-06-17 13:20:30.012509	2026-06-17 13:20:30.012509-04	1	4	larj4236
+4	2026-06-17 13:21:42.914472	2026-06-17 13:21:42.914472-04	1	4	larj4236
+5	2026-06-17 13:51:21.237211	2026-06-17 13:51:21.237211-04	1	4	larj4236
+6	2026-06-17 13:55:15.742924	2026-06-17 13:55:15.742924-04	1	5	larj4236
+7	2026-06-17 13:56:35.779751	2026-06-17 13:56:35.779751-04	1	5	larj4236
+8	2026-06-18 10:07:26.131096	2026-06-18 10:07:26.131096-04	1	4	larj4236
+9	2026-06-18 10:08:19.955974	2026-06-18 10:08:19.955974-04	1	4	pele3157
+10	2026-06-18 10:10:02.246593	2026-06-18 10:10:02.246593-04	1	4	pele3157
 \.
 
 
@@ -773,6 +783,29 @@ COPY ebock.order_ (order_id, created_at, updated_at, quantity, item_id, buyer_ci
 --
 
 COPY ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) FROM stdin;
+2026-06-17 13:59:05.849555	Salut !	f	6	larj4236
+2026-06-17 14:02:17.389151	Bonjour à vous!	f	6	pele3157
+2026-06-17 14:02:53.56755	J'aimerais acheter cet article, mon ordinateur est à 67% actuellement, je suis cooked	f	6	larj4236
+2026-06-17 14:07:20.450053	Bin je sais pas trop j'ai encore besoin de ma charge...	f	6	pele3157
+2026-06-17 14:16:20.309614	What??	f	6	larj4236
+2026-06-17 14:18:23.760393	3000$ ?	f	6	larj4236
+2026-06-17 14:18:49.337813	J'ai un exam tantôt	f	6	larj4236
+2026-06-17 22:44:08.908649	Je commence a stresser	f	6	larj4236
+2026-06-17 22:47:21.257778	Doooonc???	f	6	larj4236
+2026-06-17 22:48:00.514321	goddam calm down	f	6	pele3157
+2026-06-17 22:50:09.855163	Je ne souhaite pas te le vendre	f	6	pele3157
+2026-06-17 22:52:18.835812	Je ne souhaite pas te le vendre	f	6	pele3157
+2026-06-17 22:52:27.43083	Je ne souhaite pas te le vendre	f	6	pele3157
+2026-06-17 22:53:42.469945	C'est bon j'ai compris	f	6	larj4236
+2026-06-18 09:12:34.132228	Non t'as pas compris	f	6	pele3157
+2026-06-18 09:54:44.600569	Bon matin !	f	6	larj4236
+2026-06-18 09:55:03.857547	shut up	f	6	pele3157
+2026-06-18 09:57:25.689473	fk u je t'ai prêté mon chargeur plein de fois	f	6	larj4236
+2026-06-18 10:09:33.358533	Bonjour !	f	9	pele3157
+2026-06-18 10:09:41.439661	Je suis une grimpeuse avide de V5	f	9	pele3157
+2026-06-18 10:09:47.217989	J'aurais donc besoin de craie	f	9	pele3157
+2026-06-18 10:09:55.10737	Car le problème est clairement soi la craie soit mes souliers	f	9	pele3157
+2026-06-18 14:00:30.200464	toi fk u	f	6	pele3157
 \.
 
 
@@ -860,6 +893,7 @@ herl2700	Léanne	Héroux	herl2700@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.7139
 larj4236	Jean-Félix	Larouche	larj4236@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
 pele3157	Éliane	Pelletier	pele3157@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
 test1234	Utiilisateur	Test	test1234@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
+bouc1234	Cuh	Boucher	bouc1234@usherbrooke.ca	f	\N	t	2026-06-18 12:21:05.966338	2026-06-18 12:21:05.966338-04	1
 \.
 
 
@@ -922,7 +956,7 @@ SELECT pg_catalog.setval('ebock.log__id_seq', 1, false);
 -- Name: order__order_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
 --
 
-SELECT pg_catalog.setval('ebock.order__order_id_seq', 1, false);
+SELECT pg_catalog.setval('ebock.order__order_id_seq', 10, true);
 
 
 --
@@ -1398,5 +1432,5 @@ ALTER TABLE ONLY ebock.user_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict NmNl6UmyjJqtJackX4j2a7JO8rBqNPC8G1FRPChi6PK5RWJaNQoyedzI95Sfhbr
+\unrestrict ZbUXJyh0QGXxscWKOb6Q9ThbsGNp2JTugoEBb7lMApBZmZkjcgWSTddllASUNAw
 

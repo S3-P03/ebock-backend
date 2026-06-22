@@ -66,7 +66,7 @@ public class UserService {
     public SellerUserResponse cipStorefront(
             @PathParam("cip") String cip
     ) {
-        if(userMapper.findUserByCip(cip) == 0)
+        if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
     }

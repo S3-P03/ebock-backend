@@ -15,5 +15,5 @@ public interface UserMapper {
                     @Param("email") String email,
                     @Param("firstName") String firstName,
                     @Param("lastName") String lastName);
-    int findUserByCip(@Param("cip") String cip);
+    int getUserCountByCip(@Param("cip") String cip);
 }
