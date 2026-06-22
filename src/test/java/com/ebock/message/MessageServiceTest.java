@@ -188,7 +188,7 @@ public class MessageServiceTest {
     }
 
     @Test
-    void testPostRoomReturnsCreatedRoom() {
+    void testCreateRoomReturnsCreatedRoom() {
         // arrange
         RoomResponse expected = new RoomResponse();
         RoomPayload payload = new RoomPayload();
@@ -201,13 +201,13 @@ public class MessageServiceTest {
         when(itemMapper.getItemCountById(1)).thenReturn(1);
         when(messageMapper.createRoom(1, "larj4236")).thenReturn(expected);
         // act
-        RoomResponse result = messageService.post(payload);
+        RoomResponse result = messageService.createRoom(payload);
         // assert
         assert(result.getClass().equals(RoomResponse.class));
     }
 
     @Test
-    void testPostRoomUnknownUserThrowsNotFound() {
+    void testCreateRoomUnknownUserThrowsNotFound() {
         // arrange
         RoomPayload payload = new RoomPayload();
 
@@ -215,11 +215,11 @@ public class MessageServiceTest {
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(0);
         // act and assert
-        assertThrows(NotFoundException.class, () -> messageService.post(payload));
+        assertThrows(NotFoundException.class, () -> messageService.createRoom(payload));
     }
 
     @Test
-    void testPostRoomUnknownItemThrowsNotFound() {
+    void testCreateRoomUnknownItemThrowsNotFound() {
         // arrange
         RoomPayload payload = new RoomPayload();
         payload.buyerCip = "larj4236";
@@ -230,7 +230,7 @@ public class MessageServiceTest {
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(itemMapper.getItemCountById(1)).thenReturn(0);
         // act and assert
-        assertThrows(NotFoundException.class, () -> messageService.post(payload));
+        assertThrows(NotFoundException.class, () -> messageService.createRoom(payload));
     }
 
     @Test
@@ -251,7 +251,7 @@ public class MessageServiceTest {
         when(messageMapper.getRoomInformation(1)).thenReturn(roomResponse);
         when(messageMapper.insert("Test", "larj4236", 1)).thenReturn(expected);
         // act
-        MessageResponse result = messageService.post(payload, 1);
+        MessageResponse result = messageService.postMessage(payload, 1);
         // assert
         assert(result.getClass().equals(MessageResponse.class));
     }
@@ -265,7 +265,7 @@ public class MessageServiceTest {
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(0);
         // act and assert
-        assertThrows(NotFoundException.class, () -> messageService.post(payload, 1));
+        assertThrows(NotFoundException.class, () -> messageService.postMessage(payload, 1));
     }
 
     @Test
@@ -278,7 +278,7 @@ public class MessageServiceTest {
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(messageMapper.getRoomCountById(1)).thenReturn(0);
         // act and assert
-        assertThrows(NotFoundException.class, () -> messageService.post(payload, 1));
+        assertThrows(NotFoundException.class, () -> messageService.postMessage(payload, 1));
     }
 
     @Test
@@ -297,6 +297,6 @@ public class MessageServiceTest {
         when(messageMapper.getRoomCountById(1)).thenReturn(1);
         when(messageMapper.getRoomInformation(1)).thenReturn(roomResponse);
         // act and assert
-        assertThrows(UnauthorizedException.class, () -> messageService.post(payload, 1));
+        assertThrows(UnauthorizedException.class, () -> messageService.postMessage(payload, 1));
     }
 }

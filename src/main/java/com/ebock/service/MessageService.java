@@ -71,12 +71,12 @@ public class MessageService {
     @POST
     @Path("/room")
     @Authenticated
-    public RoomResponse post(@Valid RoomPayload room) {
+    public RoomResponse createRoom(@Valid RoomPayload room) {
         String cip = this.securityContext.getUserPrincipal().getName();
         if (userMapper.getUserCountByCip(cip) == 0 || !cip.equals(room.buyerCip))
             throw new NotFoundException("Connected user not found");
         if (itemMapper.getItemCountById(room.itemId) == 0)
-            throw new NotFoundException("Item not fonud");
+            throw new NotFoundException("Item not found");
         return messageMapper.createRoom(room.itemId, cip);
     }
 
@@ -93,7 +93,7 @@ public class MessageService {
     @Path("/room/{id}")
     @Transactional
     @Authenticated
-    public MessageResponse post(@Valid MessagePayload message, @PathParam("id") int id) {
+    public MessageResponse postMessage(@Valid MessagePayload message, @PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
         validateUser(cip);
         validateRoom(id);
