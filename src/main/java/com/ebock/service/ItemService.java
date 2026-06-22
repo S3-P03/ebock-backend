@@ -59,8 +59,6 @@ public class ItemService {
             cip = securityContext.getUserPrincipal().getName();
         } catch (Exception e){}
 
-        System.out.println("*" + cip + "*");
-
         return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload, cip);
     }
 

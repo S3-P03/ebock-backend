@@ -99,12 +99,12 @@
             ) = #{listTagSize}
             </if>
             <if test="filters != null and filters.listDeliveryId != null and filters.listDeliveryId.size() > 0">
-                <bind name="listDeliverySize" value="filters.listDeliveryTag.size()"/>
+                <bind name="listDeliverySize" value="filters.listDeliveryId.size()"/>
                 AND (SELECT count(ido.delivery_optn_id)
-                FROM ebock.item_delivery_option
+                FROM ebock.item_del_option ido
                 WHERE ido.item_id = i.item_id
                 AND ido.delivery_optn_id IN
-                <foreach item="id" collection="filters.listDeliveryTag" open="(" separator="," close=")">
+                <foreach item="id" collection="filters.listDeliveryId" open="(" separator="," close=")">
                     #{id}
                 </foreach>
                 ) = #{listDeliverySize}
