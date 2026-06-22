@@ -80,6 +80,15 @@ public class MessageService {
         return messageMapper.createRoom(room.itemId, cip);
     }
 
+    @GET
+    @Path("/room")
+    @Authenticated
+    public List<RoomDetailsResponse> listUserRooms() {
+        String cip = this.securityContext.getUserPrincipal().getName();
+        validateUser(cip);
+        return messageMapper.getAllUserRooms(cip);
+    }
+
     @POST
     @Path("/room/{id}")
     @Transactional

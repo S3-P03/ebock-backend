@@ -162,6 +162,32 @@ public class MessageServiceTest {
     }
 
     @Test
+    void testListUserRoomsReturnsUserRooms() {
+        // arrange
+        List<RoomDetailsResponse> expected = new ArrayList<>();
+
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("larj4236");
+        when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
+        when(messageMapper.getAllUserRooms("larj4236")).thenReturn(expected);
+        // act
+        List<RoomDetailsResponse> result = messageService.listUserRooms();
+        // assert
+        assert(expected.equals(result));
+    }
+
+    @Test
+    void testListUserRoomsUnknownUserReturnsThrowsNotFound() {
+        // arrange
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("larj4236");
+        when(userMapper.getUserCountByCip("larj4236")).thenReturn(0);
+
+        // act and assert
+        assertThrows(NotFoundException.class, () -> messageService.listRoomMessages(1));
+    }
+
+    @Test
     void testCreateRoomReturnsCreatedRoom() {
         // arrange
         RoomResponse expected = new RoomResponse();

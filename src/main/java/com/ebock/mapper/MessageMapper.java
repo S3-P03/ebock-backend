@@ -12,6 +12,7 @@ import java.util.List;
 public interface MessageMapper {
     List<MessageResponse> getAllRoomMessages(@Param("id") int id);
     RoomDetailsResponse getRoomInformation(@Param("id") int id);
+    List<RoomDetailsResponse> getAllUserRooms(@Param("cip") String cip);
     RoomResponse createRoom(@Param("itemId") int itemId, @Param("cip") String cip);
     MessageResponse insert(@Param("content") String content, @Param("cip") String cip, @Param("roomId") int roomId);
     int getRoomCountById(@Param("id") int id);
