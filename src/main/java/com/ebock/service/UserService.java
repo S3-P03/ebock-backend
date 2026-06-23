@@ -1,11 +1,13 @@
 package com.ebock.service;
 
+import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
+import com.ebock.mapper.AddressMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
@@ -14,7 +16,9 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
@@ -32,6 +36,8 @@ import java.util.Objects;
 public class UserService {
     @Inject
     UserMapper userMapper;
+    @Inject
+    AddressMapper addressMapper;
     @Context
     SecurityContext securityContext;
     @Inject
@@ -40,6 +46,15 @@ public class UserService {
     JsonWebToken jwt;
     @Inject
     Keycloak keycloak;
+
+    @ConfigProperty(name = "keycloak.server-url")
+    String serverUrl;
+    @ConfigProperty(name = "keycloak.realm")
+    String realm;
+    @ConfigProperty(name = "keycloak.client-id")
+    String clientId;
+    @ConfigProperty(name = "keycloak.client-secret")
+    String clientSecret;
 
     @GET
     @Path("/me")
@@ -58,9 +73,7 @@ public class UserService {
         } else if (hasChanged(user, email, firstName, lastName)) {
             // Met à jour le nom de l'utilisateur
             userMapper.updateUser(cip, email, firstName, lastName);
-            user.firstName = firstName;
-            user.lastName = lastName;
-            user.email = email;
+            user = this.userMapper.getUserInfo(cip);
         }
 
         return userConverter.toResponse(user);
@@ -86,59 +99,54 @@ public class UserService {
     @PUT
     @Path("/changepassword")
     @Authenticated
-    public void changeUserPassword(UserChangePasswordPayload payload) {
+    public Response changeUserPassword(UserChangePasswordPayload payload) {
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        try (Keycloak userVerificationClient = KeycloakBuilder.builder()
-                .serverUrl("http://localhost:8180")
-                .realm("ebock")
+        // Verify the old password
+        try (Keycloak verificationClient = KeycloakBuilder.builder()
+                .serverUrl(serverUrl)
+                .realm(realm)
                 .grantType(OAuth2Constants.PASSWORD)
-                .clientId("ebock-backend")
-                .clientSecret("devBackendSecret")
+                .clientId(clientId)
+                .clientSecret(clientSecret)
                 .username(cip)
                 .password(payload.oldPassword)
                 .build()) {
 
-            userVerificationClient.tokenManager().getAccessToken();
+            verificationClient.tokenManager().getAccessToken();
 
         } catch (NotAuthorizedException e) {
-            throw new BadRequestException("Invalid old password provided.");
+            throw new BadRequestException("Invalid old password");
         } catch (Exception e) {
-            throw new InternalServerErrorException("Failed to reach identity provider.");
+            throw new InternalServerErrorException("Error while reaching keycloak");
         }
 
-        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
+        // Find the user
+        String userId = getKeycloakUser(cip).getId();
 
-        if (users.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-
-        String userId = users.getFirst().getId();
-
+        // Reset the password
         CredentialRepresentation credential = new CredentialRepresentation();
         credential.setType(CredentialRepresentation.PASSWORD);
         credential.setValue(payload.newPassword);
         credential.setTemporary(false);
 
-        keycloak.realm("ebock")
+        keycloak.realm(realm)
                 .users()
                 .get(userId)
                 .resetPassword(credential);
+
+        return Response.noContent().build();
     }
 
     @PUT
     @Path("/edit")
     @Authenticated
     @Transactional
-    public void edit(UserEditPayload payload) {
+    public Response edit(UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
-        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
-        if (users.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        UserRepresentation user = users.getFirst();
+        UserRepresentation user = getKeycloakUser(cip);
 
         // Modify first and last name
         boolean isModified = applyNameChanges(user, payload);
@@ -147,7 +155,26 @@ public class UserService {
             persistUser(user);
         }
 
+        // Get the user in the db
+        User userDb = userMapper.getUserInfo(cip);
 
+        Address newAddress = new Address();
+        newAddress.civicNumber = payload.newCivicNumber;
+        newAddress.apptNumber = payload.newApptNumber;
+        newAddress.street = payload.newStreet;
+        newAddress.postalCode = payload.newPostalCode;
+        newAddress.country = payload.newCountry;
+        newAddress.provinceCode = payload.newProvinceCode;
+
+        if(userDb.addressId == null){
+            addressMapper.insert(newAddress);
+            userMapper.updateUserAddress(cip, newAddress.addressId);
+        }else{
+            newAddress.addressId = userDb.addressId;
+            addressMapper.update(newAddress);
+        }
+
+        return Response.ok().build();
     }
 
     /**
@@ -175,16 +202,29 @@ public class UserService {
     }
 
     /**
+     * Get a keycloack user
+     * @param cip of the user
+     * @return user
+     */
+    private UserRepresentation getKeycloakUser(String cip) {
+        List<UserRepresentation> users = keycloak.realm(realm).users().searchByUsername(cip, true);
+        if (users.isEmpty()) {
+            throw new NotFoundException("User not found");
+        }
+        return users.get(0);
+    }
+
+    /**
      * Save the user on keycloack and the db
      * @param user to save
      */
     private void persistUser(UserRepresentation user) {
         try {
-            UserResource userResource = keycloak.realm("ebock").users().get(user.getId());
+            UserResource userResource = keycloak.realm(realm).users().get(user.getId());
             userResource.update(user);
 
             userMapper.updateUser(
-                    user.getId(),
+                    user.getUsername(),
                     user.getEmail(),
                     user.getFirstName(),
                     user.getLastName()

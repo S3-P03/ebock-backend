@@ -34,6 +34,13 @@
         WHERE cip = #{cip}
     </update>
 
+    <update id="updateUserAddress">
+        UPDATE ebock.user_
+        SET addressId = #{addressId},
+            updated_at = now()
+        WHERE cip = #{cip}
+    </update>
+
     <select id="getUserCountByCip" resultType="int">
         SELECT COUNT(*)
         FROM ebock.user_ u

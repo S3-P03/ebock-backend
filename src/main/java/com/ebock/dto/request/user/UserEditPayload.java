@@ -11,9 +11,9 @@ public class UserEditPayload {
     @Size(max=100)
     public String newLastName;
     @Min(1)
-    public Integer newcivicNumber;
+    public Integer newCivicNumber;
     @Min(1)
-    public Integer newapptNumber;
+    public Integer newApptNumber;
     @Size(max=60)
     public String newStreet;
     @Pattern(
