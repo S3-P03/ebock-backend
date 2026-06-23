@@ -5,14 +5,14 @@
 <mapper namespace="com.ebock.mapper.UserMapper">
 
     <select id="getUserInfo" resultType="com.ebock.business.User">
-        select cip,
+        SELECT cip,
                first_name,
                last_name,
                email,
                profile_picture_guid,
                created_at
-        from ebock.user_
-        where cip = #{cip}
+        FROM ebock.user_
+        WHERE cip = #{cip}
     </select>
     <insert id="createUser">
         INSERT INTO ebock.user_ (cip,

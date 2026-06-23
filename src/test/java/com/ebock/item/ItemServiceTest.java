@@ -2,6 +2,7 @@ package com.ebock.item;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.request.item.ItemImageElement;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
@@ -11,6 +12,7 @@ import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.ItemService;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.SecurityContext;
@@ -54,11 +56,56 @@ public class ItemServiceTest {
     @Test
     void testListReturnsListOfItems() {
         // arrange
+        String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(1, 25)).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+
+        // Mock request cip
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
 
         // act
-        List<ItemResponse> result = itemService.list(1);
+        List<ItemResponse> result = itemService.list(1, null,null,null,null,null,null,null,null,null);
+
+        // assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testList_ThrowsBadRequest_WhenNegativePageNumber(){
+        //arrange
+        //act and assert
+        assertThrows(BadRequestException.class, () -> {
+            itemService.list(-1,  null,null,null,null,null,null,null,null,null);
+        });
+    }
+
+    @Test
+    void testList_Works_WhenPayloadNoFilters(){
+        // arrange
+        String requestCip = "pele3157";
+        List<ItemResponse> expected = new ArrayList<>();
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+
+        // Mock request cip
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+
+        // act
+        List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
+
+        // assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void testList_Works_WhenNotConnected(){
+        //arrange
+        List<ItemResponse> expected = new ArrayList<>();
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(""))).thenReturn(expected);
+
+        //act
+        List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
 
         // assert
         assertEquals(expected, result);

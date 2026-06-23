@@ -13,5 +13,6 @@ public class ItemResponse {
     public int wearId;
     public String firstName;
     public String lastName;
+    public Boolean favorite;
     public List<Integer> tags;
 }

@@ -5,6 +5,8 @@ import com.ebock.converter.ItemConverter;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
+import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
@@ -19,7 +21,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
+import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
+import org.jboss.resteasy.reactive.RestQuery;
+import org.jboss.resteasy.reactive.Separator;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,14 +49,38 @@ public class ItemService {
     @GET
     @Path("/list/{pageNumber}")
     @PermitAll
-    public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber) {
+    //@SecurityRequirement(name = "SecurityScheme")
+    public List<ItemResponse> list(@PathParam("pageNumber") int pageNumber,
+                                   @RestQuery BigDecimal minP,
+                                   @RestQuery BigDecimal maxP,
+                                   @RestQuery Integer maxD,
+                                   @RestQuery Boolean fav,
+                                   @RestQuery @Separator(",") List<Integer> categories,
+                                   @RestQuery @Separator(",") List<Integer> tags,
+                                   @RestQuery @Separator(",") List<Integer> wears,
+                                   @RestQuery @Separator(",") List<Integer> deliveries,
+                                   @RestQuery @Separator(",") List<Integer> payments) {
+        FilterItemPayload filterItemPayload = new FilterItemPayload();
+        filterItemPayload.minPrice = minP;
+        filterItemPayload.maxPrice = maxP;
+        filterItemPayload.maxDistance = maxD;
+        filterItemPayload.favorite = fav;
+        filterItemPayload.listCategoryId = categories;
+        filterItemPayload.listTagId = tags;
+        filterItemPayload.listWearId = wears;
+        filterItemPayload.listDeliveryId = deliveries;
+        filterItemPayload.listPaymentId = payments;
         int pageSize = 25;
 
         if (pageNumber < 1) {
             throw new BadRequestException("pageNumber must be >= 1");
         }
+        String cip = "";
+        try{
+            cip = securityContext.getUserPrincipal().getName();
+        } catch (Exception e){}
 
-        return this.itemMapper.getPaginatedItem(pageNumber, pageSize);
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload, cip);
     }
 
     @GET
