@@ -16,27 +16,13 @@ import static org.hamcrest.CoreMatchers.is;
 @QuarkusTest
 public class ItemFiltersIT {
 
-    private FilterItemPayload validPayload;
-
-    @BeforeEach
-    void setUp(){
-        validPayload = new FilterItemPayload();
-        validPayload.favorite = false;
-        validPayload.listCategoryId = List.of();
-        validPayload.listTagId = List.of();
-        validPayload.listWearId = List.of();
-        validPayload.listDeliveryId = List.of();
-        validPayload.listPaymentId = List.of();
-    }
-
     @Test
     void list_Returns400_NegativePageNumber(){
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
                 .pathParam("pageNumber", "-1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .statusCode(400);
     }
@@ -45,10 +31,9 @@ public class ItemFiltersIT {
     void list_ReturnsAllItems_NoFilters(){
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -61,15 +46,13 @@ public class ItemFiltersIT {
 
     @Test
     void list_ReturnsItems_PriceFilters(){
-        validPayload.minPrice = BigDecimal.valueOf(0);
-        validPayload.maxPrice = BigDecimal.valueOf(1000);
-
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParams("minP", 0,
+                        "maxP", 1000)
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -80,13 +63,12 @@ public class ItemFiltersIT {
 
     @Test
     void list_ReturnsAllItems_FavoriteUserNotConnected(){
-        validPayload.favorite = true;
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParam("fav", true)
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -99,13 +81,12 @@ public class ItemFiltersIT {
     @Test
     @TestSecurity(user = "pele3157", roles = {"user"})
     void list_ReturnsItems_FavoriteUserConnected(){
-        validPayload.favorite = true;
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParam("fav", true)
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -114,13 +95,12 @@ public class ItemFiltersIT {
 
     @Test
     void list_ReturnsItems_TagFilter(){
-        validPayload.listTagId = List.of(2);
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParam("tags", "2")
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -130,13 +110,12 @@ public class ItemFiltersIT {
 
     @Test
     void list_ReturnsItems_MultipleTagFilters(){
-        validPayload.listTagId = List.of(1, 2);
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParam("tags", "1,2")
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)
@@ -146,21 +125,19 @@ public class ItemFiltersIT {
     @Test
     @TestSecurity(user = "pele3157", roles = {"user"})
     void list_ReturnsItems_WithAllFilters(){
-        validPayload.minPrice = BigDecimal.valueOf(2000);
-        validPayload.maxPrice = BigDecimal.valueOf(3000);
-        validPayload.favorite = true;
-        validPayload.listCategoryId = List.of(2);
-        validPayload.listTagId = List.of(3);
-        validPayload.listWearId = List.of(1);
-        validPayload.listDeliveryId = List.of(1,2);
-        validPayload.listPaymentId = List.of(2);
-
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .queryParams("minP", 2000,
+                        "maxP", 3000,
+                        "fav", true,
+                        "categories", "2",
+                        "tags", "3",
+                        "wears", "1",
+                        "deliveries", "1,2",
+                        "payments", "2")
                 .pathParam("pageNumber", "1")
                 .when()
-                .post("/item/list/{pageNumber}")
+                .get("/item/list/{pageNumber}")
                 .then()
                 .log().all()
                 .statusCode(200)

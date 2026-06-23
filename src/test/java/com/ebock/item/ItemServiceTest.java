@@ -58,15 +58,14 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, requestCip)).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(requestCip);
 
         // act
-        List<ItemResponse> result = itemService.list(1, filterItemPayload);
+        List<ItemResponse> result = itemService.list(1, null,null,null,null,null,null,null,null,null);
 
         // assert
         assertEquals(expected, result);
@@ -75,11 +74,9 @@ public class ItemServiceTest {
     @Test
     void testList_ThrowsBadRequest_WhenNegativePageNumber(){
         //arrange
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-
         //act and assert
         assertThrows(BadRequestException.class, () -> {
-            itemService.list(-1, filterItemPayload);
+            itemService.list(-1,  null,null,null,null,null,null,null,null,null);
         });
     }
 
@@ -88,21 +85,14 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-        filterItemPayload.favorite = false;
-        filterItemPayload.listCategoryId = List.of();
-        filterItemPayload.listTagId = List.of();
-        filterItemPayload.listWearId = List.of();
-        filterItemPayload.listDeliveryId = List.of();
-        filterItemPayload.listPaymentId = List.of();
-        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, requestCip)).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(requestCip);
 
         // act
-        List<ItemResponse> result = itemService.list(1, filterItemPayload);
+        List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
 
         // assert
         assertEquals(expected, result);
@@ -112,11 +102,10 @@ public class ItemServiceTest {
     void testList_Works_WhenNotConnected(){
         //arrange
         List<ItemResponse> expected = new ArrayList<>();
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-        when(itemMapper.getPaginatedItem(1, 25, filterItemPayload, "")).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(""))).thenReturn(expected);
 
         //act
-        List<ItemResponse> result = itemService.list(1, filterItemPayload);
+        List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
 
         // assert
         assertEquals(expected, result);
