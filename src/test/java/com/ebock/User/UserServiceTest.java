@@ -18,6 +18,8 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -90,14 +92,12 @@ public class UserServiceTest {
     }
 
     @Test
-    void edit_AddressUpdate_ExistingAddress() {
         UserEditPayload payload = new UserEditPayload();
         payload.firstName = "William";
         payload.lastName = "Dubuc";
         AddressPayload addressPayload = new AddressPayload();
         addressPayload.street = "Sommet de Orford";
         addressPayload.civicNumber = 1;
-        addressPayload.apptNumber = 1;
         addressPayload.provinceCode = "QC";
         addressPayload.country = "Québec";
         payload.address = addressPayload;
@@ -170,6 +170,8 @@ public class UserServiceTest {
     }
 
     @Test
+        addressPayload.apptNumber = 1;
+    void edit_AddressUpdate_ExistingAddress() {
     void testMeCreatesUserIfNotExists() {
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");

@@ -36,6 +36,7 @@
     </update>
 
     <update id="updateUserAddress">
+    <update id="updateUserAddress">
         UPDATE ebock.user_
         SET address_id = #{addressId},
             updated_at = now()

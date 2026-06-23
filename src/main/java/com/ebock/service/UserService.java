@@ -53,6 +53,15 @@ public class UserService {
     @Inject
     AddressConverter addressConverter;
 
+    @ConfigProperty(name = "keycloak.server-url")
+    String serverUrl;
+    @ConfigProperty(name = "keycloak.realm")
+    String realm;
+    @ConfigProperty(name = "keycloak.client-id")
+    String clientId;
+    @ConfigProperty(name = "keycloak.client-secret")
+    String clientSecret;
+
     @GET
     @Path("/me")
     @Authenticated
@@ -122,7 +131,6 @@ public class UserService {
     public Response edit(@PathParam("cip") String pathCip, UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
-        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
         if (!cip.equalsIgnoreCase(pathCip)) {
             throw new ForbiddenException("CIP not matching");
