@@ -1,6 +1,8 @@
 package com.ebock.dto.request.user;
 
+import jakarta.validation.constraints.NotNull;
+
 public class UserChangePasswordPayload {
+    @NotNull
     public String newPassword;
-    public String newPasswordConfirmation;
 }

@@ -3,6 +3,7 @@ package com.ebock.service;
 import com.ebock.business.User;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
+import com.ebock.dto.request.user.UserEditPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.UserMapper;
@@ -16,6 +17,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
@@ -90,7 +92,7 @@ public class UserService {
         credential.setValue(payload.newPassword);
         credential.setTemporary(false);
 
-        List<UserRepresentation> users = keycloak.realm("ebock").users().search(cip, true);
+        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
         if (users.isEmpty()) {
             throw new NotFoundException("User not found");
@@ -107,24 +109,67 @@ public class UserService {
     @Path("/edit")
     @Authenticated
     @Transactional
-    public void edit(UserChangePasswordPayload payload) {
+    public void edit(UserEditPayload payload) {
+        // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
-
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(payload.newPassword);
-        credential.setTemporary(false);
-
-        List<UserRepresentation> users = keycloak.realm("ebock").users().search(cip, true);
+        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
         if (users.isEmpty()) {
             throw new NotFoundException("User not found");
         }
+        UserRepresentation user = users.getFirst();
 
-        String userId = users.getFirst().getId();
-        keycloak.realm("ebock")
-                .users()
-                .get(userId)
-                .resetPassword(credential);
+        // Modify first and last name
+        boolean isModified = applyNameChanges(user, payload);
+
+        if (isModified) {
+            persistUser(user);
+        }
+
+
+    }
+
+    /**
+     * Change the names of the user if needed
+     * @param user to verify
+     * @param payload containing the new names
+     * @return if a change was made
+     */
+    private boolean applyNameChanges(UserRepresentation user, UserEditPayload payload) {
+        boolean isModified = false;
+
+        if (payload.newFirstName != null && !payload.newFirstName.isBlank()
+                && !Objects.equals(user.getFirstName(), payload.newFirstName)) {
+            user.setFirstName(payload.newFirstName.trim());
+            isModified = true;
+        }
+
+        if (payload.newLastName != null && !payload.newLastName.isBlank()
+                && !Objects.equals(user.getLastName(), payload.newLastName)) {
+            user.setLastName(payload.newLastName.trim());
+            isModified = true;
+        }
+
+        return isModified;
+    }
+
+    /**
+     * Save the user on keycloack and the db
+     * @param user to save
+     */
+    private void persistUser(UserRepresentation user) {
+        try {
+            UserResource userResource = keycloak.realm("ebock").users().get(user.getId());
+            userResource.update(user);
+
+            userMapper.updateUser(
+                    user.getId(),
+                    user.getEmail(),
+                    user.getFirstName(),
+                    user.getLastName()
+            );
+        } catch (Exception e) {
+            throw new RuntimeException("Error updating the user in keycloack or local db", e);
+        }
     }
 }
