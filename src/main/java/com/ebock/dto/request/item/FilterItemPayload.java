@@ -1,5 +1,6 @@
 package com.ebock.dto.request.item;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 
@@ -8,12 +9,12 @@ import java.util.List;
 
 
 public class FilterItemPayload {
-    @Min(0)
+    @DecimalMin(value = "0.0", inclusive = true)
     public BigDecimal minPrice;
-    @Min(0)
+    @DecimalMin(value = "0.0", inclusive = true)
     public BigDecimal maxPrice;
+    @Min(0)
     int maxDistance;
-    @NotNull
     public Boolean favorite;
     public List<Integer> listCategoryId;
     public List<Integer> listTagId;
