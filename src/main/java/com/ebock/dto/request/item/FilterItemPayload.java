@@ -14,7 +14,7 @@ public class FilterItemPayload {
     @DecimalMin(value = "0.0", inclusive = true)
     public BigDecimal maxPrice;
     @Min(0)
-    int maxDistance;
+    public Integer maxDistance;
     public Boolean favorite;
     public List<Integer> listCategoryId;
     public List<Integer> listTagId;
