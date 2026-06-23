@@ -16,7 +16,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -87,10 +89,23 @@ public class UserService {
     public void changeUserPassword(UserChangePasswordPayload payload) {
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(payload.newPassword);
-        credential.setTemporary(false);
+        try (Keycloak userVerificationClient = KeycloakBuilder.builder()
+                .serverUrl("http://localhost:8180")
+                .realm("ebock")
+                .grantType(OAuth2Constants.PASSWORD)
+                .clientId("ebock-backend")
+                .clientSecret("devBackendSecret")
+                .username(cip)
+                .password(payload.oldPassword)
+                .build()) {
+
+            userVerificationClient.tokenManager().getAccessToken();
+
+        } catch (NotAuthorizedException e) {
+            throw new BadRequestException("Invalid old password provided.");
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Failed to reach identity provider.");
+        }
 
         List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
@@ -99,6 +114,12 @@ public class UserService {
         }
 
         String userId = users.getFirst().getId();
+
+        CredentialRepresentation credential = new CredentialRepresentation();
+        credential.setType(CredentialRepresentation.PASSWORD);
+        credential.setValue(payload.newPassword);
+        credential.setTemporary(false);
+
         keycloak.realm("ebock")
                 .users()
                 .get(userId)
