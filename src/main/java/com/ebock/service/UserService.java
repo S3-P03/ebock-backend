@@ -120,6 +120,7 @@ public class UserService {
     public Response edit(@PathParam("cip") String pathCip, UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
+        List<UserRepresentation> users = keycloak.realm("ebock").users().searchByUsername(cip, true);
 
         if (!cip.equalsIgnoreCase(pathCip)) {
             throw new ForbiddenException("CIP not matching");
@@ -143,6 +144,7 @@ public class UserService {
             newAddress.addressId = userDb.addressId;
             addressMapper.update(newAddress);
         }
+        UserRepresentation user = users.getFirst();
 
         if (isModified) {
             userMapper.updateUser(user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName());
