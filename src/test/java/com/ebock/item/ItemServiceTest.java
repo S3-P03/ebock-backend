@@ -7,14 +7,17 @@ import com.ebock.dto.request.item.ItemImageElement;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
+import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.ItemService;
+import io.quarkus.security.UnauthorizedException;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,7 +33,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
@@ -381,4 +384,73 @@ public class ItemServiceTest {
         Mockito.verify(itemImageMapper, Mockito.times(0)).insert(anyInt(), anyList());
     }
 
+    @Test
+    void testAddFavoriteValidItemReturns201() {
+        // arrange
+        String requestCip = "pele3157";
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
+        when(userMapper.getUserCountByCip(requestCip)).thenReturn(1);
+        // act
+        Response result = itemService.addFavorite(1);
+
+        // assert
+        assert(result.getStatus() == 201);
+    }
+
+    @Test
+    void testAddFavoriteNonExistingItemReturns404() {
+        // arrange
+        when(itemMapper.getItemCountById(1)).thenReturn(0);
+        // act and assert
+        assertThrows(NotFoundException.class, () -> itemService.removeFavorite(1));
+    }
+
+    @Test
+    void testAddFavoriteUnauthorizedUserReturns401() {
+        // arrange
+        String requestCip = "pele3157";
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
+        when(userMapper.getUserCountByCip(requestCip)).thenReturn(0);
+        // act and assert
+        assertThrows(UnauthorizedException.class, () -> itemService.removeFavorite(1));
+    }
+
+    @Test
+    void testRemoveFavoriteValidItemReturns204() {
+        // arrange
+        String requestCip = "pele3157";
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
+        when(userMapper.getUserCountByCip(requestCip)).thenReturn(1);
+        // act
+        Response result = itemService.removeFavorite(1);
+
+        // assert
+        assert(result.getStatus() == 204);
+    }
+
+    @Test
+    void testRemoveFavoriteNonExistingItemReturns404() {
+        // arrange
+        when(itemMapper.getItemCountById(1)).thenReturn(0);
+        // act and assert
+        assertThrows(NotFoundException.class, () -> itemService.removeFavorite(1));
+    }
+
+    @Test
+    void testRemoveFavoriteUnauthorizedUserReturns401() {
+        // arrange
+        String requestCip = "pele3157";
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+        when(itemMapper.getItemCountById(1)).thenReturn(1);
+        when(userMapper.getUserCountByCip(requestCip)).thenReturn(0);
+        // act and assert
+        assertThrows(UnauthorizedException.class, () -> itemService.removeFavorite(1));
+    }
 }

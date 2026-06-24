@@ -20,6 +20,8 @@ public interface ItemMapper {
                                         @Param("pageSize") int pageSize,
                                         @Param("filters") FilterItemPayload filterItemPayload,
                                         @Param("cip") String cip);
+    void favorite(@Param("id") int itemId, @Param("cip") String cip);
+    void unfavorite(@Param("id") int itemId, @Param("cip") String cip);
     Item findById(@Param("id") int id);
     void insert(@Param("item") Item item);
     void update(@Param("sellerCip") String sellerCip, @Param("item") Item item);
