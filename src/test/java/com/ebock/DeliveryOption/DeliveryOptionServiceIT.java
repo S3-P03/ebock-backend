@@ -1,4 +1,4 @@
-package com.ebock.deliveryOption;
+package com.ebock.DeliveryOption;
 
 import com.ebock.business.DeliveryOption;
 import com.ebock.converter.DeliveryOptionConverter;

@@ -1,4 +1,4 @@
-package com.ebock.paymentOption;
+package com.ebock.PaymentOption;
 
 import com.ebock.business.PaymentOption;
 import com.ebock.converter.PaymentOptionConverter;
