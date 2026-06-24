@@ -15,6 +15,7 @@
         <result property="firstName" column="first_name"/>
         <result property="lastName" column="last_name"/>
         <result property="favorite" column="favorite"/>
+        <result property="firstImage" column="guid"/>
 
         <collection property="tags" ofType="java.lang.Integer" notNullColumn="tag_id">
             <result column="tag_id"/>
@@ -127,8 +128,10 @@
         )
 
         SELECT p.*,
-               it.tag_id
+               it.tag_id,
+               im.guid
         FROM PaginatedItems p
+        LEFT JOIN ebock.item_image im ON im.item_id = p.item_id
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
         ORDER BY p.item_id;
     </select>

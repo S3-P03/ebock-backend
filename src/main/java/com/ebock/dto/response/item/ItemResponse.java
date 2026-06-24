@@ -15,4 +15,5 @@ public class ItemResponse {
     public String lastName;
     public Boolean favorite;
     public List<Integer> tags;
+    public String firstImage;
 }
