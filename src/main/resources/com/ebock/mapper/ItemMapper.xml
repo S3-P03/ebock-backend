@@ -133,6 +133,7 @@
         FROM PaginatedItems p
         LEFT JOIN ebock.item_image im ON im.item_id = p.item_id
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
+        WHERE im.displayorder = 1 OR im.guid IS NULL
         ORDER BY p.item_id;
     </select>
 
