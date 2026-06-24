@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict ZbUXJyh0QGXxscWKOb6Q9ThbsGNp2JTugoEBb7lMApBZmZkjcgWSTddllASUNAw
+\restrict HXzpaVq1q3sElLJCc27f1hkWeXeb4bLSfqTf5yUsLd8bPH8qSNmgUM1jN4XFygu
 
 -- Dumped from database version 13.23 (Debian 13.23-1.pgdg13+1)
 -- Dumped by pg_dump version 13.23 (Debian 13.23-1.pgdg13+1)
@@ -682,6 +682,7 @@ COPY ebock.delivery_option (delivery_optn_id, name) FROM stdin;
 --
 
 COPY ebock.favorite (cip, item_id, added_at) FROM stdin;
+pele3157	1	2026-06-23 21:26:00
 \.
 
 
@@ -703,9 +704,9 @@ COPY ebock.item (item_id, name, description, price, added_at, updated_at, sold, 
 1	Mac Book avec Puce M5	MacBook avec une puce M5 qui run linux très bien	$2,500.12	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	herl2700
 2	Auto BAJA	Belle auto baja avec une bonne transmission	$15,234.60	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	boum7113
 3	Fusée L1	Une belle fusée qui peux être utilisé comme un missile	$1,000.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	dubw5596
-4	Chalk	Chalk pour l escalade	$67.67	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	t	1	f	5	1	larj4236
 5	Prise de laptop	Une prise de laptop vraiment longue	$10.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	pele3157
 6	Lit	Pas besoin de lit si je dors pas	$649.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	t	0	t	4	1	bela3439
+4	Chalk	Chalk pour l escalade	$67.67	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	t	1	f	5	1	larj4236
 \.
 
 
@@ -716,6 +717,8 @@ COPY ebock.item (item_id, name, description, price, added_at, updated_at, sold, 
 COPY ebock.item_del_option (item_id, delivery_optn_id) FROM stdin;
 4	1
 4	2
+1	1
+1	2
 \.
 
 
@@ -736,6 +739,7 @@ COPY ebock.item_image (item_id, guid, displayorder) FROM stdin;
 COPY ebock.item_paym_option (item_id, payment_optn_id) FROM stdin;
 4	1
 4	2
+1	2
 \.
 
 
@@ -806,6 +810,9 @@ COPY ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) FR
 2026-06-18 10:09:47.217989	J'aurais donc besoin de craie	f	9	pele3157
 2026-06-18 10:09:55.10737	Car le problème est clairement soi la craie soit mes souliers	f	9	pele3157
 2026-06-18 14:00:30.200464	toi fk u	f	6	pele3157
+2026-06-19 08:07:25.934676	Allo	f	6	larj4236
+2026-06-22 09:21:59.051156	womp womp	f	9	larj4236
+2026-06-22 17:31:42.62867	waddup	f	6	larj4236
 \.
 
 
@@ -878,6 +885,10 @@ COPY ebock.tag (tag_id, name) FROM stdin;
 --
 
 COPY ebock.tag_item (item_id, tag_id) FROM stdin;
+1	3
+3	2
+5	2
+5	1
 \.
 
 
@@ -956,7 +967,7 @@ SELECT pg_catalog.setval('ebock.log__id_seq', 1, false);
 -- Name: order__order_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
 --
 
-SELECT pg_catalog.setval('ebock.order__order_id_seq', 10, true);
+SELECT pg_catalog.setval('ebock.order__order_id_seq', 11, true);
 
 
 --
@@ -1432,5 +1443,5 @@ ALTER TABLE ONLY ebock.user_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict ZbUXJyh0QGXxscWKOb6Q9ThbsGNp2JTugoEBb7lMApBZmZkjcgWSTddllASUNAw
+\unrestrict HXzpaVq1q3sElLJCc27f1hkWeXeb4bLSfqTf5yUsLd8bPH8qSNmgUM1jN4XFygu
 
