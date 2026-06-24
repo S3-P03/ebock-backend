@@ -1,9 +1,10 @@
 package com.ebock.dto.response.review;
 
 public class ReviewDetailsResponse {
-    String firstName;
-    String lastName;
-    String contenu;
-    String timestamp;
-    //TODO checker comment faire photo de profil (ou délègue)
+    public String firstName;
+    public String lastName;
+    public String profilPictureGuid;
+    public String content;
+    public String timestamp;
+    public int rating;
 }
