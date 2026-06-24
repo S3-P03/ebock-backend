@@ -30,14 +30,14 @@ public class ReviewServiceTest {
     ReviewService reviewService;
 
     @Test
-    void reviewAvg_ThrowsNotFound_InvalidCip(){
+    void reviewAvg_ThrowsNotFound_InexistentCip(){
         //arrange
-        String invalidCip = "abcd1234";
-        when(userMapper.getUserCountByCip(invalidCip)).thenReturn(0);
+        String inexistentCip = "abcd1234";
+        when(userMapper.getUserCountByCip(inexistentCip)).thenReturn(0);
 
         //act and assert
         assertThrows(NotFoundException.class, () -> {
-            reviewService.cipAverageReview(invalidCip);
+            reviewService.cipAverageReview(inexistentCip);
         });
     }
 
@@ -76,14 +76,14 @@ public class ReviewServiceTest {
     }
 
     @Test
-    void reviewDetails_ThrowsNotFound_InvalidCip(){
+    void reviewDetails_ThrowsNotFound_InexistentCip(){
         //arrange
-        String invalidCip = "abcd1234";
-        when(userMapper.getUserCountByCip(invalidCip)).thenReturn(0);
+        String inexistentCip = "abcd1234";
+        when(userMapper.getUserCountByCip(inexistentCip)).thenReturn(0);
 
         //act and assert
         assertThrows(NotFoundException.class, () -> {
-            reviewService.cipDetailsReview(invalidCip);
+            reviewService.cipDetailsReview(inexistentCip);
         });
     }
 

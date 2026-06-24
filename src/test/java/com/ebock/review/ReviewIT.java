@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.empty;
 public class ReviewIT {
 
     @Test
-    void reviewAvg_Returns404_InvalidCip(){
+    void reviewAvg_Returns404_InexistentCip(){
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "abcd1234")
@@ -50,7 +50,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_Returns404_InvalidCip(){
+    void reviewDetails_Returns404_InexistentCip(){
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "abcd1234")
