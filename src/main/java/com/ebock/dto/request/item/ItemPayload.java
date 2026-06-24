@@ -1,10 +1,7 @@
 package com.ebock.dto.request.item;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
+
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -25,4 +22,6 @@ public class ItemPayload {
     public int wearId;
     public List<Integer> tagList;
     public List<ItemImageElement> imageList;
+    public List<Integer> paymentOptionList;
+    public List<Integer> deliveryOptionList;
 }

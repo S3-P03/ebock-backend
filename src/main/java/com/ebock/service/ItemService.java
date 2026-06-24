@@ -2,16 +2,12 @@ package com.ebock.service;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.request.item.ItemPayload;
-import com.ebock.dto.response.item.ItemInsertResponse;
-import com.ebock.dto.response.item.ItemDetailsResponse;
-import com.ebock.converter.ItemConverter;
 import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.request.item.ItemPayload;
+import com.ebock.dto.response.item.ItemDetailsResponse;
+import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
-import com.ebock.mapper.ItemImageMapper;
-import com.ebock.mapper.ItemMapper;
-import com.ebock.mapper.ItemTagMapper;
-import com.ebock.mapper.UserMapper;
+import com.ebock.mapper.*;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
@@ -21,7 +17,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.openapi.annotations.security.SecurityRequirement;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.jboss.resteasy.reactive.Separator;
 
@@ -37,6 +32,10 @@ public class ItemService {
     ItemMapper itemMapper;
     @Inject
     ItemImageMapper itemImageMapper;
+    @Inject
+    ItemPaymentOptionMapper itemPaymentOptionMapper;
+    @Inject
+    ItemDeliveryOptionMapper itemDeliveryOptionMapper;
     @Inject
     ItemTagMapper itemTagMapper;
     @Inject
@@ -122,6 +121,14 @@ public class ItemService {
             itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
         }
 
+        if(itemInsertPayload.paymentOptionList != null && !itemInsertPayload.paymentOptionList.isEmpty()){
+            itemPaymentOptionMapper.insert(item.itemId, itemInsertPayload.paymentOptionList);
+        }
+
+        if(itemInsertPayload.deliveryOptionList != null && !itemInsertPayload.deliveryOptionList.isEmpty()){
+            itemDeliveryOptionMapper.insert(item.itemId, itemInsertPayload.deliveryOptionList);
+        }
+
         return itemConverter.toInsertResponse(item);
     }
 
@@ -156,6 +163,18 @@ public class ItemService {
         itemImageMapper.deleteByItemId(itemId);
         if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
             itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
+        }
+
+        // Update payment option
+        itemPaymentOptionMapper.deleteByItemId(itemId);
+        if (itemInsertPayload.paymentOptionList != null && !itemInsertPayload.paymentOptionList.isEmpty()) {
+            itemPaymentOptionMapper.insert(item.itemId, itemInsertPayload.paymentOptionList);
+        }
+
+        // Update delivery option
+        itemDeliveryOptionMapper.deleteByItemId(itemId);
+        if (itemInsertPayload.deliveryOptionList != null && !itemInsertPayload.deliveryOptionList.isEmpty()) {
+            itemDeliveryOptionMapper.insert(item.itemId, itemInsertPayload.deliveryOptionList);
         }
 
         return itemConverter.toInsertResponse(item);

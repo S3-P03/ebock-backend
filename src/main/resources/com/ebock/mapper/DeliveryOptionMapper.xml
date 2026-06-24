@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.DeliveryOptionMapper">
+
+    <select id="getAllDeliveryOptions" resultType="com.ebock.business.DeliveryOption">
+        select *
+        from ebock.delivery_option
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="deliveryOption.deliveryOptnId">
+        insert into ebock.delivery_option (name)
+        values (#{deliveryOption.name})
+    </insert>
+
+    <update id="update">
+        update ebock.delivery_option set name = #{deliveryOption.name}
+        where delivery_optn_id = #{deliveryOption.deliveryOptnId}
+    </update>
+
+</mapper>
