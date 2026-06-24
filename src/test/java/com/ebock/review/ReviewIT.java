@@ -61,7 +61,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_ReturnsAvg_UserWithReviews(){
+    void reviewDetails_ReturnsReviews_UserWithReviews(){
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "pele3157")
@@ -78,7 +78,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_ReturnsAvg_UserNoReviews(){
+    void reviewDetails_ReturnsReviews_UserNoReviews(){
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "bela3439")

@@ -60,15 +60,19 @@ public class ReviewServiceTest {
     void reviewAvg_Works_UserNoReviews(){
         //arrange
         String cipNoReviews = "bela3439";
-        AverageReviewResponse expected = new AverageReviewResponse();
+        AverageReviewResponse expected;
         when(userMapper.getUserCountByCip(cipNoReviews)).thenReturn(1);
-        when(reviewMapper.getUserAverageReview(cipNoReviews)).thenReturn(expected);
+        when(reviewMapper.getUserAverageReview(cipNoReviews)).thenReturn(null);
+        expected = new AverageReviewResponse();
+        expected.avgRating = 0;
+        expected.nbrReviews = 0;
 
         //act
         AverageReviewResponse result = reviewService.cipAverageReview(cipNoReviews);
 
         //assert
-        assertEquals(expected, result);
+        assertEquals(expected.avgRating, result.avgRating);
+        assertEquals(expected.nbrReviews, result.nbrReviews);
     }
 
     @Test
@@ -102,9 +106,9 @@ public class ReviewServiceTest {
     void reviewDetails_Works_UserNoReviews(){
         //arrange
         String cipNoReviews = "bela3439";
-        List<ReviewDetailsResponse> expected = new ArrayList<>();
+        List<ReviewDetailsResponse> expected = List.of();
         when(userMapper.getUserCountByCip(cipNoReviews)).thenReturn(1);
-        when(reviewMapper.getDetailledReviews(cipNoReviews)).thenReturn(expected);
+        when(reviewMapper.getDetailledReviews(cipNoReviews)).thenReturn(List.of());
 
         //act
         List<ReviewDetailsResponse> result = reviewService.cipDetailsReview(cipNoReviews);
