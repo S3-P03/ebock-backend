@@ -93,14 +93,28 @@ public class UserService {
     }
 
     @GET
-    @Path("/{cip}/profile")
-    @@Authenticated
+    @Path("/{cip}/profil")
+    @Authenticated
     public ProfileResponse profile(
-            @PathParam("cip") String cip
-    ) {
-        if(userMapper.getUserCountByCip(cip) == 0)
-            throw new NotFoundException("User not found");
-        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+            @PathParam("cip") String pathCip
+            ) {
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        if (!cip.equalsIgnoreCase(pathCip)) {
+            throw new ForbiddenException("CIP not matching");
+        }
+
+        User user = userMapper.getUserInfo(cip);
+
+        if (user == null) throw new NotFoundException();
+
+        Address address = addressMapper.getAddressById(user.addressId);
+
+        ProfileResponse response = new ProfileResponse();
+        response.user = userConverter.toProfileUserResponse(user);
+        response.address = addressConverter.toProfileAddressResponse(address);
+
+        return response;
     }
 
     @PUT

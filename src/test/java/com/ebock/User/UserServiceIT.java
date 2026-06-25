@@ -77,6 +77,13 @@ public class UserServiceIT {
                 .put("/user/dubw5596/security")
                 .then()
                 .statusCode(401);
+
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/user/dubw5596/profile")
+                .then()
+                .statusCode(401);
     }
 
     @Test
@@ -142,5 +149,39 @@ public class UserServiceIT {
 
         verify(addressMapper, times(1)).update(any());
         verify(keycloakAdapter, times(1)).updateUser(any(UserRepresentation.class));
+    }
+
+    @Test
+    @TestSecurity(user = "hacker99", roles = {"user"})
+    void testGetProfile_MismatchedCip_Returns403() {
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/user/dubw5596/profil")
+                .then()
+                .statusCode(403);
+
+        verify(userMapper, never()).getUserInfo(anyString());
+    }
+
+    @Test
+    @TestSecurity(user = "dubw5596", roles = {"user"})
+    void testGetProfile_Success_Returns200() {
+        User mockUserDb = new User();
+        mockUserDb.addressId = 42;
+        when(userMapper.getUserInfo("dubw5596")).thenReturn(mockUserDb);
+
+        com.ebock.business.Address mockAddressDb = new com.ebock.business.Address();
+        when(addressMapper.getAddressById(42)).thenReturn(mockAddressDb);
+
+        // Act & Assert
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/user/dubw5596/profil")
+                .then()
+                .statusCode(200)
+                .body("user", org.hamcrest.Matchers.notNullValue())
+                .body("address", org.hamcrest.Matchers.notNullValue());
     }
 }

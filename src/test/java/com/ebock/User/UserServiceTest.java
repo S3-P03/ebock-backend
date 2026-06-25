@@ -8,6 +8,7 @@ import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.AddressPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -268,5 +269,100 @@ public class UserServiceTest {
         when(userMapper.getUserCountByCip("dubw5596")).thenReturn(0);
 
         assertThrows(NotFoundException.class, () -> userService.cipStorefront("dubw5596"));
+    }
+
+    @Test
+    void getProfile_Success() {
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        User mockUser = new User();
+        mockUser.addressId = 42;
+        when(userMapper.getUserInfo(cip)).thenReturn(mockUser);
+
+        Address mockAddress = new Address();
+        when(addressMapper.getAddressById(42)).thenReturn(mockAddress);
+
+        // On simule le retour des converters (assure-toi d'importer ProfileUserResponse et ProfileAddressResponse)
+        com.ebock.dto.response.user.ProfileUserResponse userResp = new com.ebock.dto.response.user.ProfileUserResponse();
+        com.ebock.dto.response.user.ProfileAddressResponse addrResp = new com.ebock.dto.response.user.ProfileAddressResponse();
+
+        when(userConverter.toProfileUserResponse(mockUser)).thenReturn(userResp);
+        when(addressConverter.toProfileAddressResponse(mockAddress)).thenReturn(addrResp);
+
+        // Act
+        // (Assure-toi que ta méthode dans UserService s'appelle bien getProfile)
+        com.ebock.dto.response.user.ProfileResponse result = userService.profile(cip);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(userResp, result.user);
+        assertEquals(addrResp, result.address);
+
+        verify(userMapper, times(1)).getUserInfo(cip);
+        verify(addressMapper, times(1)).getAddressById(42);
+    }
+
+    @Test
+    void getProfile_MismatchedCip_ThrowsForbidden() {
+        // Arrange
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("abcd1234");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        // Act & Assert
+        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.profile("dubw5596"));
+
+        verify(userMapper, never()).getUserInfo(anyString());
+    }
+
+    @Test
+    void getProfile_UserNotFound_ThrowsNotFound() {
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        when(userMapper.getUserInfo(cip)).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> userService.profile(cip));
+    }
+
+    @Test
+    void getProfile_AddressNotFound_ReturnProfileNoAddress() {
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        User mockUser = new User();
+        mockUser.addressId = 99;
+        when(userMapper.getUserInfo(cip)).thenReturn(mockUser);
+
+        when(addressMapper.getAddressById(99)).thenReturn(null);
+
+        com.ebock.dto.response.user.ProfileUserResponse mockUserResponse = new com.ebock.dto.response.user.ProfileUserResponse();
+        when(userConverter.toProfileUserResponse(mockUser)).thenReturn(mockUserResponse);
+
+        when(addressConverter.toProfileAddressResponse(null)).thenReturn(null);
+
+        // Act
+        com.ebock.dto.response.user.ProfileResponse response = userService.profile(cip);
+
+        // Assert
+        assertNotNull(response, "The response object itself should never be null");
+        assertEquals(mockUserResponse, response.user, "The user data should be mapped correctly");
+        assertNull(response.address, "The address must be null since it was not found in the DB");
+
+        verify(userMapper, times(1)).getUserInfo(cip);
+        verify(addressMapper, times(1)).getAddressById(99);
+        verify(userConverter, times(1)).toProfileUserResponse(mockUser);
+        verify(addressConverter, times(1)).toProfileAddressResponse(null);
     }
 }
