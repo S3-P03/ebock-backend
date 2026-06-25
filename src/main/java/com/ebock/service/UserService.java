@@ -22,9 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -52,15 +50,6 @@ public class UserService {
     KeycloakAdapter keycloakAdapter;
     @Inject
     AddressConverter addressConverter;
-
-    @ConfigProperty(name = "keycloak.server-url")
-    String serverUrl;
-    @ConfigProperty(name = "keycloak.realm")
-    String realm;
-    @ConfigProperty(name = "keycloak.client-id")
-    String clientId;
-    @ConfigProperty(name = "keycloak.client-secret")
-    String clientSecret;
 
     @GET
     @Path("/me")
