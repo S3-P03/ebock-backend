@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public class AddressPayload {
+public class EditAddressPayload {
     @Min(1)
     public Integer civicNumber;
 

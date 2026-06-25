@@ -5,9 +5,10 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.request.user.AddressPayload;
+import com.ebock.dto.request.user.EditAddressPayload;
+import com.ebock.dto.request.user.EditUserPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.request.user.EditPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -91,16 +92,16 @@ public class UserServiceTest {
 
     @Test
     void edit_AddressUpdate_ExistingAddress() {
-        UserEditPayload payload = new UserEditPayload();
-        payload.firstName = "William";
-        payload.lastName = "Dubuc";
-        AddressPayload addressPayload = new AddressPayload();
-        addressPayload.street = "Sommet de Orford";
-        addressPayload.civicNumber = 1;
-        addressPayload.apptNumber = 1;
-        addressPayload.provinceCode = "QC";
-        addressPayload.country = "Québec";
-        payload.address = addressPayload;
+        EditPayload payload = new EditPayload();
+        payload.user = new EditUserPayload();
+        payload.user.firstName = "William";
+        payload.user.lastName = "Dubuc";
+        payload.address = new EditAddressPayload();
+        payload.address.street = "Sommet de Orford";
+        payload.address.civicNumber = 1;
+        payload.address.apptNumber = 1;
+        payload.address.provinceCode = "QC";
+        payload.address.country = "Québec";
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("dubw5596");
@@ -131,16 +132,16 @@ public class UserServiceTest {
 
     @Test
     void edit_AddressInsertion_NonExistingAddress() {
-        UserEditPayload payload = new UserEditPayload();
-        payload.firstName = "William";
-        payload.lastName = "Dubuc";
-        AddressPayload addressPayload = new AddressPayload();
-        addressPayload.street = "Sommet de Orford";
-        addressPayload.civicNumber = 1;
-        addressPayload.apptNumber = 1;
-        addressPayload.provinceCode = "QC";
-        addressPayload.country = "Québec";
-        payload.address = addressPayload;
+        EditPayload payload = new EditPayload();
+        payload.user = new EditUserPayload();
+        payload.user.firstName = "William";
+        payload.user.lastName = "Dubuc";
+        payload.address = new EditAddressPayload();
+        payload.address.street = "Sommet de Orford";
+        payload.address.civicNumber = 1;
+        payload.address.apptNumber = 1;
+        payload.address.provinceCode = "QC";
+        payload.address.country = "Québec";
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("dubw5596");

@@ -5,9 +5,10 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.request.user.AddressPayload;
+import com.ebock.dto.request.user.EditAddressPayload;
+import com.ebock.dto.request.user.EditUserPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.request.user.EditPayload;
 import com.ebock.dto.response.user.ProfileAddressResponse;
 import com.ebock.dto.response.user.ProfileUserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -16,26 +17,18 @@ import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
-import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.RealmResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.admin.client.token.TokenManager;
-import org.keycloak.representations.AccessTokenResponse;
 import org.keycloak.representations.idm.UserRepresentation;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
-
-import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
@@ -74,7 +67,7 @@ public class UserServiceIT {
         // Assert authentification necessary
         given()
                 .contentType(ContentType.JSON)
-                .body(new UserEditPayload())
+                .body(new EditPayload())
                 .when()
                 .put("/user/profile")
                 .then()
@@ -125,17 +118,18 @@ public class UserServiceIT {
     @Test
     @TestSecurity(user = "dubw5596", roles = {"user"})
     void testEditProfile_WithExistingAddress_Returns200() {
-        UserEditPayload payload = new UserEditPayload();
-        payload.firstName = "William";
-        payload.lastName = "Dubuc";
+        EditPayload payload = new EditPayload();
+        payload.user = new EditUserPayload();
+        payload.user.firstName = "William";
+        payload.user.lastName = "Dubuc";
 
-        AddressPayload addressPayload = new AddressPayload();
-        addressPayload.street = "Sommet de Orford";
-        addressPayload.civicNumber = 1;
-        addressPayload.apptNumber = 1;
-        addressPayload.provinceCode = "QC";
-        addressPayload.country = "Québec";
-        payload.address = addressPayload;
+        EditAddressPayload editAddressPayload = new EditAddressPayload();
+        editAddressPayload.street = "Sommet de Orford";
+        editAddressPayload.civicNumber = 1;
+        editAddressPayload.apptNumber = 1;
+        editAddressPayload.provinceCode = "QC";
+        editAddressPayload.country = "Québec";
+        payload.address = editAddressPayload;
 
         UserRepresentation userRep = new UserRepresentation();
         userRep.setId("keycloak-uuid-999");
