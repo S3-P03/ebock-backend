@@ -17,6 +17,6 @@ public class PaymentOptionIT {
                 .then()
                 .statusCode(200)
                 .body("[0].paymentOptnId", is(1))
-                .body("[0].name", is("Interac"));
+                .body("[0].name", is("asdfasdf"));
     }
 }

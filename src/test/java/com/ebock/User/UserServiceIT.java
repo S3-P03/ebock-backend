@@ -1,10 +1,15 @@
 package com.ebock.User;
 
 import com.ebock.adapter.KeycloakAdapter;
+import com.ebock.business.Address;
 import com.ebock.business.User;
+import com.ebock.converter.AddressConverter;
+import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.AddressPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.response.user.ProfileAddressResponse;
+import com.ebock.dto.response.user.ProfileUserResponse;
 import com.ebock.mapper.AddressMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.test.InjectMock;
@@ -28,6 +33,7 @@ import org.mockito.Mockito;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,6 +50,10 @@ public class UserServiceIT {
     AddressMapper addressMapper;
     @InjectMock
     KeycloakAdapter keycloakAdapter;
+    @InjectMock
+    UserConverter userConverter;
+    @InjectMock
+    AddressConverter addressConverter;
 
     private RealmResource realmResource;
     private UsersResource usersResource;
@@ -77,6 +87,14 @@ public class UserServiceIT {
                 .put("/user/dubw5596/security")
                 .then()
                 .statusCode(401);
+
+        given()
+                .when()
+                .get("/user/dubw1234/profile")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(userMapper, Mockito.never()).getUserInfo(any());
     }
 
     @Test
@@ -142,5 +160,53 @@ public class UserServiceIT {
 
         verify(addressMapper, times(1)).update(any());
         verify(keycloakAdapter, times(1)).updateUser(any(UserRepresentation.class));
+    }
+
+    @Test
+    @TestSecurity(user = "hacker99") // Simule un token appartenant à "hacker99"
+    public void testProfile_Forbidden_MismatchedCip_ShouldReturn403() {
+        // "hacker99" essaie d'accéder au profil de "dubw1234"
+        given()
+                .when()
+                .get("/user/dubw1234/profile")
+                .then()
+                .statusCode(403);
+
+        // On vérifie que le code a bloqué la requête AVANT de toucher à la base de données
+        Mockito.verify(userMapper, Mockito.never()).getUserInfo(any());
+    }
+
+    @Test
+    @TestSecurity(user = "dubw1234")
+    public void testProfile_Success_ShouldReturn200AndProfileData() {
+        // Arrange
+        String cip = "dubw1234";
+        int fakeAddressId = 42;
+
+        User mockUser = new User();
+        mockUser.addressId = fakeAddressId;
+
+        Address mockAddress = new Address();
+
+        ProfileUserResponse mockUserResp = new ProfileUserResponse();
+        ProfileAddressResponse mockAddressResp = new ProfileAddressResponse();
+
+        when(userMapper.getUserInfo(cip)).thenReturn(mockUser);
+        when(addressMapper.getAddressById(fakeAddressId)).thenReturn(mockAddress);
+        when(userConverter.toProfileUserResponse(mockUser)).thenReturn(mockUserResp);
+        when(addressConverter.toProfileAddressResponse(mockAddress)).thenReturn(mockAddressResp);
+
+        // Act & Assert
+        given()
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/user/" + cip + "/profile")
+                .then()
+                .statusCode(200)
+                .body("user", notNullValue())
+                .body("address", notNullValue());
+
+        Mockito.verify(userMapper).getUserInfo(cip);
+        Mockito.verify(addressMapper).getAddressById(fakeAddressId);
     }
 }

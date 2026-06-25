@@ -7,6 +7,7 @@ import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -89,6 +90,27 @@ public class UserService {
         if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+    }
+
+    @GET
+    @Path("/{cip}/profile")
+    @Authenticated
+    public ProfileResponse profile(
+            @PathParam("cip") String pathCip
+    ) {
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        if (!cip.equalsIgnoreCase(pathCip)) {
+            throw new ForbiddenException("CIP not matching");
+        }
+        User user = userMapper.getUserInfo(cip);
+        Address address = addressMapper.getAddressById(user.addressId);
+
+        ProfileResponse response = new ProfileResponse();
+        response.user = userConverter.toProfileUserResponse(user);
+        response.address = addressConverter.toProfileAddressResponse(address);
+
+        return response;
     }
 
     @PUT

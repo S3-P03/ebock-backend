@@ -269,4 +269,64 @@ public class UserServiceTest {
 
         assertThrows(NotFoundException.class, () -> userService.cipStorefront("dubw5596"));
     }
+
+    @Test
+    void getProfile_Success() {
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        User mockUser = new User();
+        mockUser.addressId = 42;
+        when(userMapper.getUserInfo(cip)).thenReturn(mockUser);
+
+        Address mockAddress = new Address();
+        when(addressMapper.getAddressById(42)).thenReturn(mockAddress);
+
+        com.ebock.dto.response.user.ProfileUserResponse userResp = new com.ebock.dto.response.user.ProfileUserResponse();
+        com.ebock.dto.response.user.ProfileAddressResponse addrResp = new com.ebock.dto.response.user.ProfileAddressResponse();
+
+        when(userConverter.toProfileUserResponse(mockUser)).thenReturn(userResp);
+        when(addressConverter.toProfileAddressResponse(mockAddress)).thenReturn(addrResp);
+
+        // Act
+        com.ebock.dto.response.user.ProfileResponse result = userService.profile(cip);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(userResp, result.user);
+        assertEquals(addrResp, result.address);
+
+        verify(userMapper, times(1)).getUserInfo(cip);
+        verify(addressMapper, times(1)).getAddressById(42);
+    }
+
+    @Test
+    void getProfile_MismatchedCip_ThrowsForbidden() {
+        // Arrange
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("asdf1234");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        // Act & Assert
+        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.profile("dubw5596"));
+        verify(userMapper, never()).getUserInfo(anyString());
+    }
+
+    @Test
+    void getProfile_UserNotFound_ThrowsNotFound() {
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        // L'utilisateur n'existe pas dans la base de données
+        when(userMapper.getUserInfo(cip)).thenReturn(null);
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> userService.profile(cip));
+    }
 }
