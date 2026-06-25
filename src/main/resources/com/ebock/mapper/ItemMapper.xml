@@ -14,7 +14,7 @@
         <result property="wearId" column="wear_id"/>
         <result property="firstName" column="first_name"/>
         <result property="lastName" column="last_name"/>
-        <result property="favorite" column="favorite"/>
+        <result property="favorite" column="item_is_favorite"/>
         <result property="firstImage" column="guid"/>
 
         <collection property="tags" ofType="java.lang.Integer" notNullColumn="tag_id">
@@ -203,6 +203,16 @@
         values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity}, false,
                 #{item.categoryId}, #{item.wearId}, #{item.sellerCip})
     </insert>
+
+    <insert id="favorite">
+        INSERT INTO ebock.favorite (cip, item_id, added_at)
+        VALUES (#{cip}, #{id}, NOW());
+    </insert>
+
+    <delete id="unfavorite">
+        DELETE FROM ebock.favorite f
+        WHERE f.cip = #{cip} AND f.item_id = #{id};
+    </delete>
 
     <update id="update">
         update ebock.item set

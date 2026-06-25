@@ -9,6 +9,7 @@ import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.*;
 import io.quarkus.security.Authenticated;
+import io.quarkus.security.UnauthorizedException;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -16,6 +17,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.jboss.resteasy.reactive.RestQuery;
 import org.jboss.resteasy.reactive.Separator;
@@ -100,6 +102,32 @@ public class ItemService {
         if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
         return this.itemMapper.getItemDetails(id);
+    }
+
+    @POST
+    @Path("/{id}/favorite")
+    @Authenticated
+    public Response addFavorite(@PathParam("id") int id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        String cip = securityContext.getUserPrincipal().getName();
+        if(userMapper.getUserCountByCip(cip) == 0)
+            throw new UnauthorizedException("User not authorized");
+        itemMapper.favorite(id, cip);
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @POST
+    @Path("/{id}/unfavorite")
+    @Authenticated
+    public Response removeFavorite(@PathParam("id") int id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        String cip = securityContext.getUserPrincipal().getName();
+        if(userMapper.getUserCountByCip(cip) == 0)
+            throw new UnauthorizedException("User not authorized");
+        itemMapper.unfavorite(id, cip);
+        return Response.status(Response.Status.NO_CONTENT).build();
     }
 
     @POST
