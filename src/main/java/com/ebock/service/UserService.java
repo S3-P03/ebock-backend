@@ -1,7 +1,9 @@
 package com.ebock.service;
 
+import com.ebock.adapter.KeycloakAdapter;
 import com.ebock.business.Address;
 import com.ebock.business.User;
+import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
@@ -20,9 +22,7 @@ import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
@@ -46,15 +46,10 @@ public class UserService {
     JsonWebToken jwt;
     @Inject
     Keycloak keycloak;
-
-    @ConfigProperty(name = "keycloak.server-url")
-    String serverUrl;
-    @ConfigProperty(name = "keycloak.realm")
-    String realm;
-    @ConfigProperty(name = "keycloak.client-id")
-    String clientId;
-    @ConfigProperty(name = "keycloak.client-secret")
-    String clientSecret;
+    @Inject
+    KeycloakAdapter keycloakAdapter;
+    @Inject
+    AddressConverter addressConverter;
 
     @GET
     @Path("/me")
@@ -97,81 +92,61 @@ public class UserService {
     }
 
     @PUT
-    @Path("/changepassword")
+    @Path("/{cip}/security")
     @Authenticated
-    public Response changeUserPassword(UserChangePasswordPayload payload) {
+    public Response changeUserPassword(@PathParam("cip") String pathCip, UserChangePasswordPayload payload) {
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        // Verify the old password
-        try (Keycloak verificationClient = KeycloakBuilder.builder()
-                .serverUrl(serverUrl)
-                .realm(realm)
-                .grantType(OAuth2Constants.PASSWORD)
-                .clientId(clientId)
-                .clientSecret(clientSecret)
-                .username(cip)
-                .password(payload.oldPassword)
-                .build()) {
-
-            verificationClient.tokenManager().getAccessToken();
-
-        } catch (NotAuthorizedException e) {
-            throw new BadRequestException("Invalid old password");
-        } catch (Exception e) {
-            throw new InternalServerErrorException("Error while reaching keycloak");
+        if (!cip.equalsIgnoreCase(pathCip)) {
+            throw new ForbiddenException("CIP not matching");
         }
 
-        // Find the user
-        String userId = getKeycloakUser(cip).getId();
+        // Verify the old password
+        keycloakAdapter.verifyOldPassword(cip, payload.oldPassword);
 
-        // Reset the password
-        CredentialRepresentation credential = new CredentialRepresentation();
-        credential.setType(CredentialRepresentation.PASSWORD);
-        credential.setValue(payload.newPassword);
-        credential.setTemporary(false);
+        // Fetch the user
+        String userId = keycloakAdapter.getUserByCip(cip).getId();
 
-        keycloak.realm(realm)
-                .users()
-                .get(userId)
-                .resetPassword(credential);
+        // Execute the change
+        keycloakAdapter.resetPassword(userId, payload.newPassword);
 
         return Response.noContent().build();
     }
 
     @PUT
-    @Path("/edit")
+    @Path("/{cip}/profil")
     @Authenticated
     @Transactional
-    public Response edit(UserEditPayload payload) {
+    public Response edit(@PathParam("cip") String pathCip, UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        UserRepresentation user = getKeycloakUser(cip);
+        if (!cip.equalsIgnoreCase(pathCip)) {
+            throw new ForbiddenException("CIP not matching");
+        }
+
+        // Get user representation
+        UserRepresentation user = keycloakAdapter.getUserByCip(cip);
 
         // Modify first and last name
         boolean isModified = applyNameChanges(user, payload);
 
-        if (isModified) {
-            persistUser(user);
-        }
-
-        // Get the user in the db
+        // Update address
         User userDb = userMapper.getUserInfo(cip);
 
-        Address newAddress = new Address();
-        newAddress.civicNumber = payload.newCivicNumber;
-        newAddress.apptNumber = payload.newApptNumber;
-        newAddress.street = payload.newStreet;
-        newAddress.postalCode = payload.newPostalCode;
-        newAddress.country = payload.newCountry;
-        newAddress.provinceCode = payload.newProvinceCode;
+        Address newAddress = addressConverter.toBusiness(payload.address);
 
-        if(userDb.addressId == null){
+        if (newAddress != null && userDb.addressId == null) {
             addressMapper.insert(newAddress);
             userMapper.updateUserAddress(cip, newAddress.addressId);
-        }else{
+        } else if (newAddress != null) {
             newAddress.addressId = userDb.addressId;
             addressMapper.update(newAddress);
+        }
+
+        if (isModified) {
+            userMapper.updateUser(user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName());
+            keycloakAdapter.updateUser(user);
         }
 
         return Response.ok().build();
@@ -186,51 +161,18 @@ public class UserService {
     private boolean applyNameChanges(UserRepresentation user, UserEditPayload payload) {
         boolean isModified = false;
 
-        if (payload.newFirstName != null && !payload.newFirstName.isBlank()
-                && !Objects.equals(user.getFirstName(), payload.newFirstName)) {
-            user.setFirstName(payload.newFirstName.trim());
+        if (payload.firstName != null && !payload.firstName.isBlank()
+                && !Objects.equals(user.getFirstName(), payload.firstName)) {
+            user.setFirstName(payload.firstName.trim());
             isModified = true;
         }
 
-        if (payload.newLastName != null && !payload.newLastName.isBlank()
-                && !Objects.equals(user.getLastName(), payload.newLastName)) {
-            user.setLastName(payload.newLastName.trim());
+        if (payload.lastName != null && !payload.lastName.isBlank()
+                && !Objects.equals(user.getLastName(), payload.lastName)) {
+            user.setLastName(payload.lastName.trim());
             isModified = true;
         }
 
         return isModified;
-    }
-
-    /**
-     * Get a keycloack user
-     * @param cip of the user
-     * @return user
-     */
-    private UserRepresentation getKeycloakUser(String cip) {
-        List<UserRepresentation> users = keycloak.realm(realm).users().searchByUsername(cip, true);
-        if (users.isEmpty()) {
-            throw new NotFoundException("User not found");
-        }
-        return users.get(0);
-    }
-
-    /**
-     * Save the user on keycloack and the db
-     * @param user to save
-     */
-    private void persistUser(UserRepresentation user) {
-        try {
-            UserResource userResource = keycloak.realm(realm).users().get(user.getId());
-            userResource.update(user);
-
-            userMapper.updateUser(
-                    user.getUsername(),
-                    user.getEmail(),
-                    user.getFirstName(),
-                    user.getLastName()
-            );
-        } catch (Exception e) {
-            throw new RuntimeException("Error updating the user in keycloack or local db", e);
-        }
     }
 }

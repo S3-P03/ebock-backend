@@ -1,8 +1,11 @@
 package com.ebock.User;
 
+import com.ebock.adapter.KeycloakAdapter;
 import com.ebock.business.Address;
 import com.ebock.business.User;
+import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.request.user.AddressPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
@@ -15,22 +18,13 @@ import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.KeycloakBuilder;
-import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.admin.client.resource.UsersResource;
-import org.keycloak.admin.client.token.TokenManager;
 import org.keycloak.representations.idm.UserRepresentation;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.Principal;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -41,27 +35,15 @@ public class UserServiceTest {
     @Mock UserMapper userMapper;
     @Mock AddressMapper addressMapper;
     @Mock SecurityContext securityContext;
-    @Mock Keycloak keycloak;
     @Mock JsonWebToken jwt;
-    @Mock RealmResource realmResource;
-    @Mock UsersResource usersResource;
-    @Mock UserResource userResource;
     @Mock UserConverter userConverter;
+    @Mock KeycloakAdapter keycloakAdapter;
+    @Mock AddressConverter addressConverter;
 
     @InjectMocks
     UserService userService;
 
-    private MockedStatic<KeycloakBuilder> mockedBuilder;
-
-    @BeforeEach
-    void setUp() {
-        mockedBuilder = Mockito.mockStatic(KeycloakBuilder.class);
-    }
-
-    @AfterEach
-    void tearDown() throws Exception {
-        mockedBuilder.close();
-    }
+    // Notice: @BeforeEach and @AfterEach are gone. We don't need MockedStatic anymore.
 
     @Test
     void changeUserPassword_Success() {
@@ -69,46 +51,26 @@ public class UserServiceTest {
         payload.oldPassword = "oldPassword123";
         payload.newPassword = "newPassword123";
 
-        // Localized Security Setup
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("abcde123");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
 
-        // Localized Keycloak client mock chain
-        when(keycloak.realm(any())).thenReturn(realmResource);
-        when(realmResource.users()).thenReturn(usersResource);
-
-        // Mock Keycloak Verification Client Builder Chain
-        KeycloakBuilder builderMock = mock(KeycloakBuilder.class);
-        Keycloak verificationClientMock = mock(Keycloak.class);
-        TokenManager tokenManagerMock = mock(TokenManager.class);
-
-        mockedBuilder.when(KeycloakBuilder::builder).thenReturn(builderMock);
-        when(builderMock.serverUrl(any())).thenReturn(builderMock);
-        when(builderMock.realm(any())).thenReturn(builderMock);
-        when(builderMock.grantType(any())).thenReturn(builderMock);
-        when(builderMock.clientId(any())).thenReturn(builderMock);
-        when(builderMock.clientSecret(any())).thenReturn(builderMock);
-        when(builderMock.username(any())).thenReturn(builderMock);
-        when(builderMock.password(any())).thenReturn(builderMock);
-        when(builderMock.build()).thenReturn(verificationClientMock);
-        when(verificationClientMock.tokenManager()).thenReturn(tokenManagerMock);
-
-        // Mock Find User Chain
         UserRepresentation userRep = new UserRepresentation();
         userRep.setId("uuid-12345");
-        when(usersResource.searchByUsername("abcde123", true)).thenReturn(List.of(userRep));
-        when(usersResource.get("uuid-12345")).thenReturn(userResource);
 
-        Response response = userService.changeUserPassword(payload);
+        // Mock the adapter behavior
+        doNothing().when(keycloakAdapter).verifyOldPassword("abcde123", "oldPassword123");
+        when(keycloakAdapter.getUserByCip("abcde123")).thenReturn(userRep);
+        doNothing().when(keycloakAdapter).resetPassword("uuid-12345", "newPassword123");
+
+        Response response = userService.changeUserPassword("abcde123", payload);
 
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
-        verify(userResource).resetPassword(any());
+        verify(keycloakAdapter, times(1)).resetPassword("uuid-12345", "newPassword123");
     }
 
     @Test
     void changeUserPassword_WrongOldPassword_ThrowsBadRequest() {
-        // Arrange
         UserChangePasswordPayload payload = new UserChangePasswordPayload();
         payload.oldPassword = "wrongPassword";
 
@@ -116,44 +78,33 @@ public class UserServiceTest {
         when(principal.getName()).thenReturn("abcde123");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
 
-        KeycloakBuilder builderMock = mock(KeycloakBuilder.class);
-        mockedBuilder.when(KeycloakBuilder::builder).thenReturn(builderMock);
-        when(builderMock.serverUrl(any())).thenReturn(builderMock);
-        when(builderMock.realm(any())).thenReturn(builderMock);
-        when(builderMock.grantType(any())).thenReturn(builderMock);
-        when(builderMock.clientId(any())).thenReturn(builderMock);
-        when(builderMock.clientSecret(any())).thenReturn(builderMock);
-        when(builderMock.username(any())).thenReturn(builderMock);
-        when(builderMock.password(any())).thenReturn(builderMock);
+        // Simulate the adapter throwing the exception
+        doThrow(new BadRequestException("Invalid old password"))
+                .when(keycloakAdapter).verifyOldPassword("abcde123", "wrongPassword");
 
-        Keycloak verificationClientMock = mock(Keycloak.class);
-        TokenManager tokenManagerMock = mock(TokenManager.class);
+        assertThrows(BadRequestException.class, () -> userService.changeUserPassword("abcde123", payload));
 
-        when(builderMock.build()).thenReturn(verificationClientMock);
-        when(verificationClientMock.tokenManager()).thenReturn(tokenManagerMock);
-        when(tokenManagerMock.getAccessToken()).thenThrow(new jakarta.ws.rs.NotAuthorizedException("Unauthorized"));
-
-        // Act and assert
-        assertThrows(BadRequestException.class, () -> userService.changeUserPassword(payload));
+        // Ensure we never try to fetch the user or reset the password if verification fails
+        verify(keycloakAdapter, never()).getUserByCip(anyString());
+        verify(keycloakAdapter, never()).resetPassword(anyString(), anyString());
     }
 
     @Test
     void edit_AddressUpdate_ExistingAddress() {
         UserEditPayload payload = new UserEditPayload();
-        payload.newFirstName = "William";
-        payload.newLastName = "Dubuc";
-        payload.newStreet = "Sommet de Orford";
-        payload.newCivicNumber = 12;
-        payload.newApptNumber = 10;
-        payload.newCountry = "Canada";
-        payload.newProvinceCode = "QC";
+        payload.firstName = "William";
+        payload.lastName = "Dubuc";
+        AddressPayload addressPayload = new AddressPayload();
+        addressPayload.street = "Sommet de Orford";
+        addressPayload.civicNumber = 1;
+        addressPayload.apptNumber = 1;
+        addressPayload.provinceCode = "QC";
+        addressPayload.country = "Québec";
+        payload.address = addressPayload;
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("dubw5596");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
-
-        when(keycloak.realm(any())).thenReturn(realmResource);
-        when(realmResource.users()).thenReturn(usersResource);
 
         UserRepresentation userRep = new UserRepresentation();
         userRep.setId("uuid-123");
@@ -161,41 +112,39 @@ public class UserServiceTest {
         userRep.setLastName("OldDubuc");
         userRep.setUsername("dubw5596");
 
-        when(usersResource.searchByUsername("dubw5596", true)).thenReturn(List.of(userRep));
-        when(usersResource.get("uuid-123")).thenReturn(userResource);
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
+
+        when(addressConverter.toBusiness(any())).thenReturn(new Address());
 
         User userDb = new User();
         userDb.addressId = 99;
         when(userMapper.getUserInfo("dubw5596")).thenReturn(userDb);
 
-        Response response = userService.edit(payload);
+        Response response = userService.edit("dubw5596", payload);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        verify(addressMapper, times(1)).update(any());
-        verify(addressMapper, never()).insert(any());
-        verify(userMapper, never()).updateUserAddress(any(), anyInt());
+        verify(addressMapper, times(1)).update(any(Address.class));
+        verify(addressMapper, never()).insert(any(Address.class));
+        verify(userMapper, never()).updateUserAddress(anyString(), anyInt());
+        verify(keycloakAdapter, times(1)).updateUser(userRep);
     }
 
     @Test
     void edit_AddressInsertion_NonExistingAddress() {
         UserEditPayload payload = new UserEditPayload();
-        payload.newFirstName = "William";
-        payload.newLastName = "Dubuc";
-        payload.newStreet = "Sommet de Orford";
-        payload.newCivicNumber = 12;
-        payload.newApptNumber = 10;
-        payload.newCountry = "Canada";
-        payload.newProvinceCode = "QC";
-
-        Address address = new Address();
-        address.addressId = 1;
+        payload.firstName = "William";
+        payload.lastName = "Dubuc";
+        AddressPayload addressPayload = new AddressPayload();
+        addressPayload.street = "Sommet de Orford";
+        addressPayload.civicNumber = 1;
+        addressPayload.apptNumber = 1;
+        addressPayload.provinceCode = "QC";
+        addressPayload.country = "Québec";
+        payload.address = addressPayload;
 
         Principal principal = mock(Principal.class);
         when(principal.getName()).thenReturn("dubw5596");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
-
-        when(keycloak.realm(any())).thenReturn(realmResource);
-        when(realmResource.users()).thenReturn(usersResource);
 
         UserRepresentation userRep = new UserRepresentation();
         userRep.setId("uuid-123");
@@ -203,19 +152,21 @@ public class UserServiceTest {
         userRep.setLastName("OldDubuc");
         userRep.setUsername("dubw5596");
 
-        when(usersResource.searchByUsername("dubw5596", true)).thenReturn(List.of(userRep));
-        when(usersResource.get("uuid-123")).thenReturn(userResource);
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
 
         User userDb = new User();
         userDb.addressId = null;
         when(userMapper.getUserInfo("dubw5596")).thenReturn(userDb);
 
-        Response response = userService.edit(payload);
+        when(addressConverter.toBusiness(any())).thenReturn(new Address());
+
+        Response response = userService.edit("dubw5596", payload);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
-        verify(addressMapper, times(1)).insert(any());
+        verify(addressMapper, times(1)).insert(any(Address.class));
         verify(userMapper, times(1)).updateUserAddress(eq("dubw5596"), anyInt());
-        verify(addressMapper, never()).update(any());
+        verify(addressMapper, never()).update(any(Address.class));
+        verify(keycloakAdapter, times(1)).updateUser(userRep);
     }
 
     @Test
@@ -314,8 +265,8 @@ public class UserServiceTest {
 
     @Test
     void testCipStorefrontUnknownCipThrowsNotFound() {
-        when(userMapper.getUserCountByCip("abcd1234")).thenReturn(0);
+        when(userMapper.getUserCountByCip("dubw5596")).thenReturn(0);
 
-        assertThrows(NotFoundException.class, () -> userService.cipStorefront("abcd1234"));
+        assertThrows(NotFoundException.class, () -> userService.cipStorefront("dubw5596"));
     }
 }

@@ -1,6 +1,8 @@
 package com.ebock.User;
 
+import com.ebock.adapter.KeycloakAdapter;
 import com.ebock.business.User;
+import com.ebock.dto.request.user.AddressPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
 import com.ebock.mapper.AddressMapper;
@@ -36,12 +38,12 @@ public class UserServiceIT {
 
     @InjectMock
     Keycloak keycloak;
-
     @InjectMock
     UserMapper userMapper;
-
     @InjectMock
     AddressMapper addressMapper;
+    @InjectMock
+    KeycloakAdapter keycloakAdapter;
 
     private RealmResource realmResource;
     private UsersResource usersResource;
@@ -64,7 +66,7 @@ public class UserServiceIT {
                 .contentType(ContentType.JSON)
                 .body(new UserEditPayload())
                 .when()
-                .put("/user/edit")
+                .put("/user/dubw5596/profil")
                 .then()
                 .statusCode(401);
 
@@ -72,7 +74,7 @@ public class UserServiceIT {
                 .contentType(ContentType.JSON)
                 .body(new UserChangePasswordPayload())
                 .when()
-                .put("/user/changepassword")
+                .put("/user/dubw5596/security")
                 .then()
                 .statusCode(401);
     }
@@ -84,51 +86,38 @@ public class UserServiceIT {
         payload.oldPassword = "correctOldPassword";
         payload.newPassword = "secureNewPassword123";
 
-        // mock everything in the mock builder
-        try (MockedStatic<KeycloakBuilder> mockedBuilder = Mockito.mockStatic(KeycloakBuilder.class)) {
-            KeycloakBuilder builderMock = mock(KeycloakBuilder.class);
-            Keycloak verificationClientMock = mock(Keycloak.class);
-            TokenManager tokenManagerMock = mock(TokenManager.class);
-            AccessTokenResponse tokenResponseMock = mock(org.keycloak.representations.AccessTokenResponse.class);
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("keycloak-uuid-999");
 
-            mockedBuilder.when(KeycloakBuilder::builder).thenReturn(builderMock);
+        doNothing().when(keycloakAdapter).verifyOldPassword("dubw5596", "correctOldPassword");
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
+        doNothing().when(keycloakAdapter).resetPassword("keycloak-uuid-999", "secureNewPassword123");
 
-            when(builderMock.serverUrl(any())).thenReturn(builderMock);
-            when(builderMock.realm(any())).thenReturn(builderMock);
-            when(builderMock.grantType(any())).thenReturn(builderMock);
-            when(builderMock.clientId(any())).thenReturn(builderMock);
-            when(builderMock.clientSecret(any())).thenReturn(builderMock);
-            when(builderMock.username(any())).thenReturn(builderMock);
-            when(builderMock.password(any())).thenReturn(builderMock);
-            when(builderMock.build()).thenReturn(verificationClientMock);
-            when(verificationClientMock.tokenManager()).thenReturn(tokenManagerMock);
-            when(tokenManagerMock.getAccessToken()).thenReturn(tokenResponseMock);
+        given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .when()
+                .put("/user/dubw5596/security")
+                .then()
+                .statusCode(204);
 
-            // Mock accessing user from keycloak
-            UserRepresentation userRep = new UserRepresentation();
-            userRep.setId("keycloak-uuid-999");
-            when(usersResource.searchByUsername("dubw5596", true)).thenReturn(List.of(userRep));
-            when(usersResource.get("keycloak-uuid-999")).thenReturn(userResource);
-
-            given()
-                    .contentType(ContentType.JSON)
-                    .body(payload)
-                    .when()
-                    .put("/user/changepassword")
-                    .then()
-                    .statusCode(204);
-
-            verify(userResource, times(1)).resetPassword(any());
-        }
+        verify(keycloakAdapter, times(1)).resetPassword("keycloak-uuid-999", "secureNewPassword123");
     }
 
     @Test
     @TestSecurity(user = "dubw5596", roles = {"user"})
     void testEditProfile_WithExistingAddress_Returns200() {
         UserEditPayload payload = new UserEditPayload();
-        payload.newFirstName = "William";
-        payload.newLastName = "Dubuc";
-        payload.newStreet = "Sommet de Orford";
+        payload.firstName = "William";
+        payload.lastName = "Dubuc";
+
+        AddressPayload addressPayload = new AddressPayload();
+        addressPayload.street = "Sommet de Orford";
+        addressPayload.civicNumber = 1;
+        addressPayload.apptNumber = 1;
+        addressPayload.provinceCode = "QC";
+        addressPayload.country = "Québec";
+        payload.address = addressPayload;
 
         UserRepresentation userRep = new UserRepresentation();
         userRep.setId("keycloak-uuid-999");
@@ -136,8 +125,8 @@ public class UserServiceIT {
         userRep.setLastName("OldLast");
         userRep.setUsername("dubw5596");
 
-        when(usersResource.searchByUsername("dubw5596", true)).thenReturn(List.of(userRep));
-        when(usersResource.get("keycloak-uuid-999")).thenReturn(userResource);
+        // Mock the adapter
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
 
         User mockUserDb = new User();
         mockUserDb.addressId = 42;
@@ -147,11 +136,11 @@ public class UserServiceIT {
                 .contentType(ContentType.JSON)
                 .body(payload)
                 .when()
-                .put("/user/edit")
+                .put("/user/dubw5596/profil")
                 .then()
                 .statusCode(200);
 
         verify(addressMapper, times(1)).update(any());
-        verify(userResource, times(1)).update(any());
+        verify(keycloakAdapter, times(1)).updateUser(any(UserRepresentation.class));
     }
 }
