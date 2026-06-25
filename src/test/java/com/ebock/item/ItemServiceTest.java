@@ -1,6 +1,7 @@
 package com.ebock.item;
 
 import com.ebock.business.Item;
+import com.ebock.business.ItemDeliveryOption;
 import com.ebock.converter.ItemConverter;
 import com.ebock.dto.request.item.FilterItemPayload;
 import com.ebock.dto.request.item.ItemImageElement;
@@ -12,6 +13,7 @@ import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
+import com.ebock.mapper.*;
 import com.ebock.service.ItemService;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.ws.rs.BadRequestException;
@@ -42,6 +44,10 @@ public class ItemServiceTest {
     ItemMapper itemMapper;
     @Mock
     ItemImageMapper itemImageMapper;
+    @Mock
+    ItemPaymentOptionMapper itemPaymentOptionMapper;
+    @Mock
+    ItemDeliveryOptionMapper itemDeliveryOptionMapper;
     @Mock
     ItemTagMapper itemTagMapper;
     @Mock
@@ -190,6 +196,8 @@ public class ItemServiceTest {
 
         ItemPayload payload = new ItemPayload();
         payload.tagList = List.of(1, 2, 3);
+        payload.deliveryOptionList = List.of(4,5,6);
+        payload.paymentOptionList = List.of(7,8,9);
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
         Item item = new Item();
         item.sellerCip = sellerCip;
@@ -212,6 +220,10 @@ public class ItemServiceTest {
         Mockito.verify(itemTagMapper, Mockito.times(1)).insert(anyInt(), anyList());
         Mockito.verify(itemImageMapper, Mockito.times(1)).deleteByItemId(anyInt());
         Mockito.verify(itemImageMapper, Mockito.times(1)).insert(anyInt(), anyList());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).insert(anyInt(), anyList());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).insert(anyInt(), anyList());
     }
 
     @Test
@@ -224,6 +236,8 @@ public class ItemServiceTest {
         ItemPayload payload = new ItemPayload();
         payload.tagList = List.of();
         payload.imageList = List.of();
+        payload.paymentOptionList = List.of();
+        payload.deliveryOptionList = List.of();
         Item item = new Item();
         item.sellerCip = sellerCip;
 
@@ -245,6 +259,10 @@ public class ItemServiceTest {
         Mockito.verify(itemTagMapper, Mockito.times(0)).insert(anyInt(), anyList());
         Mockito.verify(itemImageMapper, Mockito.times(1)).deleteByItemId(anyInt());
         Mockito.verify(itemImageMapper, Mockito.times(0)).insert(anyInt(), anyList());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
     }
 
     @Test
@@ -257,6 +275,8 @@ public class ItemServiceTest {
         ItemPayload payload = new ItemPayload();
         payload.tagList = null;
         payload.imageList = null;
+        payload.deliveryOptionList = null;
+        payload.paymentOptionList = null;
         Item item = new Item();
         item.sellerCip = sellerCip;
 
@@ -278,6 +298,10 @@ public class ItemServiceTest {
         Mockito.verify(itemTagMapper, Mockito.times(0)).insert(anyInt(), anyList());
         Mockito.verify(itemImageMapper, Mockito.times(1)).deleteByItemId(anyInt());
         Mockito.verify(itemImageMapper, Mockito.times(0)).insert(anyInt(), anyList());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
     }
 
     @Test

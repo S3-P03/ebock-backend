@@ -9,4 +9,14 @@
         from ebock.delivery_option
     </select>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="deliveryOption.deliveryOptnId">
+        insert into ebock.delivery_option (name)
+        values (#{deliveryOption.name})
+    </insert>
+
+    <update id="update">
+        update ebock.delivery_option set name = #{deliveryOption.name}
+        where delivery_optn_id = #{deliveryOption.deliveryOptnId}
+    </update>
+
 </mapper>

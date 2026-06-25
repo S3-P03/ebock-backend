@@ -1,9 +1,8 @@
 package com.ebock.mapper;
 
 import com.ebock.business.Item;
-import com.ebock.business.Wear;
-import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

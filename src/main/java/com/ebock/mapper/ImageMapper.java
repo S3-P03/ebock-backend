@@ -1,6 +1,5 @@
 package com.ebock.mapper;
 
-import com.ebock.business.Category;
 import com.ebock.business.Image;
 import com.ebock.dto.response.image.ItemImageResponse;
 import org.apache.ibatis.annotations.Mapper;

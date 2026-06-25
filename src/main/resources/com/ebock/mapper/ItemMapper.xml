@@ -133,6 +133,7 @@
         FROM PaginatedItems p
         LEFT JOIN ebock.item_image im ON im.item_id = p.item_id
         LEFT JOIN ebock.tag_item it ON p.item_id = it.item_id
+        WHERE im.displayorder = 1 OR im.guid IS NULL
         ORDER BY p.item_id;
     </select>
 
@@ -148,11 +149,13 @@
                i.wear_id,
                u.first_name,
                u.last_name,
-               it.tag_id
+               it.tag_id,
+               im.guid
         FROM ebock.item i
              INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
              LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
-        WHERE i.seller_cip = #{cip}
+             LEFT JOIN ebock.item_image im ON im.item_id = i.item_id
+        WHERE i.seller_cip = #{cip} AND (im.displayorder = 1 OR im.guid IS NULL)
           AND NOT i.archived;
     </select>
 
