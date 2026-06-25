@@ -120,7 +120,7 @@ public class UserServiceTest {
         userDb.addressId = 99;
         when(userMapper.getUserInfo("dubw5596")).thenReturn(userDb);
 
-        Response response = userService.edit("dubw5596", payload);
+        Response response = userService.editProfile("dubw5596", payload);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         verify(addressMapper, times(1)).update(any(Address.class));
@@ -160,7 +160,7 @@ public class UserServiceTest {
 
         when(addressConverter.toBusiness(any())).thenReturn(new Address());
 
-        Response response = userService.edit("dubw5596", payload);
+        Response response = userService.editProfile("dubw5596", payload);
 
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         verify(addressMapper, times(1)).insert(any(Address.class));
@@ -292,7 +292,7 @@ public class UserServiceTest {
         when(addressConverter.toProfileAddressResponse(mockAddress)).thenReturn(addrResp);
 
         // Act
-        com.ebock.dto.response.user.ProfileResponse result = userService.getProfil(cip);
+        com.ebock.dto.response.user.ProfileResponse result = userService.getProfile(cip);
 
         // Assert
         assertNotNull(result);
@@ -311,7 +311,7 @@ public class UserServiceTest {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
 
         // Act & Assert
-        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.getProfil("dubw5596"));
+        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.getProfile("dubw5596"));
         verify(userMapper, never()).getUserInfo(anyString());
     }
 
@@ -327,6 +327,6 @@ public class UserServiceTest {
         when(userMapper.getUserInfo(cip)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(NotFoundException.class, () -> userService.getProfil(cip));
+        assertThrows(NotFoundException.class, () -> userService.getProfile(cip));
     }
 }

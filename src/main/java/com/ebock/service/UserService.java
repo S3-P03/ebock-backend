@@ -93,9 +93,9 @@ public class UserService {
     }
 
     @GET
-    @Path("/{cip}/profil")
+    @Path("/{cip}/profile")
     @Authenticated
-    public ProfileResponse getProfil(
+    public ProfileResponse getProfile(
             @PathParam("cip") String pathCip
     ) {
         String cip = this.securityContext.getUserPrincipal().getName();
@@ -139,10 +139,10 @@ public class UserService {
     }
 
     @PUT
-    @Path("/{cip}/profil")
+    @Path("/{cip}/profile")
     @Authenticated
     @Transactional
-    public Response edit(@PathParam("cip") String pathCip, UserEditPayload payload) {
+    public Response editProfile(@PathParam("cip") String pathCip, UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
 

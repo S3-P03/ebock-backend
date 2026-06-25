@@ -76,7 +76,7 @@ public class UserServiceIT {
                 .contentType(ContentType.JSON)
                 .body(new UserEditPayload())
                 .when()
-                .put("/user/dubw5596/profil")
+                .put("/user/dubw5596/profile")
                 .then()
                 .statusCode(401);
 
@@ -90,7 +90,7 @@ public class UserServiceIT {
 
         given()
                 .when()
-                .get("/user/dubw1234/profil")
+                .get("/user/dubw1234/profile")
                 .then()
                 .statusCode(401);
 
@@ -155,7 +155,7 @@ public class UserServiceIT {
                 .contentType(ContentType.JSON)
                 .body(payload)
                 .when()
-                .put("/user/dubw5596/profil")
+                .put("/user/dubw5596/profile")
                 .then()
                 .statusCode(200);
 
@@ -168,7 +168,7 @@ public class UserServiceIT {
     public void testProfile_Forbidden_MismatchedCip_ShouldReturn403() {
         given()
                 .when()
-                .get("/user/dubw1234/profil")
+                .get("/user/dubw1234/profile")
                 .then()
                 .statusCode(403);
 
@@ -199,7 +199,7 @@ public class UserServiceIT {
         given()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/user/" + cip + "/profil")
+                .get("/user/" + cip + "/profile")
                 .then()
                 .statusCode(200)
                 .body("user", notNullValue())
