@@ -93,16 +93,11 @@ public class UserService {
     }
 
     @GET
-    @Path("/{cip}/profile")
+    @Path("/profile")
     @Authenticated
-    public ProfileResponse getProfile(
-            @PathParam("cip") String pathCip
-    ) {
+    public ProfileResponse getProfile() {
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        if (!cip.equalsIgnoreCase(pathCip)) {
-            throw new ForbiddenException("CIP not matching");
-        }
         User user = userMapper.getUserInfo(cip);
 
         if(user==null) throw new NotFoundException("User not found");
@@ -117,14 +112,10 @@ public class UserService {
     }
 
     @PUT
-    @Path("/{cip}/security")
+    @Path("/security")
     @Authenticated
-    public Response changeUserPassword(@PathParam("cip") String pathCip, UserChangePasswordPayload payload) {
+    public Response changeUserPassword(UserChangePasswordPayload payload) {
         String cip = this.securityContext.getUserPrincipal().getName();
-
-        if (!cip.equalsIgnoreCase(pathCip)) {
-            throw new ForbiddenException("CIP not matching");
-        }
 
         // Verify the old password
         keycloakAdapter.verifyOldPassword(cip, payload.oldPassword);
@@ -139,16 +130,12 @@ public class UserService {
     }
 
     @PUT
-    @Path("/{cip}/profile")
+    @Path("/profile")
     @Authenticated
     @Transactional
-    public Response editProfile(@PathParam("cip") String pathCip, UserEditPayload payload) {
+    public Response editProfile(UserEditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
-
-        if (!cip.equalsIgnoreCase(pathCip)) {
-            throw new ForbiddenException("CIP not matching");
-        }
 
         // Get user representation
         UserRepresentation user = keycloakAdapter.getUserByCip(cip);
