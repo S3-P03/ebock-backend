@@ -1,46 +1,176 @@
 package com.ebock.User;
 
+import com.ebock.adapter.KeycloakAdapter;
+import com.ebock.business.Address;
 import com.ebock.business.User;
+import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.request.user.AddressPayload;
+import com.ebock.dto.request.user.UserChangePasswordPayload;
+import com.ebock.dto.request.user.UserEditPayload;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
+import com.ebock.mapper.AddressMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.UserService;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
+import org.keycloak.representations.idm.UserRepresentation;
+import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.Principal;
-import static org.junit.jupiter.api.Assertions.*;
 
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
-    @Mock
-    UserMapper userMapper;
-
-    @Mock
-    UserConverter userConverter;
-
-    @Mock
-    JsonWebToken jwt;
-
-    @Mock
-    SecurityContext securityContext;
+    @Mock UserMapper userMapper;
+    @Mock AddressMapper addressMapper;
+    @Mock SecurityContext securityContext;
+    @Mock JsonWebToken jwt;
+    @Mock UserConverter userConverter;
+    @Mock KeycloakAdapter keycloakAdapter;
+    @Mock AddressConverter addressConverter;
 
     @InjectMocks
     UserService userService;
 
+    // Notice: @BeforeEach and @AfterEach are gone. We don't need MockedStatic anymore.
+
+    @Test
+    void changeUserPassword_Success() {
+        UserChangePasswordPayload payload = new UserChangePasswordPayload();
+        payload.oldPassword = "oldPassword123";
+        payload.newPassword = "newPassword123";
+
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("abcde123");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("uuid-12345");
+
+        // Mock the adapter behavior
+        doNothing().when(keycloakAdapter).verifyOldPassword("abcde123", "oldPassword123");
+        when(keycloakAdapter.getUserByCip("abcde123")).thenReturn(userRep);
+        doNothing().when(keycloakAdapter).resetPassword("uuid-12345", "newPassword123");
+
+        Response response = userService.changeUserPassword("abcde123", payload);
+
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(keycloakAdapter, times(1)).resetPassword("uuid-12345", "newPassword123");
+    }
+
+    @Test
+    void changeUserPassword_WrongOldPassword_ThrowsBadRequest() {
+        UserChangePasswordPayload payload = new UserChangePasswordPayload();
+        payload.oldPassword = "wrongPassword";
+
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("abcde123");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        // Simulate the adapter throwing the exception
+        doThrow(new BadRequestException("Invalid old password"))
+                .when(keycloakAdapter).verifyOldPassword("abcde123", "wrongPassword");
+
+        assertThrows(BadRequestException.class, () -> userService.changeUserPassword("abcde123", payload));
+
+        // Ensure we never try to fetch the user or reset the password if verification fails
+        verify(keycloakAdapter, never()).getUserByCip(anyString());
+        verify(keycloakAdapter, never()).resetPassword(anyString(), anyString());
+    }
+
+    @Test
+    void edit_AddressUpdate_ExistingAddress() {
+        UserEditPayload payload = new UserEditPayload();
+        payload.firstName = "William";
+        payload.lastName = "Dubuc";
+        AddressPayload addressPayload = new AddressPayload();
+        addressPayload.street = "Sommet de Orford";
+        addressPayload.civicNumber = 1;
+        addressPayload.apptNumber = 1;
+        addressPayload.provinceCode = "QC";
+        addressPayload.country = "Québec";
+        payload.address = addressPayload;
+
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("dubw5596");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("uuid-123");
+        userRep.setFirstName("OldWilli");
+        userRep.setLastName("OldDubuc");
+        userRep.setUsername("dubw5596");
+
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
+
+        when(addressConverter.toBusiness(any())).thenReturn(new Address());
+
+        User userDb = new User();
+        userDb.addressId = 99;
+        when(userMapper.getUserInfo("dubw5596")).thenReturn(userDb);
+
+        Response response = userService.edit("dubw5596", payload);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(addressMapper, times(1)).update(any(Address.class));
+        verify(addressMapper, never()).insert(any(Address.class));
+        verify(userMapper, never()).updateUserAddress(anyString(), anyInt());
+        verify(keycloakAdapter, times(1)).updateUser(userRep);
+    }
+
+    @Test
+    void edit_AddressInsertion_NonExistingAddress() {
+        UserEditPayload payload = new UserEditPayload();
+        payload.firstName = "William";
+        payload.lastName = "Dubuc";
+        AddressPayload addressPayload = new AddressPayload();
+        addressPayload.street = "Sommet de Orford";
+        addressPayload.civicNumber = 1;
+        addressPayload.apptNumber = 1;
+        addressPayload.provinceCode = "QC";
+        addressPayload.country = "Québec";
+        payload.address = addressPayload;
+
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn("dubw5596");
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        UserRepresentation userRep = new UserRepresentation();
+        userRep.setId("uuid-123");
+        userRep.setFirstName("OldWilli");
+        userRep.setLastName("OldDubuc");
+        userRep.setUsername("dubw5596");
+
+        when(keycloakAdapter.getUserByCip("dubw5596")).thenReturn(userRep);
+
+        User userDb = new User();
+        userDb.addressId = null;
+        when(userMapper.getUserInfo("dubw5596")).thenReturn(userDb);
+
+        when(addressConverter.toBusiness(any())).thenReturn(new Address());
+
+        Response response = userService.edit("dubw5596", payload);
+
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(addressMapper, times(1)).insert(any(Address.class));
+        verify(userMapper, times(1)).updateUserAddress(eq("dubw5596"), anyInt());
+        verify(addressMapper, never()).update(any(Address.class));
+        verify(keycloakAdapter, times(1)).updateUser(userRep);
+    }
+
     @Test
     void testMeCreatesUserIfNotExists() {
-        // arrange
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");
         when(jwt.getClaim("email")).thenReturn("larj4236@usherbrooke.ca");
@@ -50,16 +180,13 @@ public class UserServiceTest {
         when(userMapper.getUserInfo("larj4236")).thenReturn(null);
         when(userConverter.toResponse(any())).thenReturn(new UserResponse());
 
-        // act
         userService.me();
 
-        // assert
         verify(userMapper).createUser("larj4236", "larj4236@usherbrooke.ca", "Jeef", "Larouche");
     }
 
     @Test
     void testMeUpdatesUserIfInfoChanged() {
-        // arrange
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");
         when(jwt.getClaim("email")).thenReturn("larj4236@usherbrooke.ca");
@@ -74,16 +201,13 @@ public class UserServiceTest {
         when(userMapper.getUserInfo("larj4236")).thenReturn(existingUser);
         when(userConverter.toResponse(any())).thenReturn(new UserResponse());
 
-        // act
         userService.me();
 
-        // assert
         verify(userMapper).updateUser("larj4236", "larj4236@usherbrooke.ca", "Jeef", "Larouche");
     }
 
     @Test
     void testMeDoesNotUpdateIfUnchanged() {
-        // arrange
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");
         when(jwt.getClaim("email")).thenReturn("larj4236@usherbrooke.ca");
@@ -98,17 +222,14 @@ public class UserServiceTest {
         when(userMapper.getUserInfo("larj4236")).thenReturn(existingUser);
         when(userConverter.toResponse(any())).thenReturn(new UserResponse());
 
-        // act
         userService.me();
 
-        // assert
         verify(userMapper, never()).updateUser(any(), any(), any(), any());
         verify(userMapper, never()).createUser(any(), any(), any(), any());
     }
 
     @Test
     void testMeReturnsUserResponse() {
-        // arrange
         User existingUser = new User();
         when(jwt.getClaim("given_name")).thenReturn("Jeef");
         when(jwt.getClaim("family_name")).thenReturn("Larouche");
@@ -124,36 +245,28 @@ public class UserServiceTest {
         when(userMapper.getUserInfo("larj4236")).thenReturn(existingUser);
         when(userConverter.toResponse(existingUser)).thenReturn(expected);
 
-        // act
         UserResponse result = userService.me();
 
-        // assert
         assertEquals(expected, result);
     }
 
     @Test
     void testCipStorefrontReturnsCorrectUser() {
-        // arrange
         User user = new User();
         SellerUserResponse expected = new SellerUserResponse();
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(userMapper.getUserInfo("larj4236")).thenReturn(user);
         when(userConverter.toSellerUserResponse(user)).thenReturn(expected);
 
-        // act
         SellerUserResponse result = userService.cipStorefront("larj4236");
 
-        // assert
         assertEquals(expected, result);
     }
 
     @Test
     void testCipStorefrontUnknownCipThrowsNotFound() {
-        // arrange
-        when(userMapper.getUserCountByCip("abcd1234")).thenReturn(0);
+        when(userMapper.getUserCountByCip("dubw5596")).thenReturn(0);
 
-        // act and assert
-        assertThrows(NotFoundException.class, () -> userService.cipStorefront("abcd1234"));
+        assertThrows(NotFoundException.class, () -> userService.cipStorefront("dubw5596"));
     }
-
 }

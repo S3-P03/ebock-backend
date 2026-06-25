@@ -10,7 +10,8 @@
                last_name,
                email,
                profile_picture_guid,
-               created_at
+               created_at,
+               address_id
         FROM ebock.user_
         WHERE cip = #{cip}
     </select>
@@ -30,6 +31,13 @@
         SET first_name = #{firstName},
             last_name = #{lastName},
             email = #{email},
+            updated_at = now()
+        WHERE cip = #{cip}
+    </update>
+
+    <update id="updateUserAddress">
+        UPDATE ebock.user_
+        SET address_id = #{addressId},
             updated_at = now()
         WHERE cip = #{cip}
     </update>
