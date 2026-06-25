@@ -14,9 +14,6 @@ public class AddressPayload {
     @Size(max=60)
     public String street;
 
-    @Size(max=60)
-    public String city;
-
     @Pattern(regexp = "^[A-Za-z]\\d[A-Za-z][ -]?\\d[A-Za-z]\\d$")
     public String postalCode;
 

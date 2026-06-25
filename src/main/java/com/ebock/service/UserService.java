@@ -93,9 +93,9 @@ public class UserService {
     }
 
     @GET
-    @Path("/{cip}/profile")
+    @Path("/{cip}/profil")
     @Authenticated
-    public ProfileResponse profile(
+    public ProfileResponse getProfil(
             @PathParam("cip") String pathCip
     ) {
         String cip = this.securityContext.getUserPrincipal().getName();
@@ -104,6 +104,9 @@ public class UserService {
             throw new ForbiddenException("CIP not matching");
         }
         User user = userMapper.getUserInfo(cip);
+
+        if(user==null) throw new NotFoundException("User not found");
+
         Address address = addressMapper.getAddressById(user.addressId);
 
         ProfileResponse response = new ProfileResponse();

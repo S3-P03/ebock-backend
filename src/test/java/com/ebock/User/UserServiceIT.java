@@ -90,7 +90,7 @@ public class UserServiceIT {
 
         given()
                 .when()
-                .get("/user/dubw1234/profile")
+                .get("/user/dubw1234/profil")
                 .then()
                 .statusCode(401);
 
@@ -149,6 +149,7 @@ public class UserServiceIT {
         User mockUserDb = new User();
         mockUserDb.addressId = 42;
         when(userMapper.getUserInfo("dubw5596")).thenReturn(mockUserDb);
+        when(addressConverter.toBusiness(any())).thenReturn(new Address());
 
         given()
                 .contentType(ContentType.JSON)
@@ -163,16 +164,14 @@ public class UserServiceIT {
     }
 
     @Test
-    @TestSecurity(user = "hacker99") // Simule un token appartenant à "hacker99"
+    @TestSecurity(user = "asdf1234")
     public void testProfile_Forbidden_MismatchedCip_ShouldReturn403() {
-        // "hacker99" essaie d'accéder au profil de "dubw1234"
         given()
                 .when()
-                .get("/user/dubw1234/profile")
+                .get("/user/dubw1234/profil")
                 .then()
                 .statusCode(403);
 
-        // On vérifie que le code a bloqué la requête AVANT de toucher à la base de données
         Mockito.verify(userMapper, Mockito.never()).getUserInfo(any());
     }
 
@@ -200,7 +199,7 @@ public class UserServiceIT {
         given()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/user/" + cip + "/profile")
+                .get("/user/" + cip + "/profil")
                 .then()
                 .statusCode(200)
                 .body("user", notNullValue())

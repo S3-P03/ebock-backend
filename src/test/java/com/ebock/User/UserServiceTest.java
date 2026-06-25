@@ -292,7 +292,7 @@ public class UserServiceTest {
         when(addressConverter.toProfileAddressResponse(mockAddress)).thenReturn(addrResp);
 
         // Act
-        com.ebock.dto.response.user.ProfileResponse result = userService.profile(cip);
+        com.ebock.dto.response.user.ProfileResponse result = userService.getProfil(cip);
 
         // Assert
         assertNotNull(result);
@@ -311,7 +311,7 @@ public class UserServiceTest {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
 
         // Act & Assert
-        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.profile("dubw5596"));
+        assertThrows(jakarta.ws.rs.ForbiddenException.class, () -> userService.getProfil("dubw5596"));
         verify(userMapper, never()).getUserInfo(anyString());
     }
 
@@ -327,6 +327,6 @@ public class UserServiceTest {
         when(userMapper.getUserInfo(cip)).thenReturn(null);
 
         // Act & Assert
-        assertThrows(NotFoundException.class, () -> userService.profile(cip));
+        assertThrows(NotFoundException.class, () -> userService.getProfil(cip));
     }
 }
