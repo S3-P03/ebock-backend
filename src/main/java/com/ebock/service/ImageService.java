@@ -131,7 +131,7 @@ public class ImageService {
         List<ItemImageResponse> images = imageMapper.getItemImages(id);
 
         if (images == null || images.isEmpty()) {
-            throw new NotFoundException("Images not found");
+            images = List.of();
         }
 
         return images;
