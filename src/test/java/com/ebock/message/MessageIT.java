@@ -160,22 +160,22 @@ public class MessageIT {
                 .get("/message/room")
                 .then()
                 .statusCode(200)
-                .body("[0].roomId", is(6))
-                .body("[0].itemId", is(5))
-                .body("[0].itemName", is("Prise de laptop"))
-                .body("[0].sellerCip", is("pele3157"))
-                .body("[0].sellerFirstName", is("Éliane"))
-                .body("[0].sellerLastName", is("Pelletier"))
-                .body("[0].buyerCip", is("larj4236"))
-                .body("[0].buyerFirstName", is("Jean-Félix"))
-                .body("[0].buyerLastName", is("Larouche"));
+                .body("[0].roomId", is(4))
+                .body("[0].itemId", is(4))
+                .body("[0].itemName", is("Chalk"))
+                .body("[0].sellerCip", is("larj4236"))
+                .body("[0].sellerFirstName", is("Jean-Félix"))
+                .body("[0].sellerLastName", is("Larouche"))
+                .body("[0].buyerCip", is("pele3157"))
+                .body("[0].buyerFirstName", is("Éliane"))
+                .body("[0].buyerLastName", is("Pelletier"));
     }
 
     @Test
     @TestSecurity(user = "bela3439")
     void queryUserRoomsEmptyReturnsEmptyList() {
         Principal mockPrincipal = mock(Principal.class);
-        when(mockPrincipal.getName()).thenReturn("bela3439");
+        when(mockPrincipal.getName()).thenReturn("test1234");
         when(securityContext.getUserPrincipal()).thenReturn(mockPrincipal);
         given()
                 .when()
