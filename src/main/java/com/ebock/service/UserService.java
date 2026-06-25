@@ -7,6 +7,7 @@ import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -84,6 +85,17 @@ public class UserService {
     @Path("/{cip}/storefront")
     @PermitAll
     public SellerUserResponse cipStorefront(
+            @PathParam("cip") String cip
+    ) {
+        if(userMapper.getUserCountByCip(cip) == 0)
+            throw new NotFoundException("User not found");
+        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+    }
+
+    @GET
+    @Path("/{cip}/profile")
+    @@Authenticated
+    public ProfileResponse profile(
             @PathParam("cip") String cip
     ) {
         if(userMapper.getUserCountByCip(cip) == 0)
