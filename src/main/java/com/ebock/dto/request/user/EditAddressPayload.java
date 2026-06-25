@@ -4,7 +4,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
-public class AddressPayload {
+public class EditAddressPayload {
     @Min(1)
     public Integer civicNumber;
 
@@ -13,9 +13,6 @@ public class AddressPayload {
 
     @Size(max=60)
     public String street;
-
-    @Size(max=60)
-    public String city;
 
     @Pattern(regexp = "^[A-Za-z]\\d[A-Za-z][ -]?\\d[A-Za-z]\\d$")
     public String postalCode;

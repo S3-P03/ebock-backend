@@ -6,7 +6,8 @@ import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.UserEditPayload;
+import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -20,14 +21,10 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
-import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.admin.client.Keycloak;
-import org.keycloak.admin.client.resource.UserResource;
-import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
-import java.util.List;
 import java.util.Objects;
 
 @Path("/user")
@@ -91,15 +88,30 @@ public class UserService {
         return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
     }
 
-    @PUT
-    @Path("/{cip}/security")
+    @GET
+    @Path("/profile")
     @Authenticated
-    public Response changeUserPassword(@PathParam("cip") String pathCip, UserChangePasswordPayload payload) {
+    public ProfileResponse getProfile() {
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        if (!cip.equalsIgnoreCase(pathCip)) {
-            throw new ForbiddenException("CIP not matching");
-        }
+        User user = userMapper.getUserInfo(cip);
+
+        if(user==null) throw new NotFoundException("User not found");
+
+        Address address = addressMapper.getAddressById(user.addressId);
+
+        ProfileResponse response = new ProfileResponse();
+        response.user = userConverter.toProfileUserResponse(user);
+        response.address = addressConverter.toProfileAddressResponse(address);
+
+        return response;
+    }
+
+    @PUT
+    @Path("/security")
+    @Authenticated
+    public Response changeUserPassword(UserChangePasswordPayload payload) {
+        String cip = this.securityContext.getUserPrincipal().getName();
 
         // Verify the old password
         keycloakAdapter.verifyOldPassword(cip, payload.oldPassword);
@@ -114,16 +126,12 @@ public class UserService {
     }
 
     @PUT
-    @Path("/{cip}/profil")
+    @Path("/profile")
     @Authenticated
     @Transactional
-    public Response edit(@PathParam("cip") String pathCip, UserEditPayload payload) {
+    public Response editProfile(EditPayload payload) {
         // Get the user
         String cip = this.securityContext.getUserPrincipal().getName();
-
-        if (!cip.equalsIgnoreCase(pathCip)) {
-            throw new ForbiddenException("CIP not matching");
-        }
 
         // Get user representation
         UserRepresentation user = keycloakAdapter.getUserByCip(cip);
@@ -158,18 +166,18 @@ public class UserService {
      * @param payload containing the new names
      * @return if a change was made
      */
-    private boolean applyNameChanges(UserRepresentation user, UserEditPayload payload) {
+    private boolean applyNameChanges(UserRepresentation user, EditPayload payload) {
         boolean isModified = false;
 
-        if (payload.firstName != null && !payload.firstName.isBlank()
-                && !Objects.equals(user.getFirstName(), payload.firstName)) {
-            user.setFirstName(payload.firstName.trim());
+        if (payload.user.firstName != null && !payload.user.firstName.isBlank()
+                && !Objects.equals(user.getFirstName(), payload.user.firstName)) {
+            user.setFirstName(payload.user.firstName.trim());
             isModified = true;
         }
 
-        if (payload.lastName != null && !payload.lastName.isBlank()
-                && !Objects.equals(user.getLastName(), payload.lastName)) {
-            user.setLastName(payload.lastName.trim());
+        if (payload.user.lastName != null && !payload.user.lastName.isBlank()
+                && !Objects.equals(user.getLastName(), payload.user.lastName)) {
+            user.setLastName(payload.user.lastName.trim());
             isModified = true;
         }
 
