@@ -24,13 +24,16 @@ public class KeycloakAdapter {
     @Inject
     Keycloak keycloak;
 
-    @ConfigProperty(name = "keycloak.server-url")
+    @ConfigProperty(name = "quarkus.keycloak.admin-client.server-url")
     String serverUrl;
-    @ConfigProperty(name = "keycloak.realm")
+
+    @ConfigProperty(name = "quarkus.keycloak.admin-client.realm")
     String realm;
-    @ConfigProperty(name = "keycloak.client-id")
+
+    @ConfigProperty(name = "quarkus.keycloak.admin-client.client-id")
     String clientId;
-    @ConfigProperty(name = "keycloak.client-secret")
+
+    @ConfigProperty(name = "quarkus.keycloak.admin-client.client-secret")
     String clientSecret;
 
     /**
