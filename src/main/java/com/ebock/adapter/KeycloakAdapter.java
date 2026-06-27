@@ -12,6 +12,7 @@ import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.keycloak.OAuth2Constants;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
@@ -67,7 +68,7 @@ public class KeycloakAdapter {
     public UserRepresentation getUserByCip(String cip) {
         List<UserRepresentation> users = keycloak.realm(realm).users().searchByUsername(cip, true);
         if (users == null || users.isEmpty()) {
-            throw new NotFoundException("User not found in IAM");
+            throw new NotFoundException("User not found");
         }
         return users.get(0);
     }
@@ -80,6 +81,64 @@ public class KeycloakAdapter {
         List<UserRepresentation> users = keycloak.realm(realm).users().list();
 
         return users;
+    }
+
+    /**
+     * Enable a user
+     * @param cip of the user
+     */
+    public void enableUser(String cip) {
+        if (cip == null || cip.isBlank()) {
+            throw new BadRequestException("Invalid cip");
+        }
+
+        UserRepresentation userRepresentation = getUserByCip(cip);
+
+        try {
+            // Get the user
+            UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
+            UserRepresentation user = userResource.toRepresentation();
+
+            // Change the status
+            if (user.isEnabled()) {
+                return;
+            }
+            user.setEnabled(true);
+
+            // Save
+            userResource.update(user);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User not found");
+        }
+    }
+
+    /**
+     * Disable a user
+     * @param cip of the user
+     */
+    public void disableUser(String cip) {
+        if (cip == null || cip.isBlank()) {
+            throw new BadRequestException("Invalid cip");
+        }
+
+        UserRepresentation userRepresentation = getUserByCip(cip);
+
+        try {
+            // Get the user
+            UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
+            UserRepresentation user = userResource.toRepresentation();
+
+            // Change the status
+            if (!user.isEnabled()) {
+                return;
+            }
+            user.setEnabled(false);
+
+            // Save
+            userResource.update(user);
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User not found");
+        }
     }
 
     /**

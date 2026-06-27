@@ -163,19 +163,44 @@ public class UserService {
         return Response.ok().build();
     }
 
-    @PUT
+    @GET
     @Path("/list/")
     @Authenticated
     // TODO: REMETTRE
     //@RolesAllowed("admin")
-    public ListUtilisateursResponse listUtilisateurs() {
+    public ListUtilisateursResponse listUser() {
         // Fetch all users
         List<UserRepresentation> userRepresentations = keycloakAdapter.getAllUsers();
 
+        // Convert to response
         ListUtilisateursResponse response = new ListUtilisateursResponse();
         response.utilisateurs = userConverter.toResponseFromUserRepresentation(userRepresentations);
 
         return response;
+    }
+
+    @PUT
+    @Path("/enable/{cip}")
+    @Authenticated
+    // TODO: REMETTRE
+    //@RolesAllowed("admin")
+    public Response enableUser(@PathParam("cip") String cip) {
+        // Enable the user
+        keycloakAdapter.enableUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/disable/{cip}")
+    @Authenticated
+    // TODO: REMETTRE
+    //@RolesAllowed("admin")
+    public Response disableUser(@PathParam("cip") String cip) {
+        // Disable the user
+        keycloakAdapter.disableUser(cip);
+
+        return Response.ok().build();
     }
 
     /**
