@@ -5,13 +5,15 @@
 <mapper namespace="com.ebock.mapper.UserMapper">
 
     <select id="getUserInfo" resultType="com.ebock.business.User">
-        select cip,
+        SELECT cip,
                first_name,
                last_name,
                email,
-               profile_picture_url
-        from ebock.user_
-        where cip = #{cip}
+               profile_picture_guid,
+               created_at,
+               address_id
+        FROM ebock.user_
+        WHERE cip = #{cip}
     </select>
     <insert id="createUser">
         INSERT INTO ebock.user_ (cip,
@@ -32,5 +34,18 @@
             updated_at = now()
         WHERE cip = #{cip}
     </update>
+
+    <update id="updateUserAddress">
+        UPDATE ebock.user_
+        SET address_id = #{addressId},
+            updated_at = now()
+        WHERE cip = #{cip}
+    </update>
+
+    <select id="getUserCountByCip" resultType="int">
+        SELECT COUNT(*)
+        FROM ebock.user_ u
+        WHERE u.cip = #{cip};
+    </select>
 
 </mapper>

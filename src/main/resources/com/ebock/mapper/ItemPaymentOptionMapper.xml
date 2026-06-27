@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.ItemPaymentOptionMapper">
+
+    <delete id="deleteByItemId">
+        delete from ebock.item_paym_option
+        where item_id = #{itemId}
+    </delete>
+
+    <insert id="insert">
+        insert into ebock.item_paym_option (item_id, payment_optn_id)
+        values
+        <foreach collection="paymentOptions" item="paymentOptnId" separator=",">
+            (#{itemId}, #{paymentOptnId})
+        </foreach>
+    </insert>
+</mapper>

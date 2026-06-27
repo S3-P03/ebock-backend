@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.AddressMapper">
+    <select id="getAddressById" resultType="com.ebock.business.Address">
+        SELECT address_id,
+               civic_number,
+               appt_number,
+               street,
+               postal_code,
+               country,
+               province_code
+        FROM ebock.address
+        WHERE address_id = #{addressId}
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="address.addressId">
+        insert into ebock.address (civic_number, appt_number, street, postal_code, country, province_code) values (#{address.civicNumber}, #{address.apptNumber}, #{address.street}, #{address.postalCode}, #{address.country}, #{address.provinceCode})
+    </insert>
+
+    <update id="update">
+        update ebock.address set civic_number = #{address.civicNumber}, appt_number=#{address.apptNumber}, street=#{address.street}, postal_code=#{address.postalCode}, country=#{address.country}, province_code=#{address.provinceCode} where address_id = #{address.addressId}
+    </update>
+
+</mapper>

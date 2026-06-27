@@ -15,4 +15,7 @@ public interface UserMapper {
                     @Param("email") String email,
                     @Param("firstName") String firstName,
                     @Param("lastName") String lastName);
+    void updateUserAddress(@Param("cip") String cip,
+                           @Param("addressId") int addressId);
+    int getUserCountByCip(@Param("cip") String cip);
 }

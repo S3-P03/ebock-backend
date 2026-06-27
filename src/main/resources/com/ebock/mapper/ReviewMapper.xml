@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.ReviewMapper">
+
+    <select id="getUserAverageReview" resultType="com.ebock.dto.response.review.AverageReviewResponse">
+        SELECT round(avg(r.rating), 2) AS avgRating,
+               count(r.rating) AS nbrReviews
+        FROM ebock.review r
+        WHERE r.reviewed_cip = #{cip}
+        GROUP BY r.reviewed_cip
+    </select>
+
+    <select id="getDetailledReviews" resultType="com.ebock.dto.response.review.ReviewDetailsResponse">
+        SELECT u.first_name,
+               u.last_name,
+               u.profile_picture_guid,
+               r.content,
+               r.timestamp_,
+               r.rating
+        FROM ebock.review r
+            INNER JOIN ebock.user_ u ON r.reviewer_cip = u.cip
+        WHERE r.reviewed_cip = #{cip}
+    </select>
+</mapper>
