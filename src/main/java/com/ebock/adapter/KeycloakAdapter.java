@@ -73,6 +73,16 @@ public class KeycloakAdapter {
     }
 
     /**
+     * Fetch all user
+     * @return User
+     */
+    public List<UserRepresentation> getAllUsers() {
+        List<UserRepresentation> users = keycloak.realm(realm).users().list();
+
+        return users;
+    }
+
+    /**
      * Reset the password of the user
      * @param userId of the user
      * @param newPassword
