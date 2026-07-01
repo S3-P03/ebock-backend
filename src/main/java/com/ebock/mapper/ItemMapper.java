@@ -1,7 +1,7 @@
 package com.ebock.mapper;
 
 import com.ebock.business.Item;
-import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.request.item.FilterItemParameters;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import org.apache.ibatis.annotations.Mapper;
@@ -17,7 +17,7 @@ public interface ItemMapper {
     int getItemCountById(@Param("id") int id);
     List<ItemResponse> getPaginatedItem(@Param("pageNumber") int pageNumber,
                                         @Param("pageSize") int pageSize,
-                                        @Param("filters") FilterItemPayload filterItemPayload,
+                                        @Param("filters") FilterItemParameters filterItemParameters,
                                         @Param("cip") String cip);
     void favorite(@Param("id") int itemId, @Param("cip") String cip);
     void unfavorite(@Param("id") int itemId, @Param("cip") String cip);

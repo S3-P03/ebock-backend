@@ -1,14 +1,12 @@
 package com.ebock.item;
 
 import com.ebock.business.Item;
-import com.ebock.business.ItemDeliveryOption;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.request.item.FilterItemParameters;
 import com.ebock.dto.request.item.ItemImageElement;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
-import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
@@ -67,7 +65,7 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -94,7 +92,7 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -111,7 +109,7 @@ public class ItemServiceTest {
     void testList_Works_WhenNotConnected(){
         //arrange
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(""))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(""))).thenReturn(expected);
 
         //act
         List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
