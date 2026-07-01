@@ -2,7 +2,7 @@ package com.ebock.service;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.request.item.FilterItemParameters;
 import com.ebock.dto.request.item.ItemPayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemInsertResponse;
@@ -61,16 +61,16 @@ public class ItemService {
                                    @RestQuery @Separator(",") List<Integer> wears,
                                    @RestQuery @Separator(",") List<Integer> deliveries,
                                    @RestQuery @Separator(",") List<Integer> payments) {
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-        filterItemPayload.minPrice = minP;
-        filterItemPayload.maxPrice = maxP;
-        filterItemPayload.maxDistance = maxD;
-        filterItemPayload.favorite = fav;
-        filterItemPayload.listCategoryId = categories;
-        filterItemPayload.listTagId = tags;
-        filterItemPayload.listWearId = wears;
-        filterItemPayload.listDeliveryId = deliveries;
-        filterItemPayload.listPaymentId = payments;
+        FilterItemParameters filterItemParameters = new FilterItemParameters();
+        filterItemParameters.minPrice = minP;
+        filterItemParameters.maxPrice = maxP;
+        filterItemParameters.maxDistance = maxD;
+        filterItemParameters.favorite = fav;
+        filterItemParameters.listCategoryId = categories;
+        filterItemParameters.listTagId = tags;
+        filterItemParameters.listWearId = wears;
+        filterItemParameters.listDeliveryId = deliveries;
+        filterItemParameters.listPaymentId = payments;
         int pageSize = 25;
 
         if (pageNumber < 1) {
@@ -81,7 +81,7 @@ public class ItemService {
             cip = securityContext.getUserPrincipal().getName();
         } catch (Exception e){}
 
-        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload, cip);
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemParameters, cip);
     }
 
     @GET

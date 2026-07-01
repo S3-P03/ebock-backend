@@ -12,7 +12,7 @@ public class ItemPayload {
     @Size(max=350)
     public String description;
     @NotNull
-    @DecimalMin(value="0.01")
+    @DecimalMin(value="0.00")
     public BigDecimal price;
     @Min(value=1)
     public int quantity;

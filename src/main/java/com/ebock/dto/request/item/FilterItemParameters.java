@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 
-public class FilterItemPayload {
+public class FilterItemParameters {
     @DecimalMin(value = "0.0", inclusive = true)
     public BigDecimal minPrice;
     @DecimalMin(value = "0.0", inclusive = true)

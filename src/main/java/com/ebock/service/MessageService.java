@@ -77,6 +77,14 @@ public class MessageService {
             throw new NotFoundException("Connected user not found");
         if (itemMapper.getItemCountById(room.itemId) == 0)
             throw new NotFoundException("Item not found");
+        List<RoomDetailsResponse> userRooms = messageMapper.getAllUserRooms(cip);
+        for (RoomDetailsResponse userRoom : userRooms) {
+            if (userRoom.itemId == room.itemId) {
+                RoomResponse response = new RoomResponse();
+                response.roomId = userRoom.roomId;
+                return response;
+            }
+        }
         return messageMapper.createRoom(room.itemId, cip);
     }
 
