@@ -17,6 +17,7 @@ import org.keycloak.representations.idm.CredentialRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
+import java.util.regex.Pattern;
 
 
 @ApplicationScoped
@@ -36,7 +37,7 @@ public class KeycloakAdapter {
 
     @ConfigProperty(name = "quarkus.keycloak.admin-client.client-secret")
     String clientSecret;
-
+    
     /**
      * Verifies the user's current password by attempting to fetch a token.
      */
@@ -88,7 +89,7 @@ public class KeycloakAdapter {
      * @param cip of the user
      */
     public void enableUser(String cip) {
-        if (cip == null || cip.isBlank() || cip.length() != 8) {
+        if (!isCipValid(cip)) {
             throw new BadRequestException("Invalid cip");
         }
 
@@ -117,7 +118,7 @@ public class KeycloakAdapter {
      * @param cip of the user
      */
     public void disableUser(String cip) {
-        if (cip == null || cip.isBlank() || cip.length() != 8) {
+        if (!isCipValid(cip)) {
             throw new BadRequestException("Invalid cip");
         }
 
@@ -146,7 +147,7 @@ public class KeycloakAdapter {
      * @param cip of the user
      */
     public boolean isUserEnabled(String cip) {
-        if (cip == null || cip.isBlank()) {
+        if (!isCipValid(cip)) {
             throw new BadRequestException("Invalid cip");
         }
 
@@ -183,5 +184,18 @@ public class KeycloakAdapter {
      */
     public void updateUser(UserRepresentation user) {
         keycloak.realm(realm).users().get(user.getId()).update(user);
+    }
+
+    /**
+     * Check if a cip is valid
+     * @param cip to validate
+     * @return if its valid
+     */
+    public static boolean isCipValid(String cip) {
+        if (cip == null) {
+            return false;
+        }
+
+        return cip.matches("(?i)[a-zA-Z]{4}[0-9]{4}");
     }
 }
