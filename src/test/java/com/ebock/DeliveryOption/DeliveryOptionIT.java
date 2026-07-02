@@ -13,11 +13,10 @@ public class DeliveryOptionIT {
     void queryListReturnsDeliveryOptions() {
         given()
                 .when()
-                .get("/deliveryOption/list")
+                .get("/deliveryOption")
                 .then()
                 .statusCode(200)
                 .body("[0].deliveryOptnId", is(1))
                 .body("[0].name", is("Livraison"));
-
     }
 }

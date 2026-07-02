@@ -53,7 +53,7 @@ public class DeliveryOptionServiceIT {
 
         given()
                 .when()
-                .get("/deliveryOption/list")
+                .get("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +67,7 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -80,7 +80,20 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.never()).insert(any());
+    }
+
+    @Test
+    public void testUpdate_Unauthenticated_ShouldReturn401() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .put("/deliveryOption/1")
                 .then()
                 .statusCode(401);
 

@@ -28,7 +28,7 @@ public class TagService {
     SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<TagResponse> list() {
         List<Tag> tags = this.tagMapper.getAllTags();
@@ -36,7 +36,7 @@ public class TagService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     public TagResponse insert(@Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
@@ -45,7 +45,7 @@ public class TagService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     public TagResponse update(@PathParam("id") int id, @Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);

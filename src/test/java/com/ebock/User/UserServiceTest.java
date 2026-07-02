@@ -9,6 +9,8 @@ import com.ebock.dto.request.user.EditAddressPayload;
 import com.ebock.dto.request.user.EditUserPayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.response.user.ListUtilisateursResponse;
+import com.ebock.dto.response.user.ListUtilisateursUserResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -26,6 +28,8 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -317,5 +321,49 @@ public class UserServiceTest {
 
         // Act & Assert
         assertThrows(NotFoundException.class, () -> userService.getProfile());
+    }
+
+    @Test
+    void listUser_shouldReturnMappedUsers() {
+        // Arrange
+        List<UserRepresentation> mockRepresentations = Collections.singletonList(new UserRepresentation());
+        List<ListUtilisateursUserResponse> mockDTOs = Collections.singletonList(new ListUtilisateursUserResponse());
+
+        when(keycloakAdapter.getAllUsers()).thenReturn(mockRepresentations);
+        when(userConverter.toResponseFromUserRepresentation(mockRepresentations)).thenReturn(mockDTOs);
+
+        // Act
+        ListUtilisateursResponse result = userService.listUser();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockDTOs, result.utilisateurs);
+        verify(keycloakAdapter).getAllUsers();
+    }
+
+    @Test
+    void enableUser_shouldCallAdapterAndReturnOk() {
+        // Arrange
+        String cip = "test1234";
+
+        // Act
+        Response response = userService.enableUser(cip);
+
+        // Assert
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(keycloakAdapter).enableUser(cip);
+    }
+
+    @Test
+    void disableUser_shouldCallAdapterAndReturnOk() {
+        // Arrange
+        String cip = "test1234";
+
+        // Act
+        Response response = userService.disableUser(cip);
+
+        // Assert
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(keycloakAdapter).disableUser(cip);
     }
 }

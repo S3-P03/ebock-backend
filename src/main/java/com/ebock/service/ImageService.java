@@ -36,7 +36,7 @@ public class ImageService {
     );
 
     @POST
-    @Path("/upload")
+    @Path("")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     @Authenticated

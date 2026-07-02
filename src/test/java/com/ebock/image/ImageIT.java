@@ -60,7 +60,7 @@ class ImageIT {
         String responseGuid = given()
                 .multiPart("file", validFile, "image/jpeg")
                 .when()
-                .post("/image/upload")
+                .post("/image")
                 .then()
                 .statusCode(200)
                 .contentType(ContentType.JSON)
@@ -77,7 +77,7 @@ class ImageIT {
         given()
                 .multiPart("file", validFile, "image/jpeg")
                 .when()
-                .post("/image/upload")
+                .post("/image")
                 .then()
                 .statusCode(401);
     }
@@ -88,7 +88,7 @@ class ImageIT {
         given()
                 .contentType(ContentType.MULTIPART)
                 .when()
-                .post("/image/upload")
+                .post("/image")
                 .then()
                 .statusCode(400);
     }
@@ -101,7 +101,7 @@ class ImageIT {
 
         given().multiPart("file", badFile, "text/plain")
                 .when()
-                .post("/image/upload")
+                .post("/image")
                 .then()
                 .statusCode(400);
 

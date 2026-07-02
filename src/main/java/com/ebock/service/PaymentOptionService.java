@@ -28,7 +28,7 @@ public class PaymentOptionService {
     SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<PaymentOptionResponse> list() {
         List<PaymentOption> paymentOptions = this.paymentOptionMapper.getAllPaymentOptions();
@@ -36,7 +36,7 @@ public class PaymentOptionService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     public PaymentOptionResponse insert(@Valid PaymentOptionPayload payload) {
         PaymentOption paymentOption = paymentOptionConverter.toBusiness(payload);
@@ -45,7 +45,7 @@ public class PaymentOptionService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     public PaymentOptionResponse update(@PathParam("id") int id, @Valid PaymentOptionPayload payload) {
         PaymentOption paymentOption = paymentOptionConverter.toBusiness(payload);

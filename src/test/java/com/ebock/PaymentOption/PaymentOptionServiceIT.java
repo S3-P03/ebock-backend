@@ -53,7 +53,7 @@ public class PaymentOptionServiceIT {
 
         given()
                 .when()
-                .get("/paymentOption/list")
+                .get("/paymentOption")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +67,7 @@ public class PaymentOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/paymentOption/insert")
+                .post("/paymentOption")
                 .then()
                 .statusCode(200);
 
@@ -80,7 +80,7 @@ public class PaymentOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/paymentOption/insert")
+                .post("/paymentOption")
                 .then()
                 .statusCode(401);
 
