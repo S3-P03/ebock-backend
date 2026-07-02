@@ -142,6 +142,28 @@ public class KeycloakAdapter {
     }
 
     /**
+     * Enable a user
+     * @param cip of the user
+     */
+    public boolean isUserEnabled(String cip) {
+        if (cip == null || cip.isBlank()) {
+            throw new BadRequestException("Invalid cip");
+        }
+
+        UserRepresentation userRepresentation = getUserByCip(cip);
+
+        try {
+            // Get the user
+            UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
+            UserRepresentation user = userResource.toRepresentation();
+
+            return user.isEnabled();
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User not found");
+        }
+    }
+
+    /**
      * Reset the password of the user
      * @param userId of the user
      * @param newPassword

@@ -165,9 +165,7 @@ public class UserService {
 
     @GET
     @Path("/list/")
-    @Authenticated
-    // TODO: REMETTRE
-    //@RolesAllowed("admin")
+    @RolesAllowed("admin")
     public ListUtilisateursResponse listUser() {
         // Fetch all users
         List<UserRepresentation> userRepresentations = keycloakAdapter.getAllUsers();
@@ -181,9 +179,7 @@ public class UserService {
 
     @PUT
     @Path("/enable/{cip}")
-    @Authenticated
-    // TODO: REMETTRE
-    //@RolesAllowed("admin")
+    @RolesAllowed("admin")
     public Response enableUser(@PathParam("cip") String cip) {
         // Enable the user
         keycloakAdapter.enableUser(cip);
@@ -193,9 +189,7 @@ public class UserService {
 
     @PUT
     @Path("/disable/{cip}")
-    @Authenticated
-    // TODO: REMETTRE
-    //@RolesAllowed("admin")
+    @RolesAllowed("admin")
     public Response disableUser(@PathParam("cip") String cip) {
         // Disable the user
         keycloakAdapter.disableUser(cip);
