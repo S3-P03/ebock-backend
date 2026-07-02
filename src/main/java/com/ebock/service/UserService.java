@@ -178,7 +178,7 @@ public class UserService {
     }
 
     @PUT
-    @Path("/enable/{cip}")
+    @Path("/{cip}/enable")
     @RolesAllowed("admin")
     public Response enableUser(@PathParam("cip") String cip) {
         // Enable the user
@@ -188,7 +188,7 @@ public class UserService {
     }
 
     @PUT
-    @Path("/disable/{cip}")
+    @Path("/{cip}/disable")
     @RolesAllowed("admin")
     public Response disableUser(@PathParam("cip") String cip) {
         // Disable the user

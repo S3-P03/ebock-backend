@@ -19,6 +19,8 @@ import org.keycloak.representations.idm.UserRepresentation;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static com.ebock.utils.UserUtils.isCipValid;
+
 
 @ApplicationScoped
 public class KeycloakAdapter {
@@ -143,7 +145,7 @@ public class KeycloakAdapter {
     }
 
     /**
-     * Enable a user
+     * Check if a user is enbaled
      * @param cip of the user
      */
     public boolean isUserEnabled(String cip) {
@@ -184,18 +186,5 @@ public class KeycloakAdapter {
      */
     public void updateUser(UserRepresentation user) {
         keycloak.realm(realm).users().get(user.getId()).update(user);
-    }
-
-    /**
-     * Check if a cip is valid
-     * @param cip to validate
-     * @return if its valid
-     */
-    public static boolean isCipValid(String cip) {
-        if (cip == null) {
-            return false;
-        }
-
-        return cip.matches("(?i)[a-zA-Z]{4}[0-9]{4}");
     }
 }

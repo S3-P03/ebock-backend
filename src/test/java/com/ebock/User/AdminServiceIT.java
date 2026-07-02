@@ -47,7 +47,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/enable/{cip}")
+                .put("/user/{cip}/enable")
                 .then()
                 .statusCode(200);
 
@@ -62,7 +62,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/enable/{cip}")
+                .put("/user/{cip}/enable")
                 .then()
                 .statusCode(403);
     }
@@ -75,7 +75,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/enable/{cip}")
+                .put("/user/{cip}/enable")
                 .then()
                 .statusCode(404);
     }
@@ -88,7 +88,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/disable/{cip}")
+                .put("/user/{cip}/disable")
                 .then()
                 .statusCode(403);
     }
@@ -101,7 +101,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/disable/{cip}")
+                .put("/user/{cip}/disable")
                 .then()
                 .statusCode(200);
 
@@ -116,7 +116,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/disable/{cip}")
+                .put("/user/{cip}/disable")
                 .then()
                 .statusCode(404);
     }
@@ -137,7 +137,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/enable/{cip}")
+                .put("/user/{cip}/enable")
                 .then()
                 .statusCode(400);
     }
@@ -151,7 +151,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/disable/{cip}")
+                .put("/user/{cip}/disable")
                 .then()
                 .statusCode(200);
     }
@@ -163,7 +163,7 @@ public class AdminServiceIT {
         given()
                 .pathParam("cip", cip)
                 .when()
-                .put("/user/disable/{cip}")
+                .put("/user/{cip}/disable")
                 .then()
                 .statusCode(400);
     }
