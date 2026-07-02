@@ -7,6 +7,7 @@ import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.response.user.ListUtilisateursResponse;
 import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
@@ -14,6 +15,7 @@ import com.ebock.mapper.AddressMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -25,6 +27,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import java.util.List;
 import java.util.Objects;
 
 @Path("/user")
@@ -156,6 +159,40 @@ public class UserService {
             userMapper.updateUser(user.getUsername(), user.getEmail(), user.getFirstName(), user.getLastName());
             keycloakAdapter.updateUser(user);
         }
+
+        return Response.ok().build();
+    }
+
+    @GET
+    @Path("/list/")
+    @RolesAllowed("admin")
+    public ListUtilisateursResponse listUser() {
+        // Fetch all users
+        List<UserRepresentation> userRepresentations = keycloakAdapter.getAllUsers();
+
+        // Convert to response
+        ListUtilisateursResponse response = new ListUtilisateursResponse();
+        response.utilisateurs = userConverter.toResponseFromUserRepresentation(userRepresentations);
+
+        return response;
+    }
+
+    @PUT
+    @Path("/enable/{cip}")
+    @RolesAllowed("admin")
+    public Response enableUser(@PathParam("cip") String cip) {
+        // Enable the user
+        keycloakAdapter.enableUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/disable/{cip}")
+    @RolesAllowed("admin")
+    public Response disableUser(@PathParam("cip") String cip) {
+        // Disable the user
+        keycloakAdapter.disableUser(cip);
 
         return Response.ok().build();
     }

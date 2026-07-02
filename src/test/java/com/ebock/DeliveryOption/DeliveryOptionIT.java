@@ -18,6 +18,5 @@ public class DeliveryOptionIT {
                 .statusCode(200)
                 .body("[0].deliveryOptnId", is(1))
                 .body("[0].name", is("Livraison"));
-
     }
 }
