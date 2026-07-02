@@ -88,7 +88,7 @@ public class KeycloakAdapter {
      * @param cip of the user
      */
     public void enableUser(String cip) {
-        if (cip == null || cip.isBlank()) {
+        if (cip == null || cip.isBlank() || cip.length() != 8) {
             throw new BadRequestException("Invalid cip");
         }
 
@@ -117,7 +117,7 @@ public class KeycloakAdapter {
      * @param cip of the user
      */
     public void disableUser(String cip) {
-        if (cip == null || cip.isBlank()) {
+        if (cip == null || cip.isBlank() || cip.length() != 8) {
             throw new BadRequestException("Invalid cip");
         }
 

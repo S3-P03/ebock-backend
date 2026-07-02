@@ -86,4 +86,17 @@ public class DeliveryOptionServiceIT {
 
         Mockito.verify(deliveryOptionMapper, Mockito.never()).insert(any());
     }
+
+    @Test
+    public void testUpdate_Unauthenticated_ShouldReturn401() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .put("/deliveryOption/update/1")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.never()).insert(any());
+    }
 }

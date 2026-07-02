@@ -81,6 +81,19 @@ public class AdminServiceIT {
     }
 
     @Test
+    @TestSecurity(user = "user", roles = {"user"})
+    void disableUser_ShouldReturn403_WhenNotAdmin() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/disable/{cip}")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200() {
         String cip = "dubw5596";
@@ -96,19 +109,6 @@ public class AdminServiceIT {
     }
 
     @Test
-    @TestSecurity(user = "user", roles = {"user"})
-    void disableUser_ShouldReturn403_WhenNotAdmin() {
-        String cip = "dubw5596";
-
-        given()
-                .pathParam("cip", cip)
-                .when()
-                .put("/user/disable/{cip}")
-                .then()
-                .statusCode(403);
-    }
-
-    @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn404_WhenUserNotExist() {
         String cip = "aaaa1111";
@@ -119,6 +119,53 @@ public class AdminServiceIT {
                 .put("/user/disable/{cip}")
                 .then()
                 .statusCode(404);
+    }
+
+    @Test
+    void listUser_ShouldReturn401_WhenUnauthenticated() {
+        given()
+                .when()
+                .get("/user/list/")
+                .then()
+                .statusCode(401);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void enableUser_ShouldReturn400_WhenCipTooLong() {
+        String cip = "dubw559655965";
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/enable/{cip}")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void disableUser_ShouldReturn200_WhenAlreadyDisabled() {
+        String cip = "dubw5596";
+        keycloakAdapter.disableUser(cip);
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/disable/{cip}")
+                .then()
+                .statusCode(200);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void disableUser_ShouldReturn400_WhenCipTooLong() {
+        String cip = "dubw559655965";
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/disable/{cip}")
+                .then()
+                .statusCode(400);
     }
 
 }
