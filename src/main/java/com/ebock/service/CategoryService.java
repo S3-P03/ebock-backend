@@ -7,11 +7,13 @@ import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -35,7 +37,7 @@ public class CategoryService {
 
     @POST
     @Path("")
-    @Authenticated
+    @RolesAllowed("admin")
     public CategoryResponse insert(@Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         this.categoryMapper.insert(category);
@@ -44,11 +46,19 @@ public class CategoryService {
 
     @PUT
     @Path("/{id}")
-    @Authenticated
+    @RolesAllowed("admin")
     public CategoryResponse update(@PathParam("id") int id, @Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         category.categoryId = id;
         this.categoryMapper.update(category);
         return categoryConverter.toResponse(category);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id) {
+        categoryMapper.delete(id);
+        return Response.noContent().build();
     }
 }

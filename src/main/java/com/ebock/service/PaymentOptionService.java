@@ -7,11 +7,13 @@ import com.ebock.dto.response.paymentOption.PaymentOptionResponse;
 import com.ebock.mapper.PaymentOptionMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -37,7 +39,7 @@ public class PaymentOptionService {
 
     @POST
     @Path("")
-    @Authenticated
+    @RolesAllowed("admin")
     public PaymentOptionResponse insert(@Valid PaymentOptionPayload payload) {
         PaymentOption paymentOption = paymentOptionConverter.toBusiness(payload);
         this.paymentOptionMapper.insert(paymentOption);
@@ -46,7 +48,7 @@ public class PaymentOptionService {
 
     @PUT
     @Path("/{id}")
-    @Authenticated
+    @RolesAllowed("admin")
     public PaymentOptionResponse update(@PathParam("id") int id, @Valid PaymentOptionPayload payload) {
         PaymentOption paymentOption = paymentOptionConverter.toBusiness(payload);
         paymentOption.paymentOptnId = id;
@@ -54,4 +56,11 @@ public class PaymentOptionService {
         return paymentOptionConverter.toResponse(paymentOption);
     }
 
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id) {
+        paymentOptionMapper.delete(id);
+        return Response.noContent().build();
+    }
 }

@@ -7,11 +7,13 @@ import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.TagMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -37,7 +39,7 @@ public class TagService {
 
     @POST
     @Path("")
-    @Authenticated
+    @RolesAllowed("admin")
     public TagResponse insert(@Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         this.tagMapper.insert(tag);
@@ -46,11 +48,19 @@ public class TagService {
 
     @PUT
     @Path("/{id}")
-    @Authenticated
+    @RolesAllowed("admin")
     public TagResponse update(@PathParam("id") int id, @Valid TagPayload payload) {
         Tag tag = tagConverter.toBusiness(payload);
         tag.tagId = id;
         this.tagMapper.update(tag);
         return tagConverter.toResponse(tag);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id) {
+        tagMapper.delete(id);
+        return Response.noContent().build();
     }
 }

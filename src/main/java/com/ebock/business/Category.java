@@ -4,4 +4,5 @@ public class Category {
     public int categoryId;
     public String name;
     public Integer parentCategory;
+    public String deletedAt;
 }

@@ -1,14 +1,9 @@
 package com.ebock.wear;
 
-import com.ebock.business.Tag;
 import com.ebock.business.Wear;
-import com.ebock.converter.TagConverter;
 import com.ebock.converter.WearConverter;
-import com.ebock.dto.request.tag.TagPayload;
 import com.ebock.dto.request.wear.WearPayload;
-import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.dto.response.wear.WearResponse;
-import com.ebock.mapper.TagMapper;
 import com.ebock.mapper.WearMapper;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
@@ -22,6 +17,7 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 
 @QuarkusTest
 public class WearServiceIT {
@@ -90,5 +86,46 @@ public class WearServiceIT {
                 .statusCode(401);
 
         Mockito.verify(wearMapper, Mockito.never()).insert(any());
+    }
+
+    @Test
+    public void testDelete_Unauthenticated_ShouldReturn401() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/wear/1")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(wearMapper, Mockito.never()).delete(anyInt());
+    }
+
+    @TestSecurity(user = "user", roles = {"user"})
+    @Test
+    public void testDelete_InvalidRole_ShouldReturn403() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/wear/1")
+                .then()
+                .statusCode(403);
+
+        Mockito.verify(wearMapper, Mockito.never()).delete(anyInt());
+    }
+
+    @TestSecurity(user = "admin", roles = {"admin"})
+    @Test
+    public void testDelete_ValidRequest_ShouldReturn204() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/wear/1")
+                .then()
+                .statusCode(204);
+
+        Mockito.verify(wearMapper, Mockito.times(1)).delete(1);
     }
 }
