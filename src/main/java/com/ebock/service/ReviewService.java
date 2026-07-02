@@ -65,10 +65,12 @@ public class ReviewService {
 
         if (userMapper.getUserCountByCip(reviewedCip) == 0)
             return Response.status(Response.Status.NOT_FOUND).build();
-        if(messageMapper.getMessagesFromSellerCountByIds(reviewerCip, reviewedCip) == 0)
+        if(messageMapper.getSellerCountByUsers(reviewerCip, reviewedCip) == 0)
             return Response.status(Response.Status.FORBIDDEN).build();
-
-        reviewMapper.insert(reviewerCip, reviewedCip, reviewPayload);
+        if(reviewMapper.getCountByUsers(reviewerCip, reviewedCip) != 0)
+            reviewMapper.update(reviewerCip, reviewedCip, reviewPayload);
+        else
+            reviewMapper.insert(reviewerCip, reviewedCip, reviewPayload);
 
         return Response.status(Response.Status.OK).build();
     }

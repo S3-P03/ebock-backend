@@ -15,4 +15,9 @@ public interface ReviewMapper {
     void insert(@Param("reviewerCip") String reviewerCip,
                       @Param("reviewedCip") String reviewedCip,
                       @Param("review")ReviewPayload review);
+    void update(@Param("reviewerCip") String reviewerCip,
+                @Param("reviewedCip") String reviewedCip,
+                @Param("review")ReviewPayload review);
+    int getCountByUsers(@Param("reviewerCip") String reviewerCip,
+                        @Param("reviewedCip") String reviewedCip);
 }
