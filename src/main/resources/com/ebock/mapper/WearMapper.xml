@@ -7,6 +7,7 @@
     <select id="getAllWears" resultType="com.ebock.business.Wear">
         select *
         from ebock.wear
+        WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="wear.wearId">
@@ -15,6 +16,10 @@
 
     <update id="update">
         update ebock.wear set name = #{wear.name} where wear_id = #{wear.wearId}
+    </update>
+
+    <update id="delete">
+        update ebock.wear set deleted_at = now() where wear_id = #{wearId}
     </update>
 
 </mapper>

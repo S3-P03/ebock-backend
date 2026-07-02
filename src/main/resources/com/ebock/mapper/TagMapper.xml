@@ -7,6 +7,7 @@
     <select id="getAllTags" resultType="com.ebock.business.Tag">
         select *
         from ebock.tag
+        WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="tag.tagId">
@@ -15,6 +16,10 @@
 
     <update id="update">
         update ebock.tag set name = #{tag.name} where tag_id = #{tag.tagId}
+    </update>
+
+    <update id="delete">
+        update ebock.tag set deleted_at = now() where tag_id = #{tagId}
     </update>
 
 </mapper>

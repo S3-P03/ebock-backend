@@ -7,6 +7,7 @@
     <select id="getAllPaymentOptions" resultType="com.ebock.business.PaymentOption">
         select *
         from ebock.payment_option
+        WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="paymentOption.paymentOptnId">
@@ -17,6 +18,10 @@
     <update id="update">
         update ebock.payment_option set name = #{paymentOption.name}
         where payment_optn_id = #{paymentOption.paymentOptnId}
+    </update>
+
+    <update id="delete">
+        update ebock.payment_option set deleted_at = now() where payment_optn_id = #{paymentOptionId}
     </update>
 
 </mapper>

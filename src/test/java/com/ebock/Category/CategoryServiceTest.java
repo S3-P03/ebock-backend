@@ -6,6 +6,7 @@ import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
 import com.ebock.service.CategoryService;
+import jakarta.ws.rs.core.Response;
 import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,5 +78,18 @@ public class CategoryServiceTest {
         // assert
         verify(categoryMapper, times(1)).update(category);
         assertEquals(expected, result);
+    }
+
+    @Test
+    void testDeleteCallsDeleteAndReturnsResult() {
+        // arrange
+        int tagId = 0;
+
+        // act
+        Response result = categoryService.delete(tagId);
+
+        // assert
+        verify(categoryMapper, times(1)).delete(tagId);
+        assertEquals(204, result.getStatus());
     }
 }

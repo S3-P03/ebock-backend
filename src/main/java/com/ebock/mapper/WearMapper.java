@@ -11,4 +11,5 @@ public interface WearMapper {
     List<Wear> getAllWears();
     void insert(@Param("wear") Wear wear);
     void update(@Param("wear") Wear wear);
+    void delete(@Param("wearId") int wearId);
 }
