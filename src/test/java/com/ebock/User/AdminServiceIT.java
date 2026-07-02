@@ -40,21 +40,6 @@ public class AdminServiceIT {
     }
 
     @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void enableUser_ShouldReturn200() {
-        String cip = "dubw5596";
-
-        given()
-                .pathParam("cip", cip)
-                .when()
-                .put("/user/{cip}/enable")
-                .then()
-                .statusCode(200);
-
-        assertTrue(keycloakAdapter.isUserEnabled(cip));
-    }
-
-    @Test
     @TestSecurity(user = "user", roles = {"user"})
     void enableUser_ShouldReturn403_WhenNotAdmin() {
         String cip = "dubw5596";
@@ -132,18 +117,6 @@ public class AdminServiceIT {
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
-    void enableUser_ShouldReturn400_WhenCipTooLong() {
-        String cip = "dubw559655965";
-        given()
-                .pathParam("cip", cip)
-                .when()
-                .put("/user/{cip}/enable")
-                .then()
-                .statusCode(400);
-    }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200_WhenAlreadyDisabled() {
         String cip = "dubw5596";
         keycloakAdapter.disableUser(cip);
@@ -166,6 +139,33 @@ public class AdminServiceIT {
                 .put("/user/{cip}/disable")
                 .then()
                 .statusCode(400);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void enableUser_ShouldReturn400_WhenCipTooLong() {
+        String cip = "dubw559655965";
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/enable")
+                .then()
+                .statusCode(400);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void enableUser_ShouldReturn200() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/enable")
+                .then()
+                .statusCode(200);
+
+        assertTrue(keycloakAdapter.isUserEnabled(cip));
     }
 
 }
