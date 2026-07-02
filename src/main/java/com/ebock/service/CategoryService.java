@@ -24,11 +24,9 @@ public class CategoryService {
     CategoryMapper categoryMapper;
     @Inject
     CategoryConverter categoryConverter;
-    @Context
-    SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<CategoryResponse> list() {
         List<Category> categories = this.categoryMapper.getAllCategories();
@@ -36,7 +34,7 @@ public class CategoryService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     public CategoryResponse insert(@Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
@@ -45,7 +43,7 @@ public class CategoryService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     public CategoryResponse update(@PathParam("id") int id, @Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);

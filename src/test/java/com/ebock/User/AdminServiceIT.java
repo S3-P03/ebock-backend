@@ -33,7 +33,7 @@ public class AdminServiceIT {
     void listUser_ShouldReturn200_WhenAdmin() {
         given()
                 .when()
-                .get("/user/list/")
+                .get("/user/list")
                 .then()
                 .statusCode(200)
                 .body("utilisateurs", notNullValue());

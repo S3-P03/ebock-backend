@@ -53,7 +53,7 @@ public class CategoryServiceIT {
 
         given()
                 .when()
-                .get("/category/list")
+                .get("/category")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +67,7 @@ public class CategoryServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/category/insert")
+                .post("/category")
                 .then()
                 .statusCode(200);
 
@@ -80,7 +80,7 @@ public class CategoryServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/category/insert")
+                .post("/category")
                 .then()
                 .statusCode(401);
 
@@ -93,7 +93,7 @@ public class CategoryServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .put("/category/update/1")
+                .put("/category/1")
                 .then()
                 .statusCode(401);
 

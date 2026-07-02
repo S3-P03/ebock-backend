@@ -53,7 +53,7 @@ public class TagServiceIT {
 
         given()
                 .when()
-                .get("/tag/list")
+                .get("/tag")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +67,7 @@ public class TagServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/tag/insert")
+                .post("/tag")
                 .then()
                 .statusCode(200);
 
@@ -80,7 +80,7 @@ public class TagServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/tag/insert")
+                .post("/tag")
                 .then()
                 .statusCode(401);
 

@@ -53,7 +53,7 @@ public class DeliveryOptionServiceIT {
 
         given()
                 .when()
-                .get("/deliveryOption/list")
+                .get("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +67,7 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -80,7 +80,7 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
                 .then()
                 .statusCode(401);
 
@@ -93,7 +93,7 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .put("/deliveryOption/update/1")
+                .put("/deliveryOption/1")
                 .then()
                 .statusCode(401);
 

@@ -13,7 +13,7 @@ public class PaymentOptionIT {
     void queryListReturnsPaymentOptions() {
         given()
                 .when()
-                .get("/paymentOption/list")
+                .get("/paymentOption")
                 .then()
                 .statusCode(200)
                 .body("[0].paymentOptnId", is(1))

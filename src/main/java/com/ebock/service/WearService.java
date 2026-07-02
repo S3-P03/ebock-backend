@@ -28,7 +28,7 @@ public class WearService {
     SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<WearResponse> list() {
         List<Wear> wears = this.wearMapper.getAllWears();
@@ -36,7 +36,7 @@ public class WearService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     public WearResponse insert(@Valid WearPayload payload) {
         Wear wear = wearConverter.toBusiness(payload);
@@ -45,7 +45,7 @@ public class WearService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     public WearResponse update(@PathParam("id") int id, @Valid WearPayload payload) {
         Wear wear = wearConverter.toBusiness(payload);

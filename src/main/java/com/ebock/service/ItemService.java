@@ -131,7 +131,7 @@ public class ItemService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     @Transactional
     public ItemInsertResponse insert(@Valid ItemPayload itemInsertPayload){
@@ -161,7 +161,7 @@ public class ItemService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     @Transactional
     public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){

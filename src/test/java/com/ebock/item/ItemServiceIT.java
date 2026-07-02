@@ -71,7 +71,7 @@ public class ItemServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/item/insert")
+                .post("/item")
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode());
 
@@ -89,7 +89,7 @@ public class ItemServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/item/insert")
+                .post("/item")
                 .then()
                 .statusCode(Response.Status.UNAUTHORIZED.getStatusCode());
     }
@@ -109,7 +109,7 @@ public class ItemServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .put("/item/update/99")
+                .put("/item/99")
                 .then()
                 .statusCode(Response.Status.OK.getStatusCode());
 
@@ -138,7 +138,7 @@ public class ItemServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .put("/item/update/99")
+                .put("/item/99")
                 .then()
                 .statusCode(Response.Status.FORBIDDEN.getStatusCode());
 

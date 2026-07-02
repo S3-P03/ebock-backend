@@ -28,7 +28,7 @@ public class DeliveryOptionService {
     SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<DeliveryOptionResponse> list() {
         List<DeliveryOption> deliveryOptions = this.deliveryOptionMapper.getAllDeliveryOptions();
@@ -36,7 +36,7 @@ public class DeliveryOptionService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     public DeliveryOptionResponse insert(@Valid DeliveryOptionPayload payload) {
         DeliveryOption deliveryOption = deliveryOptionConverter.toBusiness(payload);
@@ -45,7 +45,7 @@ public class DeliveryOptionService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     public DeliveryOptionResponse update(@PathParam("id") int id, @Valid DeliveryOptionPayload payload) {
         DeliveryOption deliveryOption = deliveryOptionConverter.toBusiness(payload);

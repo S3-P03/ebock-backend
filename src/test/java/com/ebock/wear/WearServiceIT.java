@@ -58,7 +58,7 @@ public class WearServiceIT {
 
         given()
                 .when()
-                .get("/wear/list")
+                .get("/wear")
                 .then()
                 .statusCode(200);
 
@@ -72,7 +72,7 @@ public class WearServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/wear/insert")
+                .post("/wear")
                 .then()
                 .statusCode(200);
 
@@ -85,7 +85,7 @@ public class WearServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/wear/insert")
+                .post("/wear")
                 .then()
                 .statusCode(401);
 
