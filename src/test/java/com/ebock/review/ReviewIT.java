@@ -13,7 +13,7 @@ import static org.hamcrest.Matchers.empty;
 public class ReviewIT {
 
     @Test
-    void reviewAvg_Returns404_InexistentCip(){
+    void reviewAvg_Returns404_InexistentCip() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "abcd1234")
@@ -24,7 +24,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewAvg_ReturnsAvg_UserWithReviews(){
+    void reviewAvg_ReturnsAvg_UserWithReviews() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "pele3157")
@@ -37,7 +37,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewAvg_ReturnsAvg_UserNoReviews(){
+    void reviewAvg_ReturnsAvg_UserNoReviews() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "bela3439")
@@ -50,7 +50,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_Returns404_InexistentCip(){
+    void reviewDetails_Returns404_InexistentCip() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "abcd1234")
@@ -61,7 +61,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_ReturnsReviews_UserWithReviews(){
+    void reviewDetails_ReturnsReviews_UserWithReviews() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "pele3157")
@@ -78,7 +78,7 @@ public class ReviewIT {
     }
 
     @Test
-    void reviewDetails_ReturnsReviews_UserNoReviews(){
+    void reviewDetails_ReturnsReviews_UserNoReviews() {
         given()
                 .contentType(ContentType.JSON)
                 .pathParam("cip", "bela3439")
