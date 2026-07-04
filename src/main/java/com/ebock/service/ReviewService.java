@@ -66,7 +66,7 @@ public class ReviewService {
         if (userMapper.getUserCountByCip(reviewedCip) == 0)
             throw new NotFoundException("User not found");
         if (messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip) == 0)
-            throw new ForbiddenException("Action forbidden");
+            throw new ForbiddenException("No replies from seller");
         if (reviewMapper.getCountByUsers(reviewerCip, reviewedCip) != 0)
             reviewMapper.update(reviewerCip, reviewedCip, reviewPayload);
         else
