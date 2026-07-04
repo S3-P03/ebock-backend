@@ -65,7 +65,7 @@ public class ReviewService {
 
         if (userMapper.getUserCountByCip(reviewedCip) == 0)
             return Response.status(Response.Status.NOT_FOUND).build();
-        if (messageMapper.getSellerCountByUsers(reviewerCip, reviewedCip) == 0)
+        if (messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip) == 0)
             return Response.status(Response.Status.FORBIDDEN).build();
         if (reviewMapper.getCountByUsers(reviewerCip, reviewedCip) != 0)
             reviewMapper.update(reviewerCip, reviewedCip, reviewPayload);

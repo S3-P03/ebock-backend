@@ -67,7 +67,7 @@ public class ReviewServiceIT {
     @TestSecurity(user = "larj4236", roles = {"user"})
     void reviewInsert_Updates_ReviewExists(){
         Mockito.when(userMapper.getUserCountByCip("pele3157")).thenReturn(1);
-        Mockito.when(messageMapper.getSellerCountByUsers("larj4236", "pele3157")).thenReturn(1);
+        Mockito.when(messageMapper.getSellerReplyCountByBuyer("larj4236", "pele3157")).thenReturn(1);
         Mockito.when(reviewMapper.getCountByUsers("larj4236", "pele3157")).thenReturn(1);
 
         given()
@@ -87,7 +87,7 @@ public class ReviewServiceIT {
     @TestSecurity(user = "dubw5596", roles = {"user"})
     void reviewInsert_Inserts_ReviewDoesntExist(){
         Mockito.when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
-        Mockito.when(messageMapper.getSellerCountByUsers("dubw5596", "larj4236")).thenReturn(1);
+        Mockito.when(messageMapper.getSellerReplyCountByBuyer("dubw5596", "larj4236")).thenReturn(1);
         Mockito.when(reviewMapper.getCountByUsers("dubw5596", "larj4236")).thenReturn(0);
 
         given()

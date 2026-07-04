@@ -1,6 +1,5 @@
 package com.ebock.review;
 
-import com.ebock.business.Item;
 import com.ebock.dto.request.review.ReviewPayload;
 import com.ebock.dto.response.review.AverageReviewResponse;
 import com.ebock.dto.response.review.ReviewDetailsResponse;
@@ -162,7 +161,7 @@ public class ReviewServiceTest {
         String reviewedCip = "herl2700";
         ReviewPayload reviewPayload = new ReviewPayload();
         when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
-        when(messageMapper.getSellerCountByUsers(reviewerCip, reviewedCip)).thenReturn(0);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(0);
 
         //mock connected user
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -185,7 +184,7 @@ public class ReviewServiceTest {
         String reviewedCip = "pele3157";
         ReviewPayload reviewPayload = new ReviewPayload();
         when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
-        when(messageMapper.getSellerCountByUsers(reviewerCip, reviewedCip)).thenReturn(1);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(1);
         when(reviewMapper.getCountByUsers(reviewerCip, reviewedCip)).thenReturn(1);
 
         //mock connected user
@@ -209,7 +208,7 @@ public class ReviewServiceTest {
         String reviewedCip = "test1234";
         ReviewPayload reviewPayload = new ReviewPayload();
         when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
-        when(messageMapper.getSellerCountByUsers(reviewerCip, reviewedCip)).thenReturn(1);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(1);
         when(reviewMapper.getCountByUsers(reviewerCip, reviewedCip)).thenReturn(0);
 
         //mock connected user
