@@ -1,13 +1,20 @@
 package com.ebock.service;
 
+import com.ebock.dto.request.review.ReviewPayload;
 import com.ebock.dto.response.review.AverageReviewResponse;
 import com.ebock.dto.response.review.ReviewDetailsResponse;
+import com.ebock.mapper.MessageMapper;
 import com.ebock.mapper.ReviewMapper;
 import com.ebock.mapper.UserMapper;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.inject.Inject;
+import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
 
@@ -17,9 +24,12 @@ import java.util.List;
 public class ReviewService {
     @Inject
     ReviewMapper reviewMapper;
-
     @Inject
     UserMapper userMapper;
+    @Inject
+    MessageMapper messageMapper;
+    @Context
+    SecurityContext securityContext;
 
     @GET
     @Path("/{cip}/average")
@@ -45,5 +55,23 @@ public class ReviewService {
             throw new NotFoundException("User not found");
 
         return reviewMapper.getDetailledReviews(cip);
+    }
+
+    @POST
+    @Path("/{cip}")
+    @Authenticated
+    public Response insert(@PathParam("cip") String reviewedCip, @Valid ReviewPayload reviewPayload){
+        String reviewerCip = securityContext.getUserPrincipal().getName();
+
+        if (userMapper.getUserCountByCip(reviewedCip) == 0)
+            throw new NotFoundException("User not found");
+        if (messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip) == 0)
+            throw new ForbiddenException("No replies from seller");
+        if (reviewMapper.getCountByUsers(reviewerCip, reviewedCip) != 0)
+            reviewMapper.update(reviewerCip, reviewedCip, reviewPayload);
+        else
+            reviewMapper.insert(reviewerCip, reviewedCip, reviewPayload);
+
+        return Response.status(Response.Status.OK).build();
     }
 }

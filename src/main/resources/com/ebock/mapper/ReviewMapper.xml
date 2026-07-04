@@ -23,4 +23,23 @@
             INNER JOIN ebock.user_ u ON r.reviewer_cip = u.cip
         WHERE r.reviewed_cip = #{cip}
     </select>
+
+    <insert id="insert">
+        INSERT INTO ebock.review (reviewer_cip, reviewed_cip, timestamp_, content, rating)
+        VALUES (#{reviewerCip}, #{reviewedCip}, NOW(), #{review.content}, #{review.rating})
+    </insert>
+
+    <update id="update">
+        UPDATE ebock.review r
+        SET content = #{review.content},
+            rating = #{review.rating},
+            updated_at = NOW()
+        WHERE r.reviewer_cip = #{reviewerCip} AND r.reviewed_cip = #{reviewedCip};
+    </update>
+
+    <select id="getCountByUsers" resultType="int">
+        SELECT count(r.rating)
+        FROM ebock.review r
+        WHERE r.reviewer_cip = #{reviewerCip} AND r.reviewed_cip = #{reviewedCip};
+    </select>
 </mapper>

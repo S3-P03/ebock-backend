@@ -1,22 +1,29 @@
 package com.ebock.review;
 
+import com.ebock.dto.request.review.ReviewPayload;
 import com.ebock.dto.response.review.AverageReviewResponse;
 import com.ebock.dto.response.review.ReviewDetailsResponse;
+import com.ebock.mapper.MessageMapper;
 import com.ebock.mapper.ReviewMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.ReviewService;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -26,6 +33,13 @@ public class ReviewServiceTest {
     UserMapper userMapper;
     @Mock
     ReviewMapper reviewMapper;
+    @Mock
+    MessageMapper messageMapper;
+    @Mock
+    SecurityContext securityContext;
+    @Mock
+    Principal principal;
+
     @InjectMocks
     ReviewService reviewService;
 
@@ -117,4 +131,97 @@ public class ReviewServiceTest {
         assertEquals(expected, result);
     }
 
+    @Test
+    void reviewInsert_ReturnsNotFound_InexistentCip(){
+        //arrange
+        String reviewerCip = "larj4236";
+        String reviewedCip = "abcd1234";
+        ReviewPayload reviewPayload = new ReviewPayload();
+        when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(0);
+
+        //mock connected user
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(reviewerCip);
+
+        //act
+        Response response = reviewService.insert(reviewedCip, reviewPayload);
+
+        //assert
+        assertEquals(404, response.getStatus());
+
+
+        Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
+        Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
+    }
+
+    @Test
+    void reviewInsert_ReturnsForbidden_NoMessagesWithSeller(){
+        //arrange
+        String reviewerCip = "larj4236";
+        String reviewedCip = "herl2700";
+        ReviewPayload reviewPayload = new ReviewPayload();
+        when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(0);
+
+        //mock connected user
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(reviewerCip);
+
+        //act
+        Response response = reviewService.insert(reviewedCip, reviewPayload);
+
+        //assert
+        assertEquals(403, response.getStatus());
+
+        Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
+        Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
+    }
+
+    @Test
+    void reviewInsert_Updates_ReviewExists(){
+        //arrange
+        String reviewerCip = "larj4236";
+        String reviewedCip = "pele3157";
+        ReviewPayload reviewPayload = new ReviewPayload();
+        when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(1);
+        when(reviewMapper.getCountByUsers(reviewerCip, reviewedCip)).thenReturn(1);
+
+        //mock connected user
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(reviewerCip);
+
+        //act
+        Response response = reviewService.insert(reviewedCip, reviewPayload);
+
+        //assert
+        assertEquals(200, response.getStatus());
+
+        Mockito.verify(reviewMapper, Mockito.times(1)).update(anyString(), anyString(), any(ReviewPayload.class));
+        Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
+    }
+
+    @Test
+    void reviewInsert_Inserts_ReviewDoesntExist(){
+        //arrange
+        String reviewerCip = "larj4236";
+        String reviewedCip = "test1234";
+        ReviewPayload reviewPayload = new ReviewPayload();
+        when(userMapper.getUserCountByCip(reviewedCip)).thenReturn(1);
+        when(messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip)).thenReturn(1);
+        when(reviewMapper.getCountByUsers(reviewerCip, reviewedCip)).thenReturn(0);
+
+        //mock connected user
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(reviewerCip);
+
+        //act
+        Response response = reviewService.insert(reviewedCip, reviewPayload);
+
+        //assert
+        assertEquals(200, response.getStatus());
+
+        Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
+        Mockito.verify(reviewMapper, Mockito.times(1)).insert(anyString(), anyString(), any(ReviewPayload.class));
+    }
 }
