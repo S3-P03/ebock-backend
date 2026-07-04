@@ -64,9 +64,9 @@ public class ReviewService {
         String reviewerCip = securityContext.getUserPrincipal().getName();
 
         if (userMapper.getUserCountByCip(reviewedCip) == 0)
-            return Response.status(Response.Status.NOT_FOUND).build();
+            throw new NotFoundException("User not found");
         if (messageMapper.getSellerReplyCountByBuyer(reviewerCip, reviewedCip) == 0)
-            return Response.status(Response.Status.FORBIDDEN).build();
+            throw new ForbiddenException("Action forbidden");
         if (reviewMapper.getCountByUsers(reviewerCip, reviewedCip) != 0)
             reviewMapper.update(reviewerCip, reviewedCip, reviewPayload);
         else
