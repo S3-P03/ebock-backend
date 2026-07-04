@@ -121,7 +121,7 @@
             timestamp_;
     </select>
 
-    <select id="getSellerCountByUsers" resultType="int">
+    <select id="getSellerReplyCountByBuyer" resultType="int">
         SELECT count(o.order_id)
         FROM ebock.order_ o
                  RIGHT JOIN ebock.order_message om ON o.order_id = om.order_id

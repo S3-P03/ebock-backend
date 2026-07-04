@@ -33,7 +33,7 @@
         UPDATE ebock.review r
         SET content = #{review.content},
             rating = #{review.rating},
-            update = NOW()
+            updated_at = NOW()
         WHERE r.reviewer_cip = #{reviewerCip} AND r.reviewed_cip = #{reviewedCip};
     </update>
 
