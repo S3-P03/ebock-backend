@@ -32,7 +32,8 @@
     <update id="update">
         UPDATE ebock.review r
         SET content = #{review.content},
-            rating = #{review.rating}
+            rating = #{review.rating},
+            update = NOW()
         WHERE r.reviewer_cip = #{reviewerCip} AND r.reviewed_cip = #{reviewedCip};
     </update>
 
