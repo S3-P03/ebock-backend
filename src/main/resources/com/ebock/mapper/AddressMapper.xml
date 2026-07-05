@@ -10,17 +10,18 @@
                street,
                postal_code,
                country,
+               city,
                province_code
         FROM ebock.address
         WHERE address_id = #{addressId}
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="address.addressId">
-        insert into ebock.address (civic_number, appt_number, street, postal_code, country, province_code) values (#{address.civicNumber}, #{address.apptNumber}, #{address.street}, #{address.postalCode}, #{address.country}, #{address.provinceCode})
+        insert into ebock.address (civic_number, appt_number, street, postal_code, country, city, province_code) values (#{address.civicNumber}, #{address.apptNumber}, #{address.street}, #{address.postalCode}, #{address.country}, #{address.city}, #{address.provinceCode})
     </insert>
 
     <update id="update">
-        update ebock.address set civic_number = #{address.civicNumber}, appt_number=#{address.apptNumber}, street=#{address.street}, postal_code=#{address.postalCode}, country=#{address.country}, province_code=#{address.provinceCode} where address_id = #{address.addressId}
+        update ebock.address set civic_number = #{address.civicNumber}, appt_number=#{address.apptNumber}, street=#{address.street}, postal_code=#{address.postalCode}, country=#{address.country}, city=#{address.city}, province_code=#{address.provinceCode} where address_id = #{address.addressId}
     </update>
 
 </mapper>
