@@ -5,6 +5,7 @@ public class Address {
     public int civicNumber;
     public int apptNumber;
     public String street;
+    public String city;
     public String postalCode;
     public String country;
     public String provinceCode;

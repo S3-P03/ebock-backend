@@ -127,6 +127,7 @@ public class UserServiceIT {
         editAddressPayload.street = "Sommet de Orford";
         editAddressPayload.civicNumber = 1;
         editAddressPayload.apptNumber = 1;
+        editAddressPayload.city = "Sherbrooke";
         editAddressPayload.provinceCode = "QC";
         editAddressPayload.country = "Québec";
         payload.address = editAddressPayload;
