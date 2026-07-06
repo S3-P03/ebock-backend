@@ -3,8 +3,9 @@ package com.ebock.item;
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
 import com.ebock.dto.request.item.FilterItemParameters;
+import com.ebock.dto.request.item.ItemCreatePayload;
 import com.ebock.dto.request.item.ItemImageElement;
-import com.ebock.dto.request.item.ItemPayload;
+import com.ebock.dto.request.item.ItemUpdatePayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemImageMapper;
@@ -162,7 +163,7 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "asdf6767";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         Item item = new Item();
         item.sellerCip = sellerCip;
 
@@ -192,7 +193,7 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = List.of(1, 2, 3);
         payload.deliveryOptionList = List.of(4,5,6);
         payload.paymentOptionList = List.of(7,8,9);
@@ -231,7 +232,7 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = List.of();
         payload.imageList = List.of();
         payload.paymentOptionList = List.of();
@@ -270,7 +271,7 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = null;
         payload.imageList = null;
         payload.deliveryOptionList = null;
@@ -292,13 +293,13 @@ public class ItemServiceTest {
 
         // Assert
         Mockito.verify(itemMapper, Mockito.times(1)).update(anyString(), any(Item.class));
-        Mockito.verify(itemTagMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemTagMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemTagMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemImageMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemImageMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemImageMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
     }
 
@@ -308,7 +309,7 @@ public class ItemServiceTest {
         int itemId = 5;
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -336,7 +337,7 @@ public class ItemServiceTest {
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.tagList = List.of(1, 2, 3);
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
 
@@ -345,7 +346,9 @@ public class ItemServiceTest {
         when(principal.getName()).thenReturn(requestCip);
 
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        Item item = new Item();
+        item.itemId = 1;
+        when(itemConverter.toBusiness(payload)).thenReturn(item);
 
         // Act
         itemService.insert(payload);
@@ -361,7 +364,7 @@ public class ItemServiceTest {
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.imageList = null;
         payload.tagList = null;
 
@@ -386,7 +389,7 @@ public class ItemServiceTest {
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.imageList = List.of();
         payload.tagList = List.of();
 

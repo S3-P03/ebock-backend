@@ -186,7 +186,11 @@
     </select>
 
     <select id="findById" resultType="com.ebock.business.Item">
-        SELECT *
+        SELECT i.item_id,
+               i.name,
+               i.description,
+               i.seller_cip,
+               i.price::numeric
         FROM ebock.item i
         WHERE i.item_id = #{id};
     </select>
@@ -215,15 +219,30 @@
     </delete>
 
     <update id="update">
-        update ebock.item set
-                              name=#{item.name},
-                              description=#{item.description},
-                              price=#{item.price},
-                              updated_at=now(),
-                              quantity=#{item.quantity},
-                              category_id=#{item.categoryId},
-                              wear_id=#{item.wearId}
-        where item_id = #{item.itemId} and seller_cip = #{sellerCip}
+        UPDATE ebock.item
+        <set>
+            <if test="item.name != null">
+                name = #{item.name},
+            </if>
+            <if test="item.description != null">
+                description = #{item.description},
+            </if>
+            <if test="item.price != null">
+                price = #{item.price},
+            </if>
+            <if test="item.quantity != null">
+                quantity = #{item.quantity},
+            </if>
+            <if test="item.categoryId != null">
+                category_id = #{item.categoryId},
+            </if>
+            <if test="item.wearId != null">
+                wear_id = #{item.wearId},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE item_id = #{item.itemId}
+        AND seller_cip = #{sellerCip}
     </update>
 
 </mapper>
