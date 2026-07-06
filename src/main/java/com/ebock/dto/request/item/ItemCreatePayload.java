@@ -5,21 +5,27 @@ import jakarta.validation.constraints.*;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class ItemPayload {
+public class ItemCreatePayload {
     @NotBlank
     @Size(max=60)
     public String name;
+
     @Size(max=350)
     public String description;
+
     @NotNull
     @DecimalMin(value="0.00")
     public BigDecimal price;
+
     @Min(value=1)
-    public int quantity;
+    public Integer quantity;
+
     @Min(value=1)
-    public int categoryId;
+    public Integer categoryId;
+
     @Min(value=1)
-    public int wearId;
+    public Integer wearId;
+
     public List<Integer> tagList;
     public List<ItemImageElement> imageList;
     public List<Integer> paymentOptionList;

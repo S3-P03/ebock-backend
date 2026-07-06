@@ -3,7 +3,8 @@ package com.ebock.service;
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
 import com.ebock.dto.request.item.FilterItemParameters;
-import com.ebock.dto.request.item.ItemPayload;
+import com.ebock.dto.request.item.ItemCreatePayload;
+import com.ebock.dto.request.item.ItemUpdatePayload;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
@@ -134,7 +135,7 @@ public class ItemService {
     @Path("")
     @Authenticated
     @Transactional
-    public ItemInsertResponse insert(@Valid ItemPayload itemInsertPayload){
+    public ItemInsertResponse insert(@Valid ItemCreatePayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
         String cip = securityContext.getUserPrincipal().getName();
         item.sellerCip = cip;
@@ -164,8 +165,8 @@ public class ItemService {
     @Path("/{id}")
     @Authenticated
     @Transactional
-    public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
-        Item item = itemConverter.toBusiness(itemInsertPayload);
+    public Response update(@PathParam("id") int itemId, @Valid ItemUpdatePayload itemUpdatePayload){
+        Item item = itemConverter.toBusiness(itemUpdatePayload);
         item.itemId = itemId;
 
         String cip = securityContext.getUserPrincipal().getName();
@@ -182,29 +183,37 @@ public class ItemService {
         itemMapper.update(cip, item);
 
         // Update tags
-        itemTagMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
-            itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
+        if (itemUpdatePayload.tagList != null) {
+            itemTagMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.tagList.isEmpty()) {
+                itemTagMapper.insert(item.itemId, itemUpdatePayload.tagList);
+            }
         }
 
         // Update images
-        itemImageMapper.deleteByItemId(itemId);
-        if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
-            itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
+        if (itemUpdatePayload.imageList != null) {
+            itemImageMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.imageList.isEmpty()) {
+                itemImageMapper.insert(item.itemId, itemUpdatePayload.imageList);
+            }
         }
 
         // Update payment option
-        itemPaymentOptionMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.paymentOptionList != null && !itemInsertPayload.paymentOptionList.isEmpty()) {
-            itemPaymentOptionMapper.insert(item.itemId, itemInsertPayload.paymentOptionList);
+        if (itemUpdatePayload.paymentOptionList != null) {
+            itemPaymentOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.paymentOptionList.isEmpty()) {
+                itemPaymentOptionMapper.insert(item.itemId, itemUpdatePayload.paymentOptionList);
+            }
         }
 
         // Update delivery option
-        itemDeliveryOptionMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.deliveryOptionList != null && !itemInsertPayload.deliveryOptionList.isEmpty()) {
-            itemDeliveryOptionMapper.insert(item.itemId, itemInsertPayload.deliveryOptionList);
+        if (itemUpdatePayload.deliveryOptionList != null) {
+            itemDeliveryOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.deliveryOptionList.isEmpty()) {
+                itemDeliveryOptionMapper.insert(item.itemId, itemUpdatePayload.deliveryOptionList);
+            }
         }
 
-        return itemConverter.toInsertResponse(item);
+        return Response.noContent().build();
     }
 }
