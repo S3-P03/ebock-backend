@@ -12,6 +12,7 @@ import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
+import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
@@ -36,6 +37,8 @@ import java.util.Objects;
 public class UserService {
     @Inject
     UserMapper userMapper;
+    @Inject
+    ItemMapper itemMapper;
     @Inject
     AddressMapper addressMapper;
     @Context
@@ -88,7 +91,9 @@ public class UserService {
     ) {
         if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
-        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+        SellerUserResponse sellerUserResponse = userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+        sellerUserResponse.soldItems = itemMapper.getSoldItemsCountByCip(cip);
+        return sellerUserResponse;
     }
 
     @GET

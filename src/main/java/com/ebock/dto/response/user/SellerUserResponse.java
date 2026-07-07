@@ -5,4 +5,5 @@ public class SellerUserResponse {
     public String lastName;
     public String profilePictureUrl;
     public String createdAt;
+    public Integer soldItems;
 }

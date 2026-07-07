@@ -14,6 +14,7 @@ import com.ebock.dto.response.user.ListUtilisateursUserResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
+import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.UserService;
 import jakarta.ws.rs.BadRequestException;
@@ -38,6 +39,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock UserMapper userMapper;
+    @Mock ItemMapper itemMapper;
     @Mock AddressMapper addressMapper;
     @Mock SecurityContext securityContext;
     @Mock JsonWebToken jwt;
@@ -262,7 +264,7 @@ public class UserServiceTest {
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(userMapper.getUserInfo("larj4236")).thenReturn(user);
         when(userConverter.toSellerUserResponse(user)).thenReturn(expected);
-
+        when(itemMapper.getSoldItemsCountByCip("larj4236")).thenReturn(1);
         SellerUserResponse result = userService.cipStorefront("larj4236");
 
         assertEquals(expected, result);
