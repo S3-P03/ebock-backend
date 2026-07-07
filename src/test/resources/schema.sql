@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict HXzpaVq1q3sElLJCc27f1hkWeXeb4bLSfqTf5yUsLd8bPH8qSNmgUM1jN4XFygu
+\restrict YNDnuGcIq5fAfFoVtHIDdLaubyc1mgg4Y9b5OI3aaeVEreWBJyHqHfkkpoA1hgv
 
 -- Dumped from database version 13.23 (Debian 13.23-1.pgdg13+1)
 -- Dumped by pg_dump version 13.23 (Debian 13.23-1.pgdg13+1)
@@ -42,7 +42,8 @@ CREATE TABLE ebock.address (
     street character varying(60) NOT NULL,
     postal_code character varying(7) NOT NULL,
     country character varying(30) NOT NULL,
-    province_code character varying(2) NOT NULL
+    province_code character varying(2) NOT NULL,
+    city character varying(50) NOT NULL
 );
 
 
@@ -77,7 +78,8 @@ ALTER SEQUENCE ebock.address_address_id_seq OWNED BY ebock.address.address_id;
 CREATE TABLE ebock.category (
     category_id integer NOT NULL,
     name character varying(50) NOT NULL,
-    parent_category integer
+    parent_category integer,
+    deleted_at timestamp with time zone
 );
 
 
@@ -114,7 +116,7 @@ CREATE TABLE ebock.comment_ (
     timestamp_ timestamp without time zone NOT NULL,
     content character varying(360) NOT NULL,
     updated_at timestamp without time zone,
-    comment_id_1 integer NOT NULL,
+    comment_id_1 integer,
     item_id integer NOT NULL,
     sender_cip character varying(8) NOT NULL
 );
@@ -150,7 +152,8 @@ ALTER SEQUENCE ebock.comment__comment_id_seq OWNED BY ebock.comment_.comment_id;
 
 CREATE TABLE ebock.delivery_option (
     delivery_optn_id integer NOT NULL,
-    name character varying(50) NOT NULL
+    name character varying(50) NOT NULL,
+    deleted_at timestamp with time zone
 );
 
 
@@ -393,7 +396,8 @@ ALTER TABLE ebock.order_message OWNER TO postgres;
 
 CREATE TABLE ebock.payment_option (
     payment_optn_id integer NOT NULL,
-    name character varying(50) NOT NULL
+    name character varying(50) NOT NULL,
+    deleted_at timestamp with time zone
 );
 
 
@@ -467,7 +471,8 @@ ALTER TABLE ebock.schema_migrations OWNER TO postgres;
 
 CREATE TABLE ebock.tag (
     tag_id integer NOT NULL,
-    name character varying(50) NOT NULL
+    name character varying(50) NOT NULL,
+    deleted_at timestamp with time zone
 );
 
 
@@ -516,12 +521,10 @@ CREATE TABLE ebock.user_ (
     first_name character varying(50) NOT NULL,
     last_name character varying(50) NOT NULL,
     email character varying(90) NOT NULL,
-    is_admin boolean NOT NULL,
     profile_picture_guid character varying(50),
-    enabled boolean NOT NULL,
     created_at timestamp without time zone NOT NULL,
     updated_at character varying(50),
-    address_id integer DEFAULT 1 NOT NULL
+    address_id integer
 );
 
 
@@ -533,7 +536,8 @@ ALTER TABLE ebock.user_ OWNER TO postgres;
 
 CREATE TABLE ebock.wear (
     wear_id integer NOT NULL,
-    name character varying(50) NOT NULL
+    name character varying(50) NOT NULL,
+    deleted_at timestamp with time zone
 );
 
 
@@ -635,8 +639,8 @@ ALTER TABLE ONLY ebock.wear ALTER COLUMN wear_id SET DEFAULT nextval('ebock.wear
 -- Data for Name: address; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.address (address_id, civic_number, appt_number, street, postal_code, country, province_code) FROM stdin;
-1	2500	\N	Bd de lUniversité	J1N 3C6	Canada	QC
+COPY ebock.address (address_id, civic_number, appt_number, street, postal_code, country, province_code, city) FROM stdin;
+1	2500	\N	Bd de lUniversité	J1N 3C6	Canada	QC	
 \.
 
 
@@ -644,17 +648,17 @@ COPY ebock.address (address_id, civic_number, appt_number, street, postal_code, 
 -- Data for Name: category; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.category (category_id, name, parent_category) FROM stdin;
-1	Vêtements	\N
-2	Électronique	\N
-3	Livres	\N
-4	Maisons	\N
-5	Sports	\N
-6	Autres	\N
-7	Hauts	1
-8	Bas	1
-9	Chaussures	1
-10	Accessoires	1
+COPY ebock.category (category_id, name, parent_category, deleted_at) FROM stdin;
+1	Vêtements	\N	\N
+2	Électronique	\N	\N
+3	Livres	\N	\N
+4	Maisons	\N	\N
+5	Sports	\N	\N
+6	Autres	\N	\N
+7	Hauts	1	\N
+8	Bas	1	\N
+9	Chaussures	1	\N
+10	Accessoires	1	\N
 \.
 
 
@@ -663,6 +667,11 @@ COPY ebock.category (category_id, name, parent_category) FROM stdin;
 --
 
 COPY ebock.comment_ (comment_id, timestamp_, content, updated_at, comment_id_1, item_id, sender_cip) FROM stdin;
+1	2026-07-07 01:55:21.338711	Cet article est-il toujours disponible ?	\N	\N	5	larj4236
+2	2026-07-07 01:55:21.338711	Oui	\N	1	5	pele3157
+3	2026-07-07 01:55:21.338711	Et si je vous offre 2$ pour ce produit ?	\N	\N	5	herl2700
+4	2026-07-07 01:55:21.338711	Je peux passer le chercher dans 6 ou 7 jours.	\N	\N	5	bela3439
+5	2026-07-07 01:55:21.338711	Je vous attendais et vous étiez pas là...	\N	4	5	pele3157
 \.
 
 
@@ -670,10 +679,10 @@ COPY ebock.comment_ (comment_id, timestamp_, content, updated_at, comment_id_1, 
 -- Data for Name: delivery_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.delivery_option (delivery_optn_id, name) FROM stdin;
-1	Livraison
-2	À récupérer
-3	Transfert par courriel
+COPY ebock.delivery_option (delivery_optn_id, name, deleted_at) FROM stdin;
+1	Livraison	\N
+2	Ramassage	\N
+3	Transfert par courriel	\N
 \.
 
 
@@ -683,6 +692,7 @@ COPY ebock.delivery_option (delivery_optn_id, name) FROM stdin;
 
 COPY ebock.favorite (cip, item_id, added_at) FROM stdin;
 pele3157	1	2026-06-23 21:26:00
+larj4236	1	2026-07-06 21:57:48.214742
 \.
 
 
@@ -691,8 +701,6 @@ pele3157	1	2026-06-23 21:26:00
 --
 
 COPY ebock.image_ (guid, original_filename, file_extension, created_at) FROM stdin;
-bbcdf6e1-214b-4caf-b5fa-27f5fa980e1e	S2_APP7_Classes.png	.png	2026-06-15 20:38:12.559624
-f8c86541-0847-4fdd-a95a-fa3560364c4f	chalk.jpg	.jpg	2026-06-15 20:41:31.859791
 \.
 
 
@@ -701,12 +709,12 @@ f8c86541-0847-4fdd-a95a-fa3560364c4f	chalk.jpg	.jpg	2026-06-15 20:41:31.859791
 --
 
 COPY ebock.item (item_id, name, description, price, added_at, updated_at, sold, quantity, archived, category_id, wear_id, seller_cip) FROM stdin;
-1	Mac Book avec Puce M5	MacBook avec une puce M5 qui run linux très bien	$2,500.12	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	herl2700
-2	Auto BAJA	Belle auto baja avec une bonne transmission	$15,234.60	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	boum7113
-3	Fusée L1	Une belle fusée qui peux être utilisé comme un missile	$1,000.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	dubw5596
-5	Prise de laptop	Une prise de laptop vraiment longue	$10.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	f	1	f	2	1	pele3157
-6	Lit	Pas besoin de lit si je dors pas	$649.00	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	t	0	t	4	1	bela3439
-4	Chalk	Chalk pour l escalade	$67.67	2026-06-10 00:27:52.734861	2026-06-10 00:27:52.734861	t	1	f	5	1	larj4236
+1	Mac Book avec Puce M5	MacBook avec une puce M5 qui run linux très bien	$2,500.12	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	herl2700
+2	Auto BAJA	Belle auto baja avec une bonne transmission	$15,234.60	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	boum7113
+3	Fusée L1	Une belle fusée qui peux être utilisé comme un missile	$1,000.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	dubw5596
+4	Chalk	Chalk pour l escalade	$67.67	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	t	1	f	5	1	larj4236
+5	Prise de laptop	Une prise de laptop vraiment longue	$10.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	pele3157
+6	Lit	Pas besoin de lit si je dors pas	$649.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	t	0	t	4	1	bela3439
 \.
 
 
@@ -715,10 +723,11 @@ COPY ebock.item (item_id, name, description, price, added_at, updated_at, sold, 
 --
 
 COPY ebock.item_del_option (item_id, delivery_optn_id) FROM stdin;
-4	1
-4	2
 1	1
 1	2
+3	2
+4	1
+4	2
 \.
 
 
@@ -727,8 +736,6 @@ COPY ebock.item_del_option (item_id, delivery_optn_id) FROM stdin;
 --
 
 COPY ebock.item_image (item_id, guid, displayorder) FROM stdin;
-4	bbcdf6e1-214b-4caf-b5fa-27f5fa980e1e	1
-4	f8c86541-0847-4fdd-a95a-fa3560364c4f	2
 \.
 
 
@@ -737,9 +744,12 @@ COPY ebock.item_image (item_id, guid, displayorder) FROM stdin;
 --
 
 COPY ebock.item_paym_option (item_id, payment_optn_id) FROM stdin;
+1	2
+2	1
+5	1
+5	2
 4	1
 4	2
-1	2
 \.
 
 
@@ -769,16 +779,12 @@ System Events
 --
 
 COPY ebock.order_ (order_id, created_at, updated_at, quantity, item_id, buyer_cip) FROM stdin;
-1	2026-06-17 13:19:25.189001	2026-06-17 13:19:25.189001-04	1	4	larj4236
-2	2026-06-17 13:19:42.383485	2026-06-17 13:19:42.383485-04	1	4	larj4236
-3	2026-06-17 13:20:30.012509	2026-06-17 13:20:30.012509-04	1	4	larj4236
-4	2026-06-17 13:21:42.914472	2026-06-17 13:21:42.914472-04	1	4	larj4236
-5	2026-06-17 13:51:21.237211	2026-06-17 13:51:21.237211-04	1	4	larj4236
+1	2026-06-17 13:19:25.189001	2026-06-17 13:19:25.189001-04	1	4	bela3439
+2	2026-06-17 13:19:42.383485	2026-06-17 13:19:42.383485-04	1	4	dubw5596
+3	2026-06-17 13:20:30.012509	2026-06-17 13:20:30.012509-04	1	4	herl2700
+4	2026-06-17 13:21:42.914472	2026-06-17 13:21:42.914472-04	1	4	pele3157
+5	2026-06-17 13:51:21.237211	2026-06-17 13:51:21.237211-04	1	4	boum7113
 6	2026-06-17 13:55:15.742924	2026-06-17 13:55:15.742924-04	1	5	larj4236
-7	2026-06-17 13:56:35.779751	2026-06-17 13:56:35.779751-04	1	5	larj4236
-8	2026-06-18 10:07:26.131096	2026-06-18 10:07:26.131096-04	1	4	larj4236
-9	2026-06-18 10:08:19.955974	2026-06-18 10:08:19.955974-04	1	4	pele3157
-10	2026-06-18 10:10:02.246593	2026-06-18 10:10:02.246593-04	1	4	pele3157
 \.
 
 
@@ -804,15 +810,8 @@ COPY ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) FR
 2026-06-18 09:12:34.132228	Non t'as pas compris	f	6	pele3157
 2026-06-18 09:54:44.600569	Bon matin !	f	6	larj4236
 2026-06-18 09:55:03.857547	shut up	f	6	pele3157
-2026-06-18 09:57:25.689473	fk u je t'ai prêté mon chargeur plein de fois	f	6	larj4236
-2026-06-18 10:09:33.358533	Bonjour !	f	9	pele3157
-2026-06-18 10:09:41.439661	Je suis une grimpeuse avide de V5	f	9	pele3157
-2026-06-18 10:09:47.217989	J'aurais donc besoin de craie	f	9	pele3157
-2026-06-18 10:09:55.10737	Car le problème est clairement soi la craie soit mes souliers	f	9	pele3157
-2026-06-18 14:00:30.200464	toi fk u	f	6	pele3157
-2026-06-19 08:07:25.934676	Allo	f	6	larj4236
-2026-06-22 09:21:59.051156	womp womp	f	9	larj4236
-2026-06-22 17:31:42.62867	waddup	f	6	larj4236
+2026-07-02 13:11:51	67777777	t	2	dubw5596
+2026-07-02 13:13:51	ban	t	2	larj4236
 \.
 
 
@@ -820,9 +819,9 @@ COPY ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) FR
 -- Data for Name: payment_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.payment_option (payment_optn_id, name) FROM stdin;
-1	Interac
-2	Cash
+COPY ebock.payment_option (payment_optn_id, name, deleted_at) FROM stdin;
+1	Interac	\N
+2	Cash	\N
 \.
 
 
@@ -852,6 +851,9 @@ YT	Yukon
 --
 
 COPY ebock.review (reviewer_cip, reviewed_cip, timestamp_, content, rating, updated_at) FROM stdin;
+larj4236	pele3157	2026-05-24 09:39:59	Mauvais service, elle ne veut pas me vendre sa charge.	1	\N
+herl2700	pele3157	2026-06-24 09:41:11	Rien à dire	5	\N
+dubw5596	pele3157	2026-06-24 09:42:57	67777777777777	4	\N
 \.
 
 
@@ -860,11 +862,15 @@ COPY ebock.review (reviewer_cip, reviewed_cip, timestamp_, content, rating, upda
 --
 
 COPY ebock.schema_migrations (version, applied_at) FROM stdin;
-000_init.sql	2026-06-10 00:27:56.67199+00
-001_add_address.sql	2026-06-10 00:27:57.034613+00
-002_add_payment_options.sql	2026-06-10 00:27:57.457183+00
-003_add_address_v2.sql	2026-06-10 00:27:57.837381+00
-004_change_image_storage.sql	2026-06-10 00:27:58.206457+00
+000_init.sql	2026-07-07 01:55:16.716327+00
+001_add_address.sql	2026-07-07 01:55:17.238204+00
+002_add_payment_options.sql	2026-07-07 01:55:17.804098+00
+003_add_address_v2.sql	2026-07-07 01:55:18.362809+00
+004_change_image_storage.sql	2026-07-07 01:55:18.892521+00
+005_add_misc_inserts.sql	2026-07-07 01:55:19.411464+00
+006_add_deleted_at.sql	2026-07-07 01:55:19.98831+00
+007_update_user_address_spec.sql	2026-07-07 01:55:20.978822+00
+008_add_update_comments.sql	2026-07-07 01:55:21.499806+00
 \.
 
 
@@ -872,11 +878,11 @@ COPY ebock.schema_migrations (version, applied_at) FROM stdin;
 -- Data for Name: tag; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.tag (tag_id, name) FROM stdin;
-1	Électronique
-2	Neuf
-3	Cours
-4	Usager
+COPY ebock.tag (tag_id, name, deleted_at) FROM stdin;
+1	Électronique	\N
+2	Neuf	\N
+3	Cours	\N
+4	Usager	\N
 \.
 
 
@@ -896,15 +902,14 @@ COPY ebock.tag_item (item_id, tag_id) FROM stdin;
 -- Data for Name: user_; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.user_ (cip, first_name, last_name, email, is_admin, profile_picture_guid, enabled, created_at, updated_at, address_id) FROM stdin;
-bela3439	Alex	Bellefroid Lefkakis	bela3439@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-boum7113	Milo	Boucher	boum7113@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-dubw5596	William	Dubuc	dubw5596@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-herl2700	Léanne	Héroux	herl2700@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-larj4236	Jean-Félix	Larouche	larj4236@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-pele3157	Éliane	Pelletier	pele3157@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-test1234	Utiilisateur	Test	test1234@usherbrooke.ca	f	\N	t	2026-06-10 00:27:52.713995	\N	1
-bouc1234	Cuh	Boucher	bouc1234@usherbrooke.ca	f	\N	t	2026-06-18 12:21:05.966338	2026-06-18 12:21:05.966338-04	1
+COPY ebock.user_ (cip, first_name, last_name, email, profile_picture_guid, created_at, updated_at, address_id) FROM stdin;
+bela3439	Alex	Bellefroid Lefkakis	bela3439@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+boum7113	Milo	Boucher	boum7113@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+dubw5596	William	Dubuc	dubw5596@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+herl2700	Léanne	Héroux	herl2700@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+larj4236	Jean-Félix	Larouche	larj4236@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+pele3157	Éliane	Pelletier	pele3157@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
+test1234	Utiilisateur	Test	test1234@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
 \.
 
 
@@ -912,12 +917,12 @@ bouc1234	Cuh	Boucher	bouc1234@usherbrooke.ca	f	\N	t	2026-06-18 12:21:05.966338	2
 -- Data for Name: wear; Type: TABLE DATA; Schema: ebock; Owner: postgres
 --
 
-COPY ebock.wear (wear_id, name) FROM stdin;
-1	Factory New
-2	Minimal Wear
-3	Field-Tested
-4	Well-Worn
-5	Battle-Scarred
+COPY ebock.wear (wear_id, name, deleted_at) FROM stdin;
+1	Factory New	\N
+2	Minimal Wear	\N
+3	Field-Tested	\N
+4	Well-Worn	\N
+5	Battle-Scarred	\N
 \.
 
 
@@ -939,7 +944,7 @@ SELECT pg_catalog.setval('ebock.category_category_id_seq', 10, true);
 -- Name: comment__comment_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
 --
 
-SELECT pg_catalog.setval('ebock.comment__comment_id_seq', 1, false);
+SELECT pg_catalog.setval('ebock.comment__comment_id_seq', 5, true);
 
 
 --
@@ -967,7 +972,7 @@ SELECT pg_catalog.setval('ebock.log__id_seq', 1, false);
 -- Name: order__order_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
 --
 
-SELECT pg_catalog.setval('ebock.order__order_id_seq', 11, true);
+SELECT pg_catalog.setval('ebock.order__order_id_seq', 6, true);
 
 
 --
@@ -1443,5 +1448,5 @@ ALTER TABLE ONLY ebock.user_
 -- PostgreSQL database dump complete
 --
 
-\unrestrict HXzpaVq1q3sElLJCc27f1hkWeXeb4bLSfqTf5yUsLd8bPH8qSNmgUM1jN4XFygu
+\unrestrict YNDnuGcIq5fAfFoVtHIDdLaubyc1mgg4Y9b5OI3aaeVEreWBJyHqHfkkpoA1hgv
 

@@ -92,7 +92,7 @@ public class UserService {
         if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
         SellerUserResponse sellerUserResponse = userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
-        sellerUserResponse.soldItems = itemMapper.getSoldItemsCountByCip(cip);
+        sellerUserResponse.soldItemsCount = itemMapper.getSoldItemsCountByCip(cip);
         return sellerUserResponse;
     }
 
