@@ -24,4 +24,5 @@ public interface ItemMapper {
     Item findById(@Param("id") int id);
     void insert(@Param("item") Item item);
     void update(@Param("sellerCip") String sellerCip, @Param("item") Item item);
+    int getSoldItemsCountByCip(@Param("cip") String cip);
 }

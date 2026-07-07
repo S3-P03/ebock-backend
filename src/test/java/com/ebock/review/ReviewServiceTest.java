@@ -7,6 +7,7 @@ import com.ebock.mapper.MessageMapper;
 import com.ebock.mapper.ReviewMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.ReviewService;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
@@ -143,12 +144,10 @@ public class ReviewServiceTest {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(reviewerCip);
 
-        //act
-        Response response = reviewService.insert(reviewedCip, reviewPayload);
-
-        //assert
-        assertEquals(404, response.getStatus());
-
+        //act and assert
+        assertThrows(NotFoundException.class, () -> {
+            reviewService.insert(reviewedCip, reviewPayload);
+        });
 
         Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
         Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
@@ -167,11 +166,10 @@ public class ReviewServiceTest {
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(reviewerCip);
 
-        //act
-        Response response = reviewService.insert(reviewedCip, reviewPayload);
-
-        //assert
-        assertEquals(403, response.getStatus());
+        //act and assert
+        assertThrows(ForbiddenException.class, () -> {
+            reviewService.insert(reviewedCip, reviewPayload);
+        });
 
         Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
         Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
