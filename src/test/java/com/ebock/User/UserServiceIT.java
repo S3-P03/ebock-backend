@@ -5,10 +5,7 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.request.user.EditAddressPayload;
-import com.ebock.dto.request.user.EditUserPayload;
-import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.request.user.*;
 import com.ebock.dto.response.user.ProfileAddressResponse;
 import com.ebock.dto.response.user.ProfileUserResponse;
 import com.ebock.mapper.AddressMapper;
@@ -84,6 +81,12 @@ public class UserServiceIT {
         given()
                 .when()
                 .get("/user/profile")
+                .then()
+                .statusCode(401);
+
+        given()
+                .when()
+                .put("/user/updateProfilePicture")
                 .then()
                 .statusCode(401);
 
@@ -190,5 +193,27 @@ public class UserServiceIT {
 
         Mockito.verify(userMapper).getUserInfo(cip);
         Mockito.verify(addressMapper).getAddressById(fakeAddressId);
+    }
+
+    @Test
+    @TestSecurity(user = "dubw1234")
+    public void testEditProfilePicture_Success_ShouldReturn204() {
+        // Arrange
+        String cip = "dubw1234";
+        String guid = "aaabbbccccddddoaifjodiajf";
+
+        EditProfilePicturePayload payload = new EditProfilePicturePayload();
+        payload.guid = guid;
+
+        // Act & Assert
+        given()
+                .contentType(ContentType.JSON)
+                .body(payload)
+                .when()
+                .put("/user/updateProfilePicture")
+                .then()
+                .statusCode(204);
+
+        Mockito.verify(userMapper).updateProfilePicture(cip, guid);
     }
 }

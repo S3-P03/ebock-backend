@@ -5,10 +5,7 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.request.user.EditAddressPayload;
-import com.ebock.dto.request.user.EditUserPayload;
-import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.request.user.*;
 import com.ebock.dto.response.user.ListUtilisateursResponse;
 import com.ebock.dto.response.user.ListUtilisateursUserResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
@@ -369,5 +366,24 @@ public class UserServiceTest {
         // Assert
         assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
         verify(keycloakAdapter).disableUser(cip);
+    }
+
+    @Test
+    void editProfilePicture_shouldCallDbAndReturnOk(){
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        EditProfilePicturePayload payload = new EditProfilePicturePayload();
+        payload.guid = "aaaabbbbccccdddd";
+
+        // Act
+        Response response = userService.editProfilePicture(payload);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(userMapper).updateProfilePicture(cip, payload.guid);
     }
 }

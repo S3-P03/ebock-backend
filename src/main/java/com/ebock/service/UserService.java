@@ -5,6 +5,8 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.request.image.ImagePayload;
+import com.ebock.dto.request.user.EditProfilePicturePayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.EditPayload;
 import com.ebock.dto.response.user.ListUtilisateursResponse;
@@ -200,6 +202,17 @@ public class UserService {
         keycloakAdapter.disableUser(cip);
 
         return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/updateProfilePicture")
+    @Authenticated
+    public Response editProfilePicture(EditProfilePicturePayload payload){
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        userMapper.updateProfilePicture(cip, payload.guid);
+
+        return Response.noContent().build();
     }
 
     /**

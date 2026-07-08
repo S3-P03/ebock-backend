@@ -48,4 +48,10 @@
         WHERE u.cip = #{cip};
     </select>
 
+    <update id="updateProfilePicture">
+        UPDATE ebock.user_
+        SET profile_picture_uid = #{guid}
+        WHERE cip = #{cip};
+    </update>
+
 </mapper>

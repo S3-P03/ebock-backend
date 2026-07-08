@@ -18,4 +18,5 @@ public interface UserMapper {
     void updateUserAddress(@Param("cip") String cip,
                            @Param("addressId") int addressId);
     int getUserCountByCip(@Param("cip") String cip);
+    void updateProfilePicture(@Param("cip") String cip, @Param("guid") String guid);
 }
