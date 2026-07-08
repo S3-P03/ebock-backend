@@ -96,6 +96,16 @@ public class GlobalExceptionMapper {
                         ))
                         .build();
             }
+
+            // "23503" = Foreign Key Constraint Violations
+            if ("23503".equals(sqlState)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of(
+                                "error", "Data Integrity Violation",
+                                "message", "FK constraint violation"
+                        ))
+                        .build();
+            }
         }
 
         // Other database error

@@ -106,6 +106,7 @@ public class UserServiceTest {
         payload.address.street = "Sommet de Orford";
         payload.address.civicNumber = 1;
         payload.address.apptNumber = 1;
+        payload.address.city = "Sherbrooke";
         payload.address.provinceCode = "QC";
         payload.address.country = "Québec";
 
@@ -146,6 +147,7 @@ public class UserServiceTest {
         payload.address.street = "Sommet de Orford";
         payload.address.civicNumber = 1;
         payload.address.apptNumber = 1;
+        payload.address.city = "Sherbrooke";
         payload.address.provinceCode = "QC";
         payload.address.country = "Québec";
 
