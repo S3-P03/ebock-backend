@@ -86,7 +86,7 @@ public class UserServiceIT {
 
         given()
                 .when()
-                .get("/user/updateProfilePicture")
+                .put("/user/updateProfilePicture")
                 .then()
                 .statusCode(401);
 
@@ -209,11 +209,10 @@ public class UserServiceIT {
         given()
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/user/updateProfilePicture")
+                .put("/user/updateProfilePicture")
                 .then()
                 .statusCode(204);
 
-        Mockito.verify(userMapper).getUserInfo(cip);
-        Mockito.verify(addressMapper).getAddressById(fakeAddressId);
+        Mockito.verify(userMapper).updateProfilePicture(cip, guid);
     }
 }
