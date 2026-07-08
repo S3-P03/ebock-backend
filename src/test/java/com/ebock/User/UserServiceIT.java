@@ -208,6 +208,7 @@ public class UserServiceIT {
         // Act & Assert
         given()
                 .contentType(ContentType.JSON)
+                .body(payload)
                 .when()
                 .put("/user/updateProfilePicture")
                 .then()
