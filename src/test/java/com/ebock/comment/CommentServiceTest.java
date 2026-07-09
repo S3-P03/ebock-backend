@@ -5,6 +5,7 @@ import com.ebock.dto.response.comment.CommentDetailsResponse;
 import com.ebock.mapper.CommentMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.service.CommentService;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
@@ -68,29 +69,32 @@ public class CommentServiceTest {
     void commentInsert_ThrowsNotFound_InexistentItemId() {
 
         // arrange
-        int inexistentId = 10;
+        Integer inexistentId = 10;
         CommentPayload payload = new CommentPayload();
 
-        when(itemMapper.getItemCountById(inexistentId)).thenReturn(0);
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn("pele3157");
 
-        // act + assert
-        assertThrows(NotFoundException.class,
-                () -> commentService.insert(inexistentId, payload));
+        // Mock the insert method to throw an exception
+        doThrow(new BadRequestException())
+                .when(commentMapper).insert(inexistentId, "pele3157", payload);
 
-        verify(commentMapper, never()).insert(anyInt(), anyString(), any());
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            commentService.insert(inexistentId, payload);
+        });
+
+        verify(commentMapper, times(1)).insert(anyInt(), anyString(), any());
     }
 
     @Test
     void commentInsert_Inserts_ExistentItemId() {
 
         // arrange
-        int validId = 1;
+        int validId = 5;
         String cip = "pele3157";
         CommentPayload payload = new CommentPayload();
 
-        when(itemMapper.getItemCountById(validId)).thenReturn(1);
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(cip);
 

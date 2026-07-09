@@ -3,27 +3,22 @@ package com.ebock.comment;
 import com.ebock.dto.request.comment.CommentPayload;
 import com.ebock.mapper.CommentMapper;
 import com.ebock.mapper.ItemMapper;
-import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
 import io.restassured.http.ContentType;
+import jakarta.inject.Inject;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
-
-import java.util.ArrayList;
 
 import static io.restassured.RestAssured.given;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
 @QuarkusTest
 public class CommentIT {
 
-    @InjectMock
+    @Inject
     CommentMapper commentMapper;
 
-    @InjectMock
+    @Inject
     ItemMapper itemMapper;
 
     private CommentPayload validPayload;
@@ -32,13 +27,11 @@ public class CommentIT {
     public void setup() {
         validPayload = new CommentPayload();
         validPayload.content = "Test commentaire";
+        validPayload.idParent = null;
     }
 
     @Test
     void commentDetails_Returns404_InexistentItem() {
-
-        Mockito.when(itemMapper.getItemCountById(10)).thenReturn(0);
-
         given()
                 .pathParam("id", 10)
                 .when()
@@ -49,44 +42,30 @@ public class CommentIT {
 
     @Test
     void commentDetails_Returns200_ExistentItem() {
-
-        Mockito.when(itemMapper.getItemCountById(1)).thenReturn(1);
-        Mockito.when(commentMapper.getDetailledComments(1))
-                .thenReturn(new ArrayList<>());
-
         given()
                 .pathParam("id", 1)
                 .when()
                 .get("/comment/{id}/details")
                 .then()
                 .statusCode(200);
-
-        Mockito.verify(commentMapper, Mockito.times(1))
-                .getDetailledComments(1);
     }
 
     @Test
     @TestSecurity(user = "testuser", roles = {"user"})
-    void commentInsert_Returns404_InexistentItem() {
-
-        Mockito.when(itemMapper.getItemCountById(10)).thenReturn(0);
-
+    void commentInsert_Returns400_InexistentItem() {
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)
-                .pathParam("id", 10)
+                .pathParam("id", 111)
                 .when()
                 .post("/comment/{id}")
                 .then()
-                .statusCode(404);
+                .statusCode(400);
     }
 
     @Test
-    @TestSecurity(user = "testuser", roles = {"user"})
+    @TestSecurity(user = "pele3157", roles = {"user"})
     void commentInsert_CreatesComment_ExistentItem() {
-
-        Mockito.when(itemMapper.getItemCountById(1)).thenReturn(1);
-
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)
@@ -95,16 +74,12 @@ public class CommentIT {
                 .post("/comment/{id}")
                 .then()
                 .statusCode(201);
-
-        Mockito.verify(commentMapper, Mockito.times(1))
-                .insert(eq(1), eq("testuser"), any(CommentPayload.class));
     }
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void commentDelete_Returns404_InexistentItem() {
 
-        Mockito.when(itemMapper.getItemCountById(10)).thenReturn(0);
 
         given()
                 .pathParam("id", 10)
@@ -118,8 +93,6 @@ public class CommentIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void commentDelete_DeletesComment_ExistentItem() {
 
-        Mockito.when(itemMapper.getItemCountById(1)).thenReturn(1);
-
         given()
                 .pathParam("id", 1)
                 .when()
@@ -127,8 +100,5 @@ public class CommentIT {
                 .then()
                 .statusCode(204);
 
-        Mockito.verify(commentMapper, Mockito.times(1))
-                .delete(1);
     }
-
 }
