@@ -15,19 +15,13 @@ import static io.restassured.RestAssured.given;
 @QuarkusTest
 public class CommentIT {
 
-    @Inject
-    CommentMapper commentMapper;
-
-    @Inject
-    ItemMapper itemMapper;
-
-    private CommentPayload validPayload;
+    private CommentPayload validCommentPayload;
 
     @BeforeEach
     public void setup() {
-        validPayload = new CommentPayload();
-        validPayload.content = "Test commentaire";
-        validPayload.idParent = null;
+        validCommentPayload = new CommentPayload();
+        validCommentPayload.content = "Test commentaire";
+        validCommentPayload.idParent = null;
     }
 
     @Test
@@ -35,7 +29,7 @@ public class CommentIT {
         given()
                 .pathParam("id", 10)
                 .when()
-                .get("/comment/{id}/details")
+                .get("/item/{id}/comment")
                 .then()
                 .statusCode(404);
     }
@@ -45,7 +39,7 @@ public class CommentIT {
         given()
                 .pathParam("id", 1)
                 .when()
-                .get("/comment/{id}/details")
+                .get("/item/{id}/comment")
                 .then()
                 .statusCode(200);
     }
@@ -55,10 +49,10 @@ public class CommentIT {
     void commentInsert_Returns400_InexistentItem() {
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .body(validCommentPayload)
                 .pathParam("id", 111)
                 .when()
-                .post("/comment/{id}")
+                .post("/item/{id}/comment")
                 .then()
                 .statusCode(400);
     }
@@ -68,10 +62,10 @@ public class CommentIT {
     void commentInsert_CreatesComment_ExistentItem() {
         given()
                 .contentType(ContentType.JSON)
-                .body(validPayload)
+                .body(validCommentPayload)
                 .pathParam("id", 1)
                 .when()
-                .post("/comment/{id}")
+                .post("/item/{id}/comment")
                 .then()
                 .statusCode(201);
     }
@@ -79,8 +73,6 @@ public class CommentIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void commentDelete_Returns404_InexistentItem() {
-
-
         given()
                 .pathParam("id", 10)
                 .when()
@@ -92,7 +84,6 @@ public class CommentIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void commentDelete_DeletesComment_ExistentItem() {
-
         given()
                 .pathParam("id", 1)
                 .when()

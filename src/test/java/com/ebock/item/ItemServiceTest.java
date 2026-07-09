@@ -2,10 +2,12 @@ package com.ebock.item;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.comment.CommentPayload;
 import com.ebock.dto.request.item.FilterItemParameters;
 import com.ebock.dto.request.item.ItemCreatePayload;
 import com.ebock.dto.request.item.ItemImageElement;
 import com.ebock.dto.request.item.ItemUpdatePayload;
+import com.ebock.dto.response.comment.CommentDetailsResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
 import com.ebock.mapper.ItemImageMapper;
@@ -13,6 +15,7 @@ import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.mapper.*;
+import com.ebock.service.CommentService;
 import com.ebock.service.ItemService;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.ws.rs.BadRequestException;
@@ -57,6 +60,8 @@ public class ItemServiceTest {
     SecurityContext securityContext;
     @Mock
     Principal principal;
+    @Mock
+    CommentMapper commentMapper;
 
     @InjectMocks
     ItemService itemService;
@@ -478,4 +483,74 @@ public class ItemServiceTest {
         // act and assert
         assertThrows(UnauthorizedException.class, () -> itemService.removeFavorite(1));
     }
+
+    @Test
+    void commentDetails_ThrowsNotFound_InexistentItemId(){
+        //arrange
+        int inexistentId = 10;
+        when(itemMapper.getItemCountById(inexistentId)).thenReturn(0);
+
+        //act and assert
+        assertThrows(NotFoundException.class, () -> {
+            itemService.idDetailsComment(inexistentId);
+        });
+    }
+
+    @Test
+    void commentDetails_Works_ExistentItemId(){
+        //arrange
+        int validId = 1;
+        List<CommentDetailsResponse> expected = new ArrayList<>();
+        when(itemMapper.getItemCountById(validId)).thenReturn(1);
+        when(commentMapper.getDetailledComments(validId)).thenReturn(expected);
+
+        //act
+        List<CommentDetailsResponse> result = itemService.idDetailsComment(validId);
+
+        //assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void commentInsert_ThrowsNotFound_InexistentItemId() {
+
+        // arrange
+        Integer inexistentId = 10;
+        CommentPayload payload = new CommentPayload();
+
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("pele3157");
+
+        // Mock the insert method to throw an exception
+        doThrow(new BadRequestException())
+                .when(commentMapper).insert(inexistentId, "pele3157", payload);
+
+        // Act & Assert
+        assertThrows(BadRequestException.class, () -> {
+            itemService.insertComment(inexistentId, payload);
+        });
+
+        verify(commentMapper, times(1)).insert(anyInt(), anyString(), any());
+    }
+
+    @Test
+    void commentInsert_Inserts_ExistentItemId() {
+
+        // arrange
+        int validId = 5;
+        String cip = "pele3157";
+        CommentPayload payload = new CommentPayload();
+
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(cip);
+
+        // act
+        Response response = itemService.insertComment(validId, payload);
+
+        // assert
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        verify(commentMapper).insert(validId, cip, payload);
+    }
+
 }
