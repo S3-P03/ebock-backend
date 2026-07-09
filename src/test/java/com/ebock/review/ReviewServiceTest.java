@@ -193,7 +193,7 @@ public class ReviewServiceTest {
         Response response = reviewService.insert(reviewedCip, reviewPayload);
 
         //assert
-        assertEquals(200, response.getStatus());
+        assertEquals(201, response.getStatus());
 
         Mockito.verify(reviewMapper, Mockito.times(1)).update(anyString(), anyString(), any(ReviewPayload.class));
         Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
@@ -217,7 +217,7 @@ public class ReviewServiceTest {
         Response response = reviewService.insert(reviewedCip, reviewPayload);
 
         //assert
-        assertEquals(200, response.getStatus());
+        assertEquals(201, response.getStatus());
 
         Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
         Mockito.verify(reviewMapper, Mockito.times(1)).insert(anyString(), anyString(), any(ReviewPayload.class));
