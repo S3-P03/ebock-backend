@@ -170,7 +170,7 @@ public class ReviewServiceTest {
         assertThrows(ForbiddenException.class, () -> {
             reviewService.insert(reviewedCip, reviewPayload);
         });
-
+        
         Mockito.verify(reviewMapper, Mockito.never()).insert(anyString(), anyString(), any(ReviewPayload.class));
         Mockito.verify(reviewMapper, Mockito.never()).update(anyString(), anyString(), any(ReviewPayload.class));
     }
