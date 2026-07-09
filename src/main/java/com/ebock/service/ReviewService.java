@@ -72,6 +72,6 @@ public class ReviewService {
         else
             reviewMapper.insert(reviewerCip, reviewedCip, reviewPayload);
 
-        return Response.status(Response.Status.OK).build();
+        return Response.status(Response.Status.CREATED).build();
     }
 }
