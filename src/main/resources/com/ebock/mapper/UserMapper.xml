@@ -50,7 +50,7 @@
 
     <update id="updateProfilePicture">
         UPDATE ebock.user_
-        SET profile_picture_uid = #{guid}
+        SET profile_picture_guid = #{guid}
         WHERE cip = #{cip};
     </update>
 
