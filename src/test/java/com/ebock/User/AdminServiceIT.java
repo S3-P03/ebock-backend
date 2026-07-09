@@ -81,7 +81,7 @@ public class AdminServiceIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200() {
-        String cip = "dubw5596";
+        String cip = "test1234";
 
         given()
                 .pathParam("cip", cip)
@@ -118,7 +118,7 @@ public class AdminServiceIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200_WhenAlreadyDisabled() {
-        String cip = "dubw5596";
+        String cip = "test1234";
         keycloakAdapter.disableUser(cip);
 
         given()
@@ -127,6 +127,32 @@ public class AdminServiceIT {
                 .put("/user/{cip}/disable")
                 .then()
                 .statusCode(200);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void disableUser_ShouldReturn403_WhenUserAdmin() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/disable")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void enableUser_ShouldReturn403_WhenUserAdmin() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/enable")
+                .then()
+                .statusCode(403);
     }
 
     @Test
@@ -156,7 +182,7 @@ public class AdminServiceIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void enableUser_ShouldReturn200() {
-        String cip = "dubw5596";
+        String cip = "test1234";
 
         given()
                 .pathParam("cip", cip)

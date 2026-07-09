@@ -3,10 +3,7 @@ package com.ebock.adapter;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.InternalServerErrorException;
-import jakarta.ws.rs.NotAuthorizedException;
-import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.*;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.resteasy.reactive.ClientWebApplicationException;
 import org.keycloak.OAuth2Constants;
@@ -102,6 +99,10 @@ public class KeycloakAdapter {
             UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
             UserRepresentation user = userResource.toRepresentation();
 
+            if(isUserAdmin(userResource)){
+                throw new ForbiddenException("Cannot enable an admin");
+            }
+
             // Change the status
             if (user.isEnabled()) {
                 return;
@@ -130,6 +131,10 @@ public class KeycloakAdapter {
             // Get the user
             UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
             UserRepresentation user = userResource.toRepresentation();
+
+            if(isUserAdmin(userResource)){
+                throw new ForbiddenException("Cannot disable an admin");
+            }
 
             // Change the status
             if (!user.isEnabled()) {
@@ -164,6 +169,14 @@ public class KeycloakAdapter {
         } catch (NotFoundException e) {
             throw new NotFoundException("User not found");
         }
+    }
+
+    /**
+     * Check if a user is admin
+     * @param userResource user
+     */
+    public boolean isUserAdmin(UserResource userResource) {
+        return userResource.roles().realmLevel().listAll().stream().anyMatch(role -> "admin".equals(role.getName()));
     }
 
     /**
