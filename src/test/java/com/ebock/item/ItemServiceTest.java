@@ -15,7 +15,6 @@ import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.mapper.*;
-import com.ebock.service.CommentService;
 import com.ebock.service.ItemService;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.ws.rs.BadRequestException;
@@ -492,7 +491,7 @@ public class ItemServiceTest {
 
         //act and assert
         assertThrows(NotFoundException.class, () -> {
-            itemService.idDetailsComment(inexistentId);
+            itemService.listItemComments(inexistentId);
         });
     }
 
@@ -505,7 +504,7 @@ public class ItemServiceTest {
         when(commentMapper.getDetailledComments(validId)).thenReturn(expected);
 
         //act
-        List<CommentDetailsResponse> result = itemService.idDetailsComment(validId);
+        List<CommentDetailsResponse> result = itemService.listItemComments(validId);
 
         //assert
         assertEquals(expected, result);

@@ -224,7 +224,7 @@ public class ItemService {
     @GET
     @Path("/{id}/comment")
     @PermitAll
-    public List<CommentDetailsResponse> idDetailsComment(@PathParam("id") Integer id) {
+    public List<CommentDetailsResponse> listItemComments(@PathParam("id") Integer id) {
         if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
 
