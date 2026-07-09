@@ -29,34 +29,49 @@ public class CommentService {
     @Context
     SecurityContext securityContext;
 
+    /**
+     *
+     * @param id of the item
+     * @return all comments of a specified item (not deleted)
+     */
     @GET
     @Path("/{id}/details")
     @PermitAll
     public List<CommentDetailsResponse> idDetailsComment(@PathParam("id") Integer id) {
         if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
+
         return commentMapper.getDetailledComments(id);
     }
 
+    /**
+     * Inserts comment into DB
+     * @param id of the item
+     * @param commentPayload
+     * @return status
+     */
     @POST
     @Path("/{id}")
     @Authenticated
     public Response insert(@PathParam("id") Integer id, @Valid CommentPayload commentPayload){
         String cip = securityContext.getUserPrincipal().getName();
 
-        if(itemMapper.getItemCountById(id) == 0)
-            throw new NotFoundException("Item not found");
-
         commentMapper.insert(id, cip, commentPayload);
         return Response.status(Response.Status.CREATED).build();
     }
 
+    /**
+     * Updates the field deleted_at of the comment
+     * @param id of the comment
+     * @return
+     */
     @DELETE
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") Integer id) {
         if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
+
         commentMapper.delete(id);
         return Response.noContent().build();
     }
