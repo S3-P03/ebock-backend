@@ -46,6 +46,7 @@ public class CommentService {
 
         if(itemMapper.getItemCountById(id) == 0)
             throw new NotFoundException("Item not found");
+
         commentMapper.insert(id, cip, commentPayload);
         return Response.status(Response.Status.CREATED).build();
     }

@@ -6,8 +6,8 @@ import jakarta.validation.constraints.Size;
 public class CommentPayload {
     @NotBlank
     @Size(max=50)
-    String content;
-    Integer idParent;
+    public String content;
+    public Integer idParent;
 
     public String getContent() {
         return content;
