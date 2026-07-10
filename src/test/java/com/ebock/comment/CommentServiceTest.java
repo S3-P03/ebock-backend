@@ -25,31 +25,15 @@ public class CommentServiceTest {
 
     @InjectMocks
     CommentService commentService;
-
+    
     @Test
-    void commentDelete_ThrowsNotFound_InexistentItemId() {
-        // arrange
-        int inexistentId = 10;
-        when(itemMapper.getItemCountById(inexistentId)).thenReturn(0);
-
-        // act + assert
-        assertThrows(NotFoundException.class, () -> commentService.delete(inexistentId));
-
-        verify(commentMapper, never()).delete(anyInt());
-    }
-
-    @Test
-    void commentDelete_Deletes_ExistentItemId() {
-        // arrange
-        int validId = 1;
-        when(itemMapper.getItemCountById(validId)).thenReturn(1);
-
+    void commentDelete_Deletes_() {
         // act
-        Response response = commentService.delete(validId);
+        Response response = commentService.delete(1);
 
         // assert
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
 
-        verify(commentMapper).delete(validId);
+        verify(commentMapper).delete(1);
     }
 }

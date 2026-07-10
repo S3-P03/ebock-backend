@@ -72,18 +72,7 @@ public class CommentIT {
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
-    void commentDelete_Returns404_InexistentItem() {
-        given()
-                .pathParam("id", 10)
-                .when()
-                .delete("/comment/{id}")
-                .then()
-                .statusCode(404);
-    }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void commentDelete_DeletesComment_ExistentItem() {
+    void commentDelete_DeletesComment_() {
         given()
                 .pathParam("id", 1)
                 .when()

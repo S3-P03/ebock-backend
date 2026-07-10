@@ -1,7 +1,6 @@
 package com.ebock.service;
 
 import com.ebock.mapper.CommentMapper;
-import com.ebock.mapper.ItemMapper;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.*;
@@ -15,16 +14,11 @@ public class CommentService {
 
     @Inject
     CommentMapper commentMapper;
-    @Inject
-    ItemMapper itemMapper;
 
     @DELETE
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") Integer id) {
-        if(itemMapper.getItemCountById(id) == 0)
-            throw new NotFoundException("Item not found");
-
         commentMapper.delete(id);
         return Response.noContent().build();
     }
