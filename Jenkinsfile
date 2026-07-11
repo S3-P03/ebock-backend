@@ -86,11 +86,6 @@ pipeline {
                       -Dquarkus.datasource.devservices.enabled=false \
                       -Dquarkus.devservices.enabled=false \
                       -Dquarkus.profile=ci \
-                      -Dquarkus.test.profile=ci \
-                      -Dquarkus.oidc.enabled=false \
-                      -Dquarkus.oidc.tenant-enabled=false \
-                      -Dquarkus.oidc.auth-server-url=http://localhost:8180/realms/ebock \
-                      -Dquarkus.keycloak.admin-client.server-url=http://localhost:8180 \
                       clean test \
                       --stacktrace'
             }

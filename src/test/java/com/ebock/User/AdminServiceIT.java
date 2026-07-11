@@ -1,18 +1,12 @@
 package com.ebock.User;
 
 import com.ebock.adapter.KeycloakAdapter;
-import io.quarkus.arc.profile.IfBuildProfile;
+import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import jakarta.annotation.Priority;
-import jakarta.enterprise.inject.Alternative;
-import jakarta.enterprise.inject.Produces;
-import jakarta.inject.Inject;
-import jakarta.inject.Singleton;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
-import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -26,37 +20,8 @@ import static org.wildfly.common.Assert.assertTrue;
 
 @QuarkusTest
 public class AdminServiceIT {
-    @Inject
+    @InjectMock
     KeycloakAdapter keycloakAdapter;
-
-    private static KeycloakAdapter mockedKeycloakAdapter;
-
-    @BeforeEach
-    void setUp() {
-        if (isCiProfile() && mockedKeycloakAdapter != null) {
-            reset(mockedKeycloakAdapter);
-        }
-    }
-
-    @IfBuildProfile("ci")
-    @Singleton
-    static class CiKeycloakAdapterProducer {
-        @Produces
-        @Alternative
-        @Priority(1)
-        KeycloakAdapter keycloakAdapter() {
-            if (mockedKeycloakAdapter == null) {
-                mockedKeycloakAdapter = mock(KeycloakAdapter.class);
-            }
-            return mockedKeycloakAdapter;
-        }
-    }
-
-    private static boolean isCiProfile() {
-        return "ci".equalsIgnoreCase(ConfigProvider.getConfig()
-                .getOptionalValue("quarkus.profile", String.class)
-                .orElse(""));
-    }
 
     @Test
     @TestSecurity(user = "user", roles = {"student"})
@@ -71,9 +36,7 @@ public class AdminServiceIT {
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void listUser_ShouldReturn200_WhenAdmin() {
-        if (isCiProfile()) {
-            when(keycloakAdapter.getAllUsers()).thenReturn(List.of());
-        }
+        when(keycloakAdapter.getAllUsers()).thenReturn(List.of());
 
         given()
                 .when()
@@ -100,9 +63,7 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void enableUser_ShouldReturn404_WhenUserNotExist() {
         String cip = "aaaa1111";
-        if (isCiProfile()) {
-            doThrow(new NotFoundException("User not found")).when(keycloakAdapter).enableUser(cip);
-        }
+        doThrow(new NotFoundException("User not found")).when(keycloakAdapter).enableUser(cip);
 
         given()
                 .pathParam("cip", cip)
@@ -129,10 +90,8 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200() {
         String cip = "test1234";
-        if (isCiProfile()) {
-            doNothing().when(keycloakAdapter).disableUser(cip);
-            when(keycloakAdapter.isUserEnabled(cip)).thenReturn(false);
-        }
+        doNothing().when(keycloakAdapter).disableUser(cip);
+        when(keycloakAdapter.isUserEnabled(cip)).thenReturn(false);
 
         given()
                 .pathParam("cip", cip)
@@ -141,18 +100,15 @@ public class AdminServiceIT {
                 .then()
                 .statusCode(200);
 
-        if (isCiProfile()) {
-            assertFalse(keycloakAdapter.isUserEnabled(cip));
-        }
+        assertFalse(keycloakAdapter.isUserEnabled(cip));
+
     }
 
     @Test
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn404_WhenUserNotExist() {
         String cip = "aaaa1111";
-        if (isCiProfile()) {
-            doThrow(new NotFoundException("User not found")).when(keycloakAdapter).disableUser(cip);
-        }
+        doThrow(new NotFoundException("User not found")).when(keycloakAdapter).disableUser(cip);
 
         given()
                 .pathParam("cip", cip)
@@ -175,9 +131,7 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn200_WhenAlreadyDisabled() {
         String cip = "test1234";
-        if (isCiProfile()) {
-            doNothing().when(keycloakAdapter).disableUser(cip);
-        }
+        doNothing().when(keycloakAdapter).disableUser(cip);
 
         given()
                 .pathParam("cip", cip)
@@ -191,9 +145,7 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn403_WhenUserAdmin() {
         String cip = "dubw5596";
-        if (isCiProfile()) {
-            doThrow(new ForbiddenException("Cannot disable an admin")).when(keycloakAdapter).disableUser(cip);
-        }
+        doThrow(new ForbiddenException("Cannot disable an admin")).when(keycloakAdapter).disableUser(cip);
 
         given()
                 .pathParam("cip", cip)
@@ -207,9 +159,7 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void enableUser_ShouldReturn403_WhenUserAdmin() {
         String cip = "dubw5596";
-        if (isCiProfile()) {
-            doThrow(new ForbiddenException("Cannot enable an admin")).when(keycloakAdapter).enableUser(cip);
-        }
+        doThrow(new ForbiddenException("Cannot enable an admin")).when(keycloakAdapter).enableUser(cip);
 
         given()
                 .pathParam("cip", cip)
@@ -223,6 +173,8 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void disableUser_ShouldReturn400_WhenCipTooLong() {
         String cip = "dubw559655965";
+        doThrow(new BadRequestException("User not found")).when(keycloakAdapter).disableUser(cip);
+
         given()
                 .pathParam("cip", cip)
                 .when()
@@ -235,6 +187,8 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void enableUser_ShouldReturn400_WhenCipTooLong() {
         String cip = "dubw559655965";
+        doThrow(new BadRequestException("User not found")).when(keycloakAdapter).enableUser(cip);
+
         given()
                 .pathParam("cip", cip)
                 .when()
@@ -247,10 +201,8 @@ public class AdminServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     void enableUser_ShouldReturn200() {
         String cip = "test1234";
-        if (isCiProfile()) {
-            doNothing().when(keycloakAdapter).enableUser(cip);
-            when(keycloakAdapter.isUserEnabled(cip)).thenReturn(true);
-        }
+        doNothing().when(keycloakAdapter).enableUser(cip);
+        when(keycloakAdapter.isUserEnabled(cip)).thenReturn(true);
 
         given()
                 .pathParam("cip", cip)
@@ -259,9 +211,7 @@ public class AdminServiceIT {
                 .then()
                 .statusCode(200);
 
-        if (isCiProfile()) {
-            assertTrue(keycloakAdapter.isUserEnabled(cip));
-        }
+        assertTrue(keycloakAdapter.isUserEnabled(cip));
     }
 
 }
