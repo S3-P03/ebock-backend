@@ -15,7 +15,7 @@ pipeline {
 
         stage('Start fresh PostgreSQL') {
             steps {
-                sh 'docker compose up -d --force-recreate --renew-anon-volumes postgres'
+                sh 'docker compose -f /home/debian up -d --force-recreate --renew-anon-volumes postgres'
             }
         }
 
