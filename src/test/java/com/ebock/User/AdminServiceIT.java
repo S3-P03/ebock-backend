@@ -1,14 +1,17 @@
 package com.ebock.User;
 
 import com.ebock.adapter.KeycloakAdapter;
-import io.quarkus.test.junit.QuarkusMock;
+import io.quarkus.arc.profile.IfBuildProfile;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import jakarta.annotation.Priority;
+import jakarta.enterprise.inject.Alternative;
+import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import org.eclipse.microprofile.config.ConfigProvider;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -28,18 +31,24 @@ public class AdminServiceIT {
 
     private static KeycloakAdapter mockedKeycloakAdapter;
 
-    @BeforeAll
-    static void installMockIfCi() {
-        if (isCiProfile()) {
-            mockedKeycloakAdapter = mock(KeycloakAdapter.class);
-            QuarkusMock.installMockForType(mockedKeycloakAdapter, KeycloakAdapter.class);
+    @BeforeEach
+    void setUp() {
+        if (isCiProfile() && mockedKeycloakAdapter != null) {
+            reset(mockedKeycloakAdapter);
         }
     }
 
-    @BeforeEach
-    void setUp() {
-        if (isCiProfile()) {
-            reset(mockedKeycloakAdapter);
+    @IfBuildProfile("ci")
+    @Singleton
+    static class CiKeycloakAdapterProducer {
+        @Produces
+        @Alternative
+        @Priority(1)
+        KeycloakAdapter keycloakAdapter() {
+            if (mockedKeycloakAdapter == null) {
+                mockedKeycloakAdapter = mock(KeycloakAdapter.class);
+            }
+            return mockedKeycloakAdapter;
         }
     }
 
