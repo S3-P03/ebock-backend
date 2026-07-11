@@ -81,4 +81,16 @@ public class CommentIT {
                 .statusCode(204);
 
     }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void commentDelete_Returns404_InexistentComment() {
+        given()
+                .pathParam("id", 111)
+                .when()
+                .delete("/comment/{id}")
+                .then()
+                .statusCode(404);
+
+    }
 }

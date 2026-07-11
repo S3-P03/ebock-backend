@@ -19,6 +19,8 @@ public class CommentService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") Integer id) {
+        if (commentMapper.getCountById(id) == 0)
+            throw new NotFoundException("Comment not found");
         commentMapper.delete(id);
         return Response.noContent().build();
     }
