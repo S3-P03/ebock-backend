@@ -79,13 +79,18 @@ pipeline {
         stage('Build and Test') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean test \
+                sh './gradlew \
                       -Dquarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/testdb \
                       -Dquarkus.datasource.username=postgres \
                       -Dquarkus.datasource.password=postgres \
                       -Dquarkus.datasource.devservices.enabled=false \
                       -Dquarkus.devservices.enabled=false \
                       -Dquarkus.profile=ci \
+                      -Dquarkus.oidc.enabled=false \
+                      -Dquarkus.oidc.tenant-enabled=false \
+                      -Dquarkus.oidc.auth-server-url=http://localhost:8180/realms/ebock \
+                      -Dquarkus.keycloak.admin-client.server-url=http://localhost:8180 \
+                      clean test \
                       --stacktrace'
             }
         }
