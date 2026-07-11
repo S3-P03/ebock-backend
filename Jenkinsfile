@@ -13,6 +13,12 @@ pipeline {
             }
         }
 
+        stage('Start fresh PostgreSQL') {
+            steps {
+                sh 'docker compose up -d --force-recreate --renew-anon-volumes postgres'
+            }
+        }
+
         stage('Wait for PostgreSQL') {
             steps {
                 sh '''
