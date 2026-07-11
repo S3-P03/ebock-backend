@@ -19,7 +19,7 @@ pipeline {
                     docker rm -f postgres || true
                     docker run -d --name postgres \
                         --network debian_default \
-                        -e POSTGRES_DB=tesdb \
+                        -e POSTGRES_DB=testdb \
                         -e POSTGRES_USER=postgres \
                         -e POSTGRES_PASSWORD=postgres \
                         -p 5433:5432 \
