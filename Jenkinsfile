@@ -25,7 +25,7 @@ pipeline {
                         -p 5433:5432 \
                         --memory=800m \
                         postgres:17 \
-                        postgres -c shared_buffers=256MB -c worm_mem=16MB -c max_connections=10
+                        postgres -c shared_buffers=256MB -c work_mem=16MB -c max_connections=10
                 '''
             }
         }
