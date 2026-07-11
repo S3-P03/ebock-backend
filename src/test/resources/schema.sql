@@ -24,1429 +24,393 @@ SET row_security = off;
 
 CREATE SCHEMA ebock;
 
+CREATE TABLE ebock.user_(
+                      cip VARCHAR(8) ,
+                      first_name VARCHAR(50)  NOT NULL,
+                      last_name VARCHAR(50)  NOT NULL,
+                      email VARCHAR(90)  NOT NULL,
+                      is_admin BOOLEAN NOT NULL,
+                      profile_picture_url VARCHAR(50) ,
+                      enabled BOOLEAN NOT NULL,
+                      created_at TIMESTAMP NOT NULL,
+                      updated_at VARCHAR(50) ,
+                      PRIMARY KEY(cip),
+                      UNIQUE(email)
+);
 
-ALTER SCHEMA ebock OWNER TO postgres;
+CREATE TABLE ebock.review(
+                       reviewer_cip VARCHAR(8) ,
+                       reviewed_cip VARCHAR(8) ,
+                       timestamp_ TIMESTAMP,
+                       content VARCHAR(360)  NOT NULL,
+                       rating SMALLINT NOT NULL,
+                       updated_at TIMESTAMP,
+                       PRIMARY KEY(reviewer_cip, reviewed_cip, timestamp_),
+                       FOREIGN KEY(reviewer_cip) REFERENCES user_(cip),
+                       FOREIGN KEY(reviewed_cip) REFERENCES user_(cip)
+);
 
-SET default_tablespace = '';
+CREATE TABLE ebock.delivery_option(
+                                delivery_optn_id SERIAL,
+                                name VARCHAR(50)  NOT NULL,
+                                PRIMARY KEY(delivery_optn_id),
+                                UNIQUE(name)
+);
 
-SET default_table_access_method = heap;
+CREATE TABLE ebock.category(
+                         category_id SERIAL,
+                         name VARCHAR(50)  NOT NULL,
+                         parent_category INTEGER,
+                         PRIMARY KEY(category_id),
+                         UNIQUE(name),
+                         FOREIGN KEY(parent_category) REFERENCES category(category_id)
+);
 
---
--- Name: address; Type: TABLE; Schema: ebock; Owner: postgres
---
+CREATE TABLE ebock.tag(
+                    tag_id SERIAL,
+                    name VARCHAR(50)  NOT NULL,
+                    PRIMARY KEY(tag_id),
+                    UNIQUE(name)
+);
 
-CREATE TABLE ebock.address (
-    address_id integer NOT NULL,
-    civic_number integer NOT NULL,
-    appt_number integer,
-    street character varying(60) NOT NULL,
-    postal_code character varying(7) NOT NULL,
-    country character varying(30) NOT NULL,
-    province_code character varying(2) NOT NULL,
-    city character varying(50) NOT NULL
+CREATE TABLE ebock.log_category(
+                             log_category_name VARCHAR(50) ,
+                             PRIMARY KEY(log_category_name)
+);
+
+CREATE TABLE ebock.wear(
+                     wear_id SERIAL,
+                     name VARCHAR(50)  NOT NULL,
+                     PRIMARY KEY(wear_id),
+                     UNIQUE(name)
+);
+
+CREATE TABLE ebock.item(
+                     item_id SERIAL,
+                     name VARCHAR(60)  NOT NULL,
+                     description VARCHAR(350)  NOT NULL,
+                     price MONEY NOT NULL,
+                     added_at TIMESTAMP NOT NULL,
+                     updated_at TIMESTAMP,
+                     sold BOOLEAN NOT NULL,
+                     quantity SMALLINT NOT NULL,
+                     archived BOOLEAN NOT NULL,
+                     category_id INTEGER NOT NULL,
+                     wear_id INTEGER NOT NULL,
+                     seller_cip VARCHAR(8)  NOT NULL,
+                     PRIMARY KEY(item_id),
+                     FOREIGN KEY(category_id) REFERENCES category(category_id),
+                     FOREIGN KEY(seller_cip) REFERENCES user_(cip),
+                     FOREIGN KEY(wear_id) REFERENCES wear(wear_id)
+);
+
+CREATE TABLE ebock.log_(
+                     id SERIAL,
+                     timestamp_ TIMESTAMP NOT NULL,
+                     content_1 VARCHAR(350)  NOT NULL,
+                     content_2 VARCHAR(350) ,
+                     log_category_name VARCHAR(50)  NOT NULL,
+                     PRIMARY KEY(id),
+                     FOREIGN KEY(log_category_name) REFERENCES log_category(log_category_name)
+);
+
+CREATE TABLE ebock.image_(
+                       image_url VARCHAR(50) ,
+                       item_id INTEGER NOT NULL,
+                       PRIMARY KEY(image_url),
+                       FOREIGN KEY(item_id) REFERENCES item(item_id)
+);
+
+CREATE TABLE ebock.order_(
+                       order_id SERIAL,
+                       created_at TIMESTAMP NOT NULL,
+                       updated_at VARCHAR(50) ,
+                       quantity VARCHAR(50)  NOT NULL,
+                       item_id INTEGER NOT NULL,
+                       buyer_cip VARCHAR(8)  NOT NULL,
+                       PRIMARY KEY(order_id),
+                       FOREIGN KEY(item_id) REFERENCES item(item_id),
+                       FOREIGN KEY(buyer_cip) REFERENCES user_(cip)
+);
+
+CREATE TABLE ebock.comment_(
+                         comment_id SERIAL,
+                         timestamp_ TIMESTAMP NOT NULL,
+                         content VARCHAR(360)  NOT NULL,
+                         updated_at TIMESTAMP,
+                         comment_id_1 INTEGER NOT NULL,
+                         item_id INTEGER NOT NULL,
+                         sender_cip VARCHAR(8)  NOT NULL,
+                         PRIMARY KEY(comment_id),
+                         FOREIGN KEY(comment_id_1) REFERENCES comment_(comment_id),
+                         FOREIGN KEY(item_id) REFERENCES item(item_id),
+                         FOREIGN KEY(sender_cip) REFERENCES user_(cip)
+);
+
+CREATE TABLE ebock.order_message(
+                              timestamp_ TIMESTAMP,
+                              content TEXT NOT NULL,
+                              is_read BOOLEAN NOT NULL,
+                              order_id INTEGER NOT NULL,
+                              sender_cip VARCHAR(8)  NOT NULL,
+                              PRIMARY KEY(timestamp_),
+                              FOREIGN KEY(order_id) REFERENCES order_(order_id),
+                              FOREIGN KEY(sender_cip) REFERENCES user_(cip)
+);
+
+CREATE TABLE ebock.item_del_option(
+                                item_id INTEGER,
+                                delivery_optn_id INTEGER,
+                                PRIMARY KEY(item_id, delivery_optn_id),
+                                FOREIGN KEY(item_id) REFERENCES item(item_id),
+                                FOREIGN KEY(delivery_optn_id) REFERENCES delivery_option(delivery_optn_id)
+);
+
+CREATE TABLE ebock.tag_item(
+                         item_id INTEGER,
+                         tag_id INTEGER,
+                         PRIMARY KEY(item_id, tag_id),
+                         FOREIGN KEY(item_id) REFERENCES item(item_id),
+                         FOREIGN KEY(tag_id) REFERENCES tag(tag_id)
+);
+
+CREATE TABLE ebock.favorite(
+                         cip VARCHAR(8) ,
+                         item_id INTEGER,
+                         added_at TIMESTAMP NOT NULL,
+                         PRIMARY KEY(cip, item_id),
+                         FOREIGN KEY(cip) REFERENCES user_(cip),
+                         FOREIGN KEY(item_id) REFERENCES item(item_id)
 );
 
 
-ALTER TABLE ebock.address OWNER TO postgres;
+INSERT INTO ebock.user_ (cip, first_name, last_name, email, is_admin, profile_picture_url, enabled, created_at, updated_at)
+VALUES
+    ('bela3439', 'Alex', 'Bellefroid Lefkakis', 'bela3439@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('boum7113', 'Milo', 'Boucher', 'boum7113@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('dubw5596', 'William', 'Dubuc', 'dubw5596@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('herl2700', 'Léanne', 'Héroux', 'herl2700@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('larj4236', 'Jean-Félix', 'Larouche', 'larj4236@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('pele3157', 'Éliane', 'Pelletier', 'pele3157@usherbrooke.ca', false, NULL, true, NOW(), NULL),
+    ('test1234', 'Utiilisateur', 'Test', 'test1234@usherbrooke.ca', false, NULL, true, NOW(), NULL);
 
---
--- Name: address_address_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
+INSERT INTO ebock.delivery_option (name) VALUES ('Livraison'), ('Ramassage'), ('Transfert par courriel');
 
-CREATE SEQUENCE ebock.address_address_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
+INSERT INTO ebock.category (name, parent_category) VALUES ('Vêtements', NULL), ('Électronique', NULL), ('Livres', NULL), ('Maisons', NULL), ('Sports', NULL), ('Autres', NULL), ('Hauts', 1), ('Bas', 1), ('Chaussures', 1), ('Accessoires', 1);
 
+INSERT INTO ebock.tag (name) VALUES ('Électronique'), ('Neuf'), ('Cours'), ('Usager');
 
-ALTER TABLE ebock.address_address_id_seq OWNER TO postgres;
+INSERT INTO ebock.log_category (log_category_name) VALUES ('User Actions'), ('Item Management'), ('Orders'), ('Comments'), ('System Events');
 
---
--- Name: address_address_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
+INSERT INTO ebock.wear (name) VALUES ('Factory New'), ('Minimal Wear'), ('Field-Tested'), ('Well-Worn'), ('Battle-Scarred');
 
-ALTER SEQUENCE ebock.address_address_id_seq OWNED BY ebock.address.address_id;
+INSERT INTO ebock.item
+(name, description, price, added_at, updated_at, sold, quantity, archived, category_id, wear_id, seller_cip)
+VALUES ('Mac Book avec Puce M5', 'MacBook avec une puce M5 qui run linux très bien', 2500.12, now(),
+        now(), false, 1, false, 2, 1, 'herl2700'),
+       ('Auto BAJA', 'Belle auto baja avec une bonne transmission', 15234.60, now(),
+        now(), false, 1, false, 2 , 1, 'boum7113'),
+       ('Fusée L1', 'Une belle fusée qui peux être utilisé comme un missile', 1000.00, now(),
+        now(), false, 1, false, 2, 1, 'dubw5596'),
+       ('Chalk', 'Chalk pour l escalade', 67.67, now(), now(), true, 1,
+        false, 5, 1, 'larj4236'),
+       ('Prise de laptop', 'Une prise de laptop vraiment longue', 10.00, now(), now(),
+        false, 1, false, 2, 1, 'pele3157'),
+       ('Lit', 'Pas besoin de lit si je dors pas', 649.00, now(), now(),
+        true, 0, true, 4, 1, 'bela3439');
 
-
---
--- Name: category; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.category (
-    category_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    parent_category integer,
-    deleted_at timestamp with time zone
+CREATE TABLE ebock.payment_option(
+                                     payment_optn_id SERIAL,
+                                     name VARCHAR(50) NOT NULL,
+                                     PRIMARY KEY(payment_optn_id),
+                                     UNIQUE(name)
 );
 
-
-ALTER TABLE ebock.category OWNER TO postgres;
-
---
--- Name: category_category_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.category_category_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.category_category_id_seq OWNER TO postgres;
-
---
--- Name: category_category_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.category_category_id_seq OWNED BY ebock.category.category_id;
-
-
---
--- Name: comment_; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.comment_ (
-    comment_id integer NOT NULL,
-    timestamp_ timestamp without time zone NOT NULL,
-    content character varying(360) NOT NULL,
-    updated_at timestamp without time zone,
-    comment_id_1 integer,
-    item_id integer NOT NULL,
-    sender_cip character varying(8) NOT NULL
+CREATE TABLE ebock.item_paym_option(
+                                       item_id INTEGER,
+                                       payment_optn_id INTEGER,
+                                       PRIMARY KEY(item_id, payment_optn_id),
+                                       FOREIGN KEY(item_id) REFERENCES ebock.item(item_id),
+                                       FOREIGN KEY(payment_optn_id) REFERENCES ebock.payment_option(payment_optn_id)
 );
 
+ALTER TABLE ebock.user_
+DROP COLUMN IF EXISTS address;
 
-ALTER TABLE ebock.comment_ OWNER TO postgres;
-
---
--- Name: comment__comment_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.comment__comment_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.comment__comment_id_seq OWNER TO postgres;
-
---
--- Name: comment__comment_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.comment__comment_id_seq OWNED BY ebock.comment_.comment_id;
-
-
---
--- Name: delivery_option; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.delivery_option (
-    delivery_optn_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    deleted_at timestamp with time zone
+CREATE TABLE ebock.province(
+                               province_code VARCHAR(2),
+                               province_name VARCHAR(30) NOT NULL,
+                               PRIMARY KEY(province_code),
+                               UNIQUE(province_name)
 );
 
-
-ALTER TABLE ebock.delivery_option OWNER TO postgres;
-
---
--- Name: delivery_option_delivery_optn_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.delivery_option_delivery_optn_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.delivery_option_delivery_optn_id_seq OWNER TO postgres;
-
---
--- Name: delivery_option_delivery_optn_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.delivery_option_delivery_optn_id_seq OWNED BY ebock.delivery_option.delivery_optn_id;
-
-
---
--- Name: favorite; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.favorite (
-    cip character varying(8) NOT NULL,
-    item_id integer NOT NULL,
-    added_at timestamp without time zone NOT NULL
+CREATE TABLE ebock.address(
+                              address_id SERIAL,
+                              civic_number INT NOT NULL,
+                              appt_number INT,
+                              street VARCHAR(60) NOT NULL,
+                              postal_code VARCHAR(7) NOT NULL,
+                              country VARCHAR(30) NOT NULL,
+                              province_code VARCHAR(2) NOT NULL,
+                              PRIMARY KEY(address_id),
+                              FOREIGN KEY(province_code) REFERENCES ebock.province(province_code)
 );
 
+INSERT INTO ebock.province(province_name, province_code)
+VALUES
+    ('Alberta', 'AB'),
+    ('Colombie-Britannique', 'BC'),
+    ('Manitoba', 'MB'),
+    ('Nouveau-Brunswick', 'NB'),
+    ('Terre-Neuve-et-Labrador', 'NL'),
+    ('Territoires du Nord-Ouest', 'NT'),
+    ('Nouvelle-Écosse', 'NS'),
+    ('Nunavut', 'NU'),
+    ('Ontario', 'ON'),
+    ('île-du-Prince-Édouard', 'PE'),
+    ('Québec', 'QC'),
+    ('Saskatchewan', 'SK'),
+    ('Yukon', 'YT');
 
-ALTER TABLE ebock.favorite OWNER TO postgres;
+INSERT INTO ebock.address(civic_number, street, postal_code, country, province_code)
+VALUES (2500, 'Bd de lUniversité', 'J1N 3C6', 'Canada', 'QC');
 
---
--- Name: image_; Type: TABLE; Schema: ebock; Owner: postgres
---
+ALTER TABLE ebock.user_
+    ADD COLUMN address_id INT NOT NULL DEFAULT 1;
 
-CREATE TABLE ebock.image_ (
-    guid character varying(50) NOT NULL,
-    original_filename character varying(200) NOT NULL,
-    file_extension character varying(6),
-    created_at timestamp without time zone
+ALTER TABLE ebock.user_
+    ADD CONSTRAINT user_address
+        FOREIGN KEY (address_id)
+            REFERENCES ebock.address (address_id);
+
+DROP TABLE IF EXISTS ebock.image_;
+
+CREATE TABLE ebock.image_(
+                             guid varchar(50),
+                             original_filename varchar(200) NOT NULL,
+                             file_extension varchar(6),
+                             created_at timestamp,
+                             PRIMARY KEY(guid)
 );
 
-
-ALTER TABLE ebock.image_ OWNER TO postgres;
-
---
--- Name: item; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.item (
-    item_id integer NOT NULL,
-    name character varying(60) NOT NULL,
-    description character varying(350) NOT NULL,
-    price money NOT NULL,
-    added_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone,
-    sold boolean NOT NULL,
-    quantity smallint NOT NULL,
-    archived boolean NOT NULL,
-    category_id integer NOT NULL,
-    wear_id integer NOT NULL,
-    seller_cip character varying(8) NOT NULL
+CREATE TABLE ebock.item_image(
+                                 item_id int,
+                                 guid VARCHAR(50),
+                                 displayOrder smallint,
+                                 PRIMARY KEY(item_id, guid, displayOrder),
+                                 FOREIGN KEY(item_id) REFERENCES ebock.item(item_id),
+                                 FOREIGN KEY(guid) REFERENCES ebock.image_(guid)
 );
 
+ALTER TABLE ebock.user_
+    RENAME COLUMN profile_picture_url TO profile_picture_guid;
+
+ALTER TABLE ebock.user_
+    ADD CONSTRAINT profile_picture
+        FOREIGN KEY (profile_picture_guid)
+            REFERENCES ebock.image_ (guid);
+
+
+INSERT INTO ebock.review VALUES ('larj4236', 'pele3157', '2026-05-24 09:39:59.000000', 'Mauvais service, elle ne veut pas me vendre sa charge.', 1, null),
+                                ('herl2700', 'pele3157', '2026-06-24 09:41:11.000000', 'Rien à dire', 5, null),
+                                ('dubw5596', 'pele3157', '2026-06-24 09:42:57.000000', '67777777777777', 4, null);
+
+INSERT INTO ebock.favorite VALUES('pele3157', 1, '2026-06-23 21:26:00');
+
+INSERT INTO ebock.item_del_option VALUES(1, 1),
+                                        (1, 2),
+                                        (3, 2),
+                                        (4, 1),
+                                        (4, 2);
+
+INSERT INTO ebock.payment_option VALUES(DEFAULT,'Interac'),
+                                       (DEFAULT,'Cash');
+
+INSERT INTO ebock.item_paym_option VALUES(1, 2),
+                                         (2, 1),
+                                         (5, 1),
+                                         (5, 2),
+                                         (4, 1),
+                                         (4, 2);
+
+INSERT INTO ebock.tag_item VALUES(1, 3),
+                                 (3, 2),
+                                 (5, 2),
+                                 (5, 1);
+
+INSERT INTO ebock.order_ (created_at, updated_at, quantity, item_id, buyer_cip) VALUES
+                                                                                    ('2026-06-17 13:19:25.189001', '2026-06-17 13:19:25.189001-04', '1', 4, 'bela3439'),
+                                                                                    ('2026-06-17 13:19:42.383485', '2026-06-17 13:19:42.383485-04', '1', 4, 'dubw5596'),
+                                                                                    ('2026-06-17 13:20:30.012509', '2026-06-17 13:20:30.012509-04', '1', 4, 'herl2700'),
+                                                                                    ('2026-06-17 13:21:42.914472', '2026-06-17 13:21:42.914472-04', '1', 4, 'pele3157'),
+                                                                                    ('2026-06-17 13:51:21.237211', '2026-06-17 13:51:21.237211-04', '1', 4, 'boum7113'),
+                                                                                    ('2026-06-17 13:55:15.742924', '2026-06-17 13:55:15.742924-04', '1', 5, 'larj4236');
+INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
+                                                                                         ('2026-06-17 13:59:05.849555', 'Salut !', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 14:02:17.389151', 'Bonjour à vous!', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 14:02:53.56755', 'J''aimerais acheter cet article, mon ordinateur est à 67% actuellement, je suis cooked', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 14:07:20.450053', 'Bin je sais pas trop j''ai encore besoin de ma charge...', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 14:16:20.309614', 'What??', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 14:18:23.760393', '3000$ ?', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 14:18:49.337813', 'J''ai un exam tantôt', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 22:44:08.908649', 'Je commence a stresser', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 22:47:21.257778', 'Doooonc???', false, 6, 'larj4236'),
+                                                                                         ('2026-06-17 22:48:00.514321', 'goddam calm down', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 22:50:09.855163', 'Je ne souhaite pas te le vendre', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 22:52:18.835812', 'Je ne souhaite pas te le vendre', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 22:52:27.43083', 'Je ne souhaite pas te le vendre', false, 6, 'pele3157'),
+                                                                                         ('2026-06-17 22:53:42.469945', 'C''est bon j''ai compris', false, 6, 'larj4236'),
+                                                                                         ('2026-06-18 09:12:34.132228', 'Non t''as pas compris', false, 6, 'pele3157'),
+                                                                                         ('2026-06-18 09:54:44.600569', 'Bon matin !', false, 6, 'larj4236'),
+                                                                                         ('2026-06-18 09:55:03.857547', 'shut up', false, 6, 'pele3157');
+
+INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
+                                                                                         ('2026-07-02 13:11:51.000000', '67777777', true, 2, 'dubw5596'),
+                                                                                         ('2026-07-02 13:13:51.000000', 'ban', true, 2, 'larj4236');
+
+ALTER TABLE ebock.address ADD COLUMN city VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE ebock.address ALTER COLUMN city DROP DEFAULT;
+ALTER TABLE ebock.user_ ALTER COLUMN address_id DROP DEFAULT;
+
+ALTER TABLE ebock.user_
+DROP COLUMN is_admin,
+    DROP COLUMN enabled;
+
+ALTER TABLE ebock.user_
+    ALTER COLUMN address_id DROP NOT NULL;
+
+ALTER TABLE ebock.category
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE ebock.delivery_option
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE ebock.payment_option
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE ebock.wear
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE ebock.tag
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE ebock.comment_
+    ALTER COLUMN comment_id_1 DROP NOT NULL;
+
+INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+VALUES (NOW(), 'Cet article est-il toujours disponible ?', null, null, 5, 'larj4236');
+
+INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+VALUES (NOW(), 'Oui', null, 1, 5, 'pele3157');
+
+INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+VALUES (NOW(), 'Et si je vous offre 2$ pour ce produit ?', null, null, 5, 'herl2700');
 
-ALTER TABLE ebock.item OWNER TO postgres;
+INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+VALUES (NOW(), 'Je peux passer le chercher dans 6 ou 7 jours.', null, null, 5, 'bela3439');
 
---
--- Name: item_del_option; Type: TABLE; Schema: ebock; Owner: postgres
---
+INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+VALUES (NOW(), 'Je vous attendais et vous étiez pas là...', null, 4, 5, 'pele3157');
 
-CREATE TABLE ebock.item_del_option (
-    item_id integer NOT NULL,
-    delivery_optn_id integer NOT NULL
-);
-
-
-ALTER TABLE ebock.item_del_option OWNER TO postgres;
-
---
--- Name: item_image; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.item_image (
-    item_id integer NOT NULL,
-    guid character varying(50) NOT NULL,
-    displayorder smallint NOT NULL
-);
-
-
-ALTER TABLE ebock.item_image OWNER TO postgres;
-
---
--- Name: item_item_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.item_item_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.item_item_id_seq OWNER TO postgres;
-
---
--- Name: item_item_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.item_item_id_seq OWNED BY ebock.item.item_id;
-
-
---
--- Name: item_paym_option; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.item_paym_option (
-    item_id integer NOT NULL,
-    payment_optn_id integer NOT NULL
-);
-
-
-ALTER TABLE ebock.item_paym_option OWNER TO postgres;
-
---
--- Name: log_; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.log_ (
-    id integer NOT NULL,
-    timestamp_ timestamp without time zone NOT NULL,
-    content_1 character varying(350) NOT NULL,
-    content_2 character varying(350),
-    log_category_name character varying(50) NOT NULL
-);
-
-
-ALTER TABLE ebock.log_ OWNER TO postgres;
-
---
--- Name: log__id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.log__id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.log__id_seq OWNER TO postgres;
-
---
--- Name: log__id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.log__id_seq OWNED BY ebock.log_.id;
-
-
---
--- Name: log_category; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.log_category (
-    log_category_name character varying(50) NOT NULL
-);
-
-
-ALTER TABLE ebock.log_category OWNER TO postgres;
-
---
--- Name: order_; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.order_ (
-    order_id integer NOT NULL,
-    created_at timestamp without time zone NOT NULL,
-    updated_at character varying(50),
-    quantity character varying(50) NOT NULL,
-    item_id integer NOT NULL,
-    buyer_cip character varying(8) NOT NULL
-);
-
-
-ALTER TABLE ebock.order_ OWNER TO postgres;
-
---
--- Name: order__order_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.order__order_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.order__order_id_seq OWNER TO postgres;
-
---
--- Name: order__order_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.order__order_id_seq OWNED BY ebock.order_.order_id;
-
-
---
--- Name: order_message; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.order_message (
-    timestamp_ timestamp without time zone NOT NULL,
-    content text NOT NULL,
-    is_read boolean NOT NULL,
-    order_id integer NOT NULL,
-    sender_cip character varying(8) NOT NULL
-);
-
-
-ALTER TABLE ebock.order_message OWNER TO postgres;
-
---
--- Name: payment_option; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.payment_option (
-    payment_optn_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    deleted_at timestamp with time zone
-);
-
-
-ALTER TABLE ebock.payment_option OWNER TO postgres;
-
---
--- Name: payment_option_payment_optn_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.payment_option_payment_optn_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.payment_option_payment_optn_id_seq OWNER TO postgres;
-
---
--- Name: payment_option_payment_optn_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.payment_option_payment_optn_id_seq OWNED BY ebock.payment_option.payment_optn_id;
-
-
---
--- Name: province; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.province (
-    province_code character varying(2) NOT NULL,
-    province_name character varying(30) NOT NULL
-);
-
-
-ALTER TABLE ebock.province OWNER TO postgres;
-
---
--- Name: review; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.review (
-    reviewer_cip character varying(8) NOT NULL,
-    reviewed_cip character varying(8) NOT NULL,
-    timestamp_ timestamp without time zone NOT NULL,
-    content character varying(360) NOT NULL,
-    rating smallint NOT NULL,
-    updated_at timestamp without time zone
-);
-
-
-ALTER TABLE ebock.review OWNER TO postgres;
-
---
--- Name: schema_migrations; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.schema_migrations (
-    version text NOT NULL,
-    applied_at timestamp with time zone DEFAULT now() NOT NULL
-);
-
-
-ALTER TABLE ebock.schema_migrations OWNER TO postgres;
-
---
--- Name: tag; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.tag (
-    tag_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    deleted_at timestamp with time zone
-);
-
-
-ALTER TABLE ebock.tag OWNER TO postgres;
-
---
--- Name: tag_item; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.tag_item (
-    item_id integer NOT NULL,
-    tag_id integer NOT NULL
-);
-
-
-ALTER TABLE ebock.tag_item OWNER TO postgres;
-
---
--- Name: tag_tag_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.tag_tag_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.tag_tag_id_seq OWNER TO postgres;
-
---
--- Name: tag_tag_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.tag_tag_id_seq OWNED BY ebock.tag.tag_id;
-
-
---
--- Name: user_; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.user_ (
-    cip character varying(8) NOT NULL,
-    first_name character varying(50) NOT NULL,
-    last_name character varying(50) NOT NULL,
-    email character varying(90) NOT NULL,
-    profile_picture_guid character varying(50),
-    created_at timestamp without time zone NOT NULL,
-    updated_at character varying(50),
-    address_id integer
-);
-
-
-ALTER TABLE ebock.user_ OWNER TO postgres;
-
---
--- Name: wear; Type: TABLE; Schema: ebock; Owner: postgres
---
-
-CREATE TABLE ebock.wear (
-    wear_id integer NOT NULL,
-    name character varying(50) NOT NULL,
-    deleted_at timestamp with time zone
-);
-
-
-ALTER TABLE ebock.wear OWNER TO postgres;
-
---
--- Name: wear_wear_id_seq; Type: SEQUENCE; Schema: ebock; Owner: postgres
---
-
-CREATE SEQUENCE ebock.wear_wear_id_seq
-    AS integer
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
-ALTER TABLE ebock.wear_wear_id_seq OWNER TO postgres;
-
---
--- Name: wear_wear_id_seq; Type: SEQUENCE OWNED BY; Schema: ebock; Owner: postgres
---
-
-ALTER SEQUENCE ebock.wear_wear_id_seq OWNED BY ebock.wear.wear_id;
-
-
---
--- Name: address address_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.address ALTER COLUMN address_id SET DEFAULT nextval('ebock.address_address_id_seq'::regclass);
-
-
---
--- Name: category category_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.category ALTER COLUMN category_id SET DEFAULT nextval('ebock.category_category_id_seq'::regclass);
-
-
---
--- Name: comment_ comment_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.comment_ ALTER COLUMN comment_id SET DEFAULT nextval('ebock.comment__comment_id_seq'::regclass);
-
-
---
--- Name: delivery_option delivery_optn_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.delivery_option ALTER COLUMN delivery_optn_id SET DEFAULT nextval('ebock.delivery_option_delivery_optn_id_seq'::regclass);
-
-
---
--- Name: item item_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item ALTER COLUMN item_id SET DEFAULT nextval('ebock.item_item_id_seq'::regclass);
-
-
---
--- Name: log_ id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.log_ ALTER COLUMN id SET DEFAULT nextval('ebock.log__id_seq'::regclass);
-
-
---
--- Name: order_ order_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_ ALTER COLUMN order_id SET DEFAULT nextval('ebock.order__order_id_seq'::regclass);
-
-
---
--- Name: payment_option payment_optn_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.payment_option ALTER COLUMN payment_optn_id SET DEFAULT nextval('ebock.payment_option_payment_optn_id_seq'::regclass);
-
-
---
--- Name: tag tag_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag ALTER COLUMN tag_id SET DEFAULT nextval('ebock.tag_tag_id_seq'::regclass);
-
-
---
--- Name: wear wear_id; Type: DEFAULT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.wear ALTER COLUMN wear_id SET DEFAULT nextval('ebock.wear_wear_id_seq'::regclass);
-
-
---
--- Data for Name: address; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.address (address_id, civic_number, appt_number, street, postal_code, country, province_code, city) FROM stdin;
-1	2500	\N	Bd de lUniversité	J1N 3C6	Canada	QC	
-\.
-
-
---
--- Data for Name: category; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.category (category_id, name, parent_category, deleted_at) FROM stdin;
-1	Vêtements	\N	\N
-2	Électronique	\N	\N
-3	Livres	\N	\N
-4	Maisons	\N	\N
-5	Sports	\N	\N
-6	Autres	\N	\N
-7	Hauts	1	\N
-8	Bas	1	\N
-9	Chaussures	1	\N
-10	Accessoires	1	\N
-\.
-
-
---
--- Data for Name: comment_; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.comment_ (comment_id, timestamp_, content, updated_at, comment_id_1, item_id, sender_cip) FROM stdin;
-1	2026-07-07 01:55:21.338711	Cet article est-il toujours disponible ?	\N	\N	5	larj4236
-2	2026-07-07 01:55:21.338711	Oui	\N	1	5	pele3157
-3	2026-07-07 01:55:21.338711	Et si je vous offre 2$ pour ce produit ?	\N	\N	5	herl2700
-4	2026-07-07 01:55:21.338711	Je peux passer le chercher dans 6 ou 7 jours.	\N	\N	5	bela3439
-5	2026-07-07 01:55:21.338711	Je vous attendais et vous étiez pas là...	\N	4	5	pele3157
-\.
-
-
---
--- Data for Name: delivery_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.delivery_option (delivery_optn_id, name, deleted_at) FROM stdin;
-1	Livraison	\N
-2	Ramassage	\N
-3	Transfert par courriel	\N
-\.
-
-
---
--- Data for Name: favorite; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.favorite (cip, item_id, added_at) FROM stdin;
-pele3157	1	2026-06-23 21:26:00
-larj4236	1	2026-07-06 21:57:48.214742
-\.
-
-
---
--- Data for Name: image_; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.image_ (guid, original_filename, file_extension, created_at) FROM stdin;
-\.
-
-
---
--- Data for Name: item; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.item (item_id, name, description, price, added_at, updated_at, sold, quantity, archived, category_id, wear_id, seller_cip) FROM stdin;
-1	Mac Book avec Puce M5	MacBook avec une puce M5 qui run linux très bien	$2,500.12	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	herl2700
-2	Auto BAJA	Belle auto baja avec une bonne transmission	$15,234.60	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	boum7113
-3	Fusée L1	Une belle fusée qui peux être utilisé comme un missile	$1,000.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	dubw5596
-4	Chalk	Chalk pour l escalade	$67.67	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	t	1	f	5	1	larj4236
-5	Prise de laptop	Une prise de laptop vraiment longue	$10.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	f	1	f	2	1	pele3157
-6	Lit	Pas besoin de lit si je dors pas	$649.00	2026-07-07 01:55:12.401043	2026-07-07 01:55:12.401043	t	0	t	4	1	bela3439
-\.
-
-
---
--- Data for Name: item_del_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.item_del_option (item_id, delivery_optn_id) FROM stdin;
-1	1
-1	2
-3	2
-4	1
-4	2
-\.
-
-
---
--- Data for Name: item_image; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.item_image (item_id, guid, displayorder) FROM stdin;
-\.
-
-
---
--- Data for Name: item_paym_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.item_paym_option (item_id, payment_optn_id) FROM stdin;
-1	2
-2	1
-5	1
-5	2
-4	1
-4	2
-\.
-
-
---
--- Data for Name: log_; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.log_ (id, timestamp_, content_1, content_2, log_category_name) FROM stdin;
-\.
-
-
---
--- Data for Name: log_category; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.log_category (log_category_name) FROM stdin;
-User Actions
-Item Management
-Orders
-Comments
-System Events
-\.
-
-
---
--- Data for Name: order_; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.order_ (order_id, created_at, updated_at, quantity, item_id, buyer_cip) FROM stdin;
-1	2026-06-17 13:19:25.189001	2026-06-17 13:19:25.189001-04	1	4	bela3439
-2	2026-06-17 13:19:42.383485	2026-06-17 13:19:42.383485-04	1	4	dubw5596
-3	2026-06-17 13:20:30.012509	2026-06-17 13:20:30.012509-04	1	4	herl2700
-4	2026-06-17 13:21:42.914472	2026-06-17 13:21:42.914472-04	1	4	pele3157
-5	2026-06-17 13:51:21.237211	2026-06-17 13:51:21.237211-04	1	4	boum7113
-6	2026-06-17 13:55:15.742924	2026-06-17 13:55:15.742924-04	1	5	larj4236
-\.
-
-
---
--- Data for Name: order_message; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) FROM stdin;
-2026-06-17 13:59:05.849555	Salut !	f	6	larj4236
-2026-06-17 14:02:17.389151	Bonjour à vous!	f	6	pele3157
-2026-06-17 14:02:53.56755	J'aimerais acheter cet article, mon ordinateur est à 67% actuellement, je suis cooked	f	6	larj4236
-2026-06-17 14:07:20.450053	Bin je sais pas trop j'ai encore besoin de ma charge...	f	6	pele3157
-2026-06-17 14:16:20.309614	What??	f	6	larj4236
-2026-06-17 14:18:23.760393	3000$ ?	f	6	larj4236
-2026-06-17 14:18:49.337813	J'ai un exam tantôt	f	6	larj4236
-2026-06-17 22:44:08.908649	Je commence a stresser	f	6	larj4236
-2026-06-17 22:47:21.257778	Doooonc???	f	6	larj4236
-2026-06-17 22:48:00.514321	goddam calm down	f	6	pele3157
-2026-06-17 22:50:09.855163	Je ne souhaite pas te le vendre	f	6	pele3157
-2026-06-17 22:52:18.835812	Je ne souhaite pas te le vendre	f	6	pele3157
-2026-06-17 22:52:27.43083	Je ne souhaite pas te le vendre	f	6	pele3157
-2026-06-17 22:53:42.469945	C'est bon j'ai compris	f	6	larj4236
-2026-06-18 09:12:34.132228	Non t'as pas compris	f	6	pele3157
-2026-06-18 09:54:44.600569	Bon matin !	f	6	larj4236
-2026-06-18 09:55:03.857547	shut up	f	6	pele3157
-2026-07-02 13:11:51	67777777	t	2	dubw5596
-2026-07-02 13:13:51	ban	t	2	larj4236
-\.
-
-
---
--- Data for Name: payment_option; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.payment_option (payment_optn_id, name, deleted_at) FROM stdin;
-1	Interac	\N
-2	Cash	\N
-\.
-
-
---
--- Data for Name: province; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.province (province_code, province_name) FROM stdin;
-AB	Alberta
-BC	Colombie-Britannique
-MB	Manitoba
-NB	Nouveau-Brunswick
-NL	Terre-Neuve-et-Labrador
-NT	Territoires du Nord-Ouest
-NS	Nouvelle-Écosse
-NU	Nunavut
-ON	Ontario
-PE	île-du-Prince-Édouard
-QC	Québec
-SK	Saskatchewan
-YT	Yukon
-\.
-
-
---
--- Data for Name: review; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.review (reviewer_cip, reviewed_cip, timestamp_, content, rating, updated_at) FROM stdin;
-larj4236	pele3157	2026-05-24 09:39:59	Mauvais service, elle ne veut pas me vendre sa charge.	1	\N
-herl2700	pele3157	2026-06-24 09:41:11	Rien à dire	5	\N
-dubw5596	pele3157	2026-06-24 09:42:57	67777777777777	4	\N
-\.
-
-
---
--- Data for Name: schema_migrations; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.schema_migrations (version, applied_at) FROM stdin;
-000_init.sql	2026-07-07 01:55:16.716327+00
-001_add_address.sql	2026-07-07 01:55:17.238204+00
-002_add_payment_options.sql	2026-07-07 01:55:17.804098+00
-003_add_address_v2.sql	2026-07-07 01:55:18.362809+00
-004_change_image_storage.sql	2026-07-07 01:55:18.892521+00
-005_add_misc_inserts.sql	2026-07-07 01:55:19.411464+00
-006_add_deleted_at.sql	2026-07-07 01:55:19.98831+00
-007_update_user_address_spec.sql	2026-07-07 01:55:20.978822+00
-008_add_update_comments.sql	2026-07-07 01:55:21.499806+00
-\.
-
-
---
--- Data for Name: tag; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.tag (tag_id, name, deleted_at) FROM stdin;
-1	Électronique	\N
-2	Neuf	\N
-3	Cours	\N
-4	Usager	\N
-\.
-
-
---
--- Data for Name: tag_item; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.tag_item (item_id, tag_id) FROM stdin;
-1	3
-3	2
-5	2
-5	1
-\.
-
-
---
--- Data for Name: user_; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.user_ (cip, first_name, last_name, email, profile_picture_guid, created_at, updated_at, address_id) FROM stdin;
-bela3439	Alex	Bellefroid Lefkakis	bela3439@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-boum7113	Milo	Boucher	boum7113@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-dubw5596	William	Dubuc	dubw5596@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-herl2700	Léanne	Héroux	herl2700@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-larj4236	Jean-Félix	Larouche	larj4236@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-pele3157	Éliane	Pelletier	pele3157@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-test1234	Utiilisateur	Test	test1234@usherbrooke.ca	\N	2026-07-07 01:55:12.390447	\N	1
-\.
-
-
---
--- Data for Name: wear; Type: TABLE DATA; Schema: ebock; Owner: postgres
---
-
-COPY ebock.wear (wear_id, name, deleted_at) FROM stdin;
-1	Factory New	\N
-2	Minimal Wear	\N
-3	Field-Tested	\N
-4	Well-Worn	\N
-5	Battle-Scarred	\N
-\.
-
-
---
--- Name: address_address_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.address_address_id_seq', 1, true);
-
-
---
--- Name: category_category_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.category_category_id_seq', 10, true);
-
-
---
--- Name: comment__comment_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.comment__comment_id_seq', 5, true);
-
-
---
--- Name: delivery_option_delivery_optn_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.delivery_option_delivery_optn_id_seq', 3, true);
-
-
---
--- Name: item_item_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.item_item_id_seq', 6, true);
-
-
---
--- Name: log__id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.log__id_seq', 1, false);
-
-
---
--- Name: order__order_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.order__order_id_seq', 6, true);
-
-
---
--- Name: payment_option_payment_optn_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.payment_option_payment_optn_id_seq', 2, true);
-
-
---
--- Name: tag_tag_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.tag_tag_id_seq', 4, true);
-
-
---
--- Name: wear_wear_id_seq; Type: SEQUENCE SET; Schema: ebock; Owner: postgres
---
-
-SELECT pg_catalog.setval('ebock.wear_wear_id_seq', 5, true);
-
-
---
--- Name: address address_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.address
-    ADD CONSTRAINT address_pkey PRIMARY KEY (address_id);
-
-
---
--- Name: category category_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.category
-    ADD CONSTRAINT category_name_key UNIQUE (name);
-
-
---
--- Name: category category_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.category
-    ADD CONSTRAINT category_pkey PRIMARY KEY (category_id);
-
-
---
--- Name: comment_ comment__pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.comment_
-    ADD CONSTRAINT comment__pkey PRIMARY KEY (comment_id);
-
-
---
--- Name: delivery_option delivery_option_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.delivery_option
-    ADD CONSTRAINT delivery_option_name_key UNIQUE (name);
-
-
---
--- Name: delivery_option delivery_option_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.delivery_option
-    ADD CONSTRAINT delivery_option_pkey PRIMARY KEY (delivery_optn_id);
-
-
---
--- Name: favorite favorite_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.favorite
-    ADD CONSTRAINT favorite_pkey PRIMARY KEY (cip, item_id);
-
-
---
--- Name: image_ image__pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.image_
-    ADD CONSTRAINT image__pkey PRIMARY KEY (guid);
-
-
---
--- Name: item_del_option item_del_option_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_del_option
-    ADD CONSTRAINT item_del_option_pkey PRIMARY KEY (item_id, delivery_optn_id);
-
-
---
--- Name: item_image item_image_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_image
-    ADD CONSTRAINT item_image_pkey PRIMARY KEY (item_id, guid, displayorder);
-
-
---
--- Name: item_paym_option item_paym_option_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_paym_option
-    ADD CONSTRAINT item_paym_option_pkey PRIMARY KEY (item_id, payment_optn_id);
-
-
---
--- Name: item item_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item
-    ADD CONSTRAINT item_pkey PRIMARY KEY (item_id);
-
-
---
--- Name: log_ log__pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.log_
-    ADD CONSTRAINT log__pkey PRIMARY KEY (id);
-
-
---
--- Name: log_category log_category_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.log_category
-    ADD CONSTRAINT log_category_pkey PRIMARY KEY (log_category_name);
-
-
---
--- Name: order_ order__pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_
-    ADD CONSTRAINT order__pkey PRIMARY KEY (order_id);
-
-
---
--- Name: order_message order_message_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_message
-    ADD CONSTRAINT order_message_pkey PRIMARY KEY (timestamp_);
-
-
---
--- Name: payment_option payment_option_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.payment_option
-    ADD CONSTRAINT payment_option_name_key UNIQUE (name);
-
-
---
--- Name: payment_option payment_option_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.payment_option
-    ADD CONSTRAINT payment_option_pkey PRIMARY KEY (payment_optn_id);
-
-
---
--- Name: province province_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.province
-    ADD CONSTRAINT province_pkey PRIMARY KEY (province_code);
-
-
---
--- Name: province province_province_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.province
-    ADD CONSTRAINT province_province_name_key UNIQUE (province_name);
-
-
---
--- Name: review review_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.review
-    ADD CONSTRAINT review_pkey PRIMARY KEY (reviewer_cip, reviewed_cip, timestamp_);
-
-
---
--- Name: schema_migrations schema_migrations_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.schema_migrations
-    ADD CONSTRAINT schema_migrations_pkey PRIMARY KEY (version);
-
-
---
--- Name: tag_item tag_item_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag_item
-    ADD CONSTRAINT tag_item_pkey PRIMARY KEY (item_id, tag_id);
-
-
---
--- Name: tag tag_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag
-    ADD CONSTRAINT tag_name_key UNIQUE (name);
-
-
---
--- Name: tag tag_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag
-    ADD CONSTRAINT tag_pkey PRIMARY KEY (tag_id);
-
-
---
--- Name: user_ user__email_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.user_
-    ADD CONSTRAINT user__email_key UNIQUE (email);
-
-
---
--- Name: user_ user__pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.user_
-    ADD CONSTRAINT user__pkey PRIMARY KEY (cip);
-
-
---
--- Name: wear wear_name_key; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.wear
-    ADD CONSTRAINT wear_name_key UNIQUE (name);
-
-
---
--- Name: wear wear_pkey; Type: CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.wear
-    ADD CONSTRAINT wear_pkey PRIMARY KEY (wear_id);
-
-
---
--- Name: address address_province_code_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.address
-    ADD CONSTRAINT address_province_code_fkey FOREIGN KEY (province_code) REFERENCES ebock.province(province_code);
-
-
---
--- Name: category category_parent_category_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.category
-    ADD CONSTRAINT category_parent_category_fkey FOREIGN KEY (parent_category) REFERENCES ebock.category(category_id);
-
-
---
--- Name: comment_ comment__comment_id_1_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.comment_
-    ADD CONSTRAINT comment__comment_id_1_fkey FOREIGN KEY (comment_id_1) REFERENCES ebock.comment_(comment_id);
-
-
---
--- Name: comment_ comment__item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.comment_
-    ADD CONSTRAINT comment__item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: comment_ comment__sender_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.comment_
-    ADD CONSTRAINT comment__sender_cip_fkey FOREIGN KEY (sender_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: favorite favorite_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.favorite
-    ADD CONSTRAINT favorite_cip_fkey FOREIGN KEY (cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: favorite favorite_item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.favorite
-    ADD CONSTRAINT favorite_item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: item item_category_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item
-    ADD CONSTRAINT item_category_id_fkey FOREIGN KEY (category_id) REFERENCES ebock.category(category_id);
-
-
---
--- Name: item_del_option item_del_option_delivery_optn_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_del_option
-    ADD CONSTRAINT item_del_option_delivery_optn_id_fkey FOREIGN KEY (delivery_optn_id) REFERENCES ebock.delivery_option(delivery_optn_id);
-
-
---
--- Name: item_del_option item_del_option_item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_del_option
-    ADD CONSTRAINT item_del_option_item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: item_image item_image_guid_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_image
-    ADD CONSTRAINT item_image_guid_fkey FOREIGN KEY (guid) REFERENCES ebock.image_(guid);
-
-
---
--- Name: item_image item_image_item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_image
-    ADD CONSTRAINT item_image_item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: item_paym_option item_paym_option_item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_paym_option
-    ADD CONSTRAINT item_paym_option_item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: item_paym_option item_paym_option_payment_optn_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item_paym_option
-    ADD CONSTRAINT item_paym_option_payment_optn_id_fkey FOREIGN KEY (payment_optn_id) REFERENCES ebock.payment_option(payment_optn_id);
-
-
---
--- Name: item item_seller_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item
-    ADD CONSTRAINT item_seller_cip_fkey FOREIGN KEY (seller_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: item item_wear_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.item
-    ADD CONSTRAINT item_wear_id_fkey FOREIGN KEY (wear_id) REFERENCES ebock.wear(wear_id);
-
-
---
--- Name: log_ log__log_category_name_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.log_
-    ADD CONSTRAINT log__log_category_name_fkey FOREIGN KEY (log_category_name) REFERENCES ebock.log_category(log_category_name);
-
-
---
--- Name: order_ order__buyer_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_
-    ADD CONSTRAINT order__buyer_cip_fkey FOREIGN KEY (buyer_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: order_ order__item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_
-    ADD CONSTRAINT order__item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: order_message order_message_order_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_message
-    ADD CONSTRAINT order_message_order_id_fkey FOREIGN KEY (order_id) REFERENCES ebock.order_(order_id);
-
-
---
--- Name: order_message order_message_sender_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.order_message
-    ADD CONSTRAINT order_message_sender_cip_fkey FOREIGN KEY (sender_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: user_ profile_picture; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.user_
-    ADD CONSTRAINT profile_picture FOREIGN KEY (profile_picture_guid) REFERENCES ebock.image_(guid);
-
-
---
--- Name: review review_reviewed_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.review
-    ADD CONSTRAINT review_reviewed_cip_fkey FOREIGN KEY (reviewed_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: review review_reviewer_cip_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.review
-    ADD CONSTRAINT review_reviewer_cip_fkey FOREIGN KEY (reviewer_cip) REFERENCES ebock.user_(cip);
-
-
---
--- Name: tag_item tag_item_item_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag_item
-    ADD CONSTRAINT tag_item_item_id_fkey FOREIGN KEY (item_id) REFERENCES ebock.item(item_id);
-
-
---
--- Name: tag_item tag_item_tag_id_fkey; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.tag_item
-    ADD CONSTRAINT tag_item_tag_id_fkey FOREIGN KEY (tag_id) REFERENCES ebock.tag(tag_id);
-
-
---
--- Name: user_ user_address; Type: FK CONSTRAINT; Schema: ebock; Owner: postgres
---
-
-ALTER TABLE ONLY ebock.user_
-    ADD CONSTRAINT user_address FOREIGN KEY (address_id) REFERENCES ebock.address(address_id);
-
-
---
--- PostgreSQL database dump complete
---
-
-\unrestrict YNDnuGcIq5fAfFoVtHIDdLaubyc1mgg4Y9b5OI3aaeVEreWBJyHqHfkkpoA1hgv
-
+ALTER TABLE ebock.comment_
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;

@@ -59,24 +59,6 @@ pipeline {
             }
         }
 
-         stage('Run Migrations') {
-            steps {
-                sh '''
-                MIGRATION_DIR="src/test/resources/migrations"
-
-                for f in $(ls ${MIGRATION_DIR}/*.sql | sort -V); do
-                    echo "Applying migration: $f"
-                    PGPASSWORD=postgres psql \
-                        -h postgres \
-                        -U postgres \
-                        -d testdb \
-                        -v ON_ERROR_STOP=1 \
-                        -f "$f"
-                done
-                '''
-            }
-        }
-
         stage('Build and Test') {
             steps {
                 sh 'chmod +x gradlew'
