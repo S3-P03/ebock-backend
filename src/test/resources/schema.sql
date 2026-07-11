@@ -12,7 +12,6 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
-SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET xmloption = content;
 SET client_min_messages = warning;
@@ -24,7 +23,9 @@ SET row_security = off;
 
 CREATE SCHEMA ebock;
 
-CREATE TABLE ebock.user_(
+SET search_path TO ebock;
+
+CREATE TABLE user_(
                       cip VARCHAR(8) ,
                       first_name VARCHAR(50)  NOT NULL,
                       last_name VARCHAR(50)  NOT NULL,
@@ -38,7 +39,7 @@ CREATE TABLE ebock.user_(
                       UNIQUE(email)
 );
 
-CREATE TABLE ebock.review(
+CREATE TABLE review(
                        reviewer_cip VARCHAR(8) ,
                        reviewed_cip VARCHAR(8) ,
                        timestamp_ TIMESTAMP,
@@ -50,14 +51,14 @@ CREATE TABLE ebock.review(
                        FOREIGN KEY(reviewed_cip) REFERENCES user_(cip)
 );
 
-CREATE TABLE ebock.delivery_option(
+CREATE TABLE delivery_option(
                                 delivery_optn_id SERIAL,
                                 name VARCHAR(50)  NOT NULL,
                                 PRIMARY KEY(delivery_optn_id),
                                 UNIQUE(name)
 );
 
-CREATE TABLE ebock.category(
+CREATE TABLE category(
                          category_id SERIAL,
                          name VARCHAR(50)  NOT NULL,
                          parent_category INTEGER,
@@ -66,26 +67,26 @@ CREATE TABLE ebock.category(
                          FOREIGN KEY(parent_category) REFERENCES category(category_id)
 );
 
-CREATE TABLE ebock.tag(
+CREATE TABLE tag(
                     tag_id SERIAL,
                     name VARCHAR(50)  NOT NULL,
                     PRIMARY KEY(tag_id),
                     UNIQUE(name)
 );
 
-CREATE TABLE ebock.log_category(
+CREATE TABLE log_category(
                              log_category_name VARCHAR(50) ,
                              PRIMARY KEY(log_category_name)
 );
 
-CREATE TABLE ebock.wear(
+CREATE TABLE wear(
                      wear_id SERIAL,
                      name VARCHAR(50)  NOT NULL,
                      PRIMARY KEY(wear_id),
                      UNIQUE(name)
 );
 
-CREATE TABLE ebock.item(
+CREATE TABLE item(
                      item_id SERIAL,
                      name VARCHAR(60)  NOT NULL,
                      description VARCHAR(350)  NOT NULL,
@@ -104,7 +105,7 @@ CREATE TABLE ebock.item(
                      FOREIGN KEY(wear_id) REFERENCES wear(wear_id)
 );
 
-CREATE TABLE ebock.log_(
+CREATE TABLE log_(
                      id SERIAL,
                      timestamp_ TIMESTAMP NOT NULL,
                      content_1 VARCHAR(350)  NOT NULL,
@@ -114,14 +115,14 @@ CREATE TABLE ebock.log_(
                      FOREIGN KEY(log_category_name) REFERENCES log_category(log_category_name)
 );
 
-CREATE TABLE ebock.image_(
+CREATE TABLE image_(
                        image_url VARCHAR(50) ,
                        item_id INTEGER NOT NULL,
                        PRIMARY KEY(image_url),
                        FOREIGN KEY(item_id) REFERENCES item(item_id)
 );
 
-CREATE TABLE ebock.order_(
+CREATE TABLE order_(
                        order_id SERIAL,
                        created_at TIMESTAMP NOT NULL,
                        updated_at VARCHAR(50) ,
@@ -133,7 +134,7 @@ CREATE TABLE ebock.order_(
                        FOREIGN KEY(buyer_cip) REFERENCES user_(cip)
 );
 
-CREATE TABLE ebock.comment_(
+CREATE TABLE comment_(
                          comment_id SERIAL,
                          timestamp_ TIMESTAMP NOT NULL,
                          content VARCHAR(360)  NOT NULL,
@@ -147,7 +148,7 @@ CREATE TABLE ebock.comment_(
                          FOREIGN KEY(sender_cip) REFERENCES user_(cip)
 );
 
-CREATE TABLE ebock.order_message(
+CREATE TABLE order_message(
                               timestamp_ TIMESTAMP,
                               content TEXT NOT NULL,
                               is_read BOOLEAN NOT NULL,
@@ -158,7 +159,7 @@ CREATE TABLE ebock.order_message(
                               FOREIGN KEY(sender_cip) REFERENCES user_(cip)
 );
 
-CREATE TABLE ebock.item_del_option(
+CREATE TABLE item_del_option(
                                 item_id INTEGER,
                                 delivery_optn_id INTEGER,
                                 PRIMARY KEY(item_id, delivery_optn_id),
@@ -166,7 +167,7 @@ CREATE TABLE ebock.item_del_option(
                                 FOREIGN KEY(delivery_optn_id) REFERENCES delivery_option(delivery_optn_id)
 );
 
-CREATE TABLE ebock.tag_item(
+CREATE TABLE tag_item(
                          item_id INTEGER,
                          tag_id INTEGER,
                          PRIMARY KEY(item_id, tag_id),
@@ -174,7 +175,7 @@ CREATE TABLE ebock.tag_item(
                          FOREIGN KEY(tag_id) REFERENCES tag(tag_id)
 );
 
-CREATE TABLE ebock.favorite(
+CREATE TABLE favorite(
                          cip VARCHAR(8) ,
                          item_id INTEGER,
                          added_at TIMESTAMP NOT NULL,
@@ -184,7 +185,7 @@ CREATE TABLE ebock.favorite(
 );
 
 
-INSERT INTO ebock.user_ (cip, first_name, last_name, email, is_admin, profile_picture_url, enabled, created_at, updated_at)
+INSERT INTO user_ (cip, first_name, last_name, email, is_admin, profile_picture_url, enabled, created_at, updated_at)
 VALUES
     ('bela3439', 'Alex', 'Bellefroid Lefkakis', 'bela3439@usherbrooke.ca', false, NULL, true, NOW(), NULL),
     ('boum7113', 'Milo', 'Boucher', 'boum7113@usherbrooke.ca', false, NULL, true, NOW(), NULL),
@@ -194,17 +195,17 @@ VALUES
     ('pele3157', 'Éliane', 'Pelletier', 'pele3157@usherbrooke.ca', false, NULL, true, NOW(), NULL),
     ('test1234', 'Utiilisateur', 'Test', 'test1234@usherbrooke.ca', false, NULL, true, NOW(), NULL);
 
-INSERT INTO ebock.delivery_option (name) VALUES ('Livraison'), ('Ramassage'), ('Transfert par courriel');
+INSERT INTO delivery_option (name) VALUES ('Livraison'), ('Ramassage'), ('Transfert par courriel');
 
-INSERT INTO ebock.category (name, parent_category) VALUES ('Vêtements', NULL), ('Électronique', NULL), ('Livres', NULL), ('Maisons', NULL), ('Sports', NULL), ('Autres', NULL), ('Hauts', 1), ('Bas', 1), ('Chaussures', 1), ('Accessoires', 1);
+INSERT INTO category (name, parent_category) VALUES ('Vêtements', NULL), ('Électronique', NULL), ('Livres', NULL), ('Maisons', NULL), ('Sports', NULL), ('Autres', NULL), ('Hauts', 1), ('Bas', 1), ('Chaussures', 1), ('Accessoires', 1);
 
-INSERT INTO ebock.tag (name) VALUES ('Électronique'), ('Neuf'), ('Cours'), ('Usager');
+INSERT INTO tag (name) VALUES ('Électronique'), ('Neuf'), ('Cours'), ('Usager');
 
-INSERT INTO ebock.log_category (log_category_name) VALUES ('User Actions'), ('Item Management'), ('Orders'), ('Comments'), ('System Events');
+INSERT INTO log_category (log_category_name) VALUES ('User Actions'), ('Item Management'), ('Orders'), ('Comments'), ('System Events');
 
-INSERT INTO ebock.wear (name) VALUES ('Factory New'), ('Minimal Wear'), ('Field-Tested'), ('Well-Worn'), ('Battle-Scarred');
+INSERT INTO wear (name) VALUES ('Factory New'), ('Minimal Wear'), ('Field-Tested'), ('Well-Worn'), ('Battle-Scarred');
 
-INSERT INTO ebock.item
+INSERT INTO item
 (name, description, price, added_at, updated_at, sold, quantity, archived, category_id, wear_id, seller_cip)
 VALUES ('Mac Book avec Puce M5', 'MacBook avec une puce M5 qui run linux très bien', 2500.12, now(),
         now(), false, 1, false, 2, 1, 'herl2700'),
@@ -219,32 +220,32 @@ VALUES ('Mac Book avec Puce M5', 'MacBook avec une puce M5 qui run linux très b
        ('Lit', 'Pas besoin de lit si je dors pas', 649.00, now(), now(),
         true, 0, true, 4, 1, 'bela3439');
 
-CREATE TABLE ebock.payment_option(
+CREATE TABLE payment_option(
                                      payment_optn_id SERIAL,
                                      name VARCHAR(50) NOT NULL,
                                      PRIMARY KEY(payment_optn_id),
                                      UNIQUE(name)
 );
 
-CREATE TABLE ebock.item_paym_option(
+CREATE TABLE item_paym_option(
                                        item_id INTEGER,
                                        payment_optn_id INTEGER,
                                        PRIMARY KEY(item_id, payment_optn_id),
-                                       FOREIGN KEY(item_id) REFERENCES ebock.item(item_id),
-                                       FOREIGN KEY(payment_optn_id) REFERENCES ebock.payment_option(payment_optn_id)
+                                       FOREIGN KEY(item_id) REFERENCES item(item_id),
+                                       FOREIGN KEY(payment_optn_id) REFERENCES payment_option(payment_optn_id)
 );
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
 DROP COLUMN IF EXISTS address;
 
-CREATE TABLE ebock.province(
+CREATE TABLE province(
                                province_code VARCHAR(2),
                                province_name VARCHAR(30) NOT NULL,
                                PRIMARY KEY(province_code),
                                UNIQUE(province_name)
 );
 
-CREATE TABLE ebock.address(
+CREATE TABLE address(
                               address_id SERIAL,
                               civic_number INT NOT NULL,
                               appt_number INT,
@@ -253,10 +254,10 @@ CREATE TABLE ebock.address(
                               country VARCHAR(30) NOT NULL,
                               province_code VARCHAR(2) NOT NULL,
                               PRIMARY KEY(address_id),
-                              FOREIGN KEY(province_code) REFERENCES ebock.province(province_code)
+                              FOREIGN KEY(province_code) REFERENCES province(province_code)
 );
 
-INSERT INTO ebock.province(province_name, province_code)
+INSERT INTO province(province_name, province_code)
 VALUES
     ('Alberta', 'AB'),
     ('Colombie-Britannique', 'BC'),
@@ -272,20 +273,20 @@ VALUES
     ('Saskatchewan', 'SK'),
     ('Yukon', 'YT');
 
-INSERT INTO ebock.address(civic_number, street, postal_code, country, province_code)
+INSERT INTO address(civic_number, street, postal_code, country, province_code)
 VALUES (2500, 'Bd de lUniversité', 'J1N 3C6', 'Canada', 'QC');
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
     ADD COLUMN address_id INT NOT NULL DEFAULT 1;
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
     ADD CONSTRAINT user_address
         FOREIGN KEY (address_id)
-            REFERENCES ebock.address (address_id);
+            REFERENCES address (address_id);
 
-DROP TABLE IF EXISTS ebock.image_;
+DROP TABLE IF EXISTS image_;
 
-CREATE TABLE ebock.image_(
+CREATE TABLE image_(
                              guid varchar(50),
                              original_filename varchar(200) NOT NULL,
                              file_extension varchar(6),
@@ -293,59 +294,59 @@ CREATE TABLE ebock.image_(
                              PRIMARY KEY(guid)
 );
 
-CREATE TABLE ebock.item_image(
+CREATE TABLE item_image(
                                  item_id int,
                                  guid VARCHAR(50),
                                  displayOrder smallint,
                                  PRIMARY KEY(item_id, guid, displayOrder),
-                                 FOREIGN KEY(item_id) REFERENCES ebock.item(item_id),
-                                 FOREIGN KEY(guid) REFERENCES ebock.image_(guid)
+                                 FOREIGN KEY(item_id) REFERENCES item(item_id),
+                                 FOREIGN KEY(guid) REFERENCES image_(guid)
 );
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
     RENAME COLUMN profile_picture_url TO profile_picture_guid;
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
     ADD CONSTRAINT profile_picture
         FOREIGN KEY (profile_picture_guid)
-            REFERENCES ebock.image_ (guid);
+            REFERENCES image_ (guid);
 
 
-INSERT INTO ebock.review VALUES ('larj4236', 'pele3157', '2026-05-24 09:39:59.000000', 'Mauvais service, elle ne veut pas me vendre sa charge.', 1, null),
+INSERT INTO review VALUES ('larj4236', 'pele3157', '2026-05-24 09:39:59.000000', 'Mauvais service, elle ne veut pas me vendre sa charge.', 1, null),
                                 ('herl2700', 'pele3157', '2026-06-24 09:41:11.000000', 'Rien à dire', 5, null),
                                 ('dubw5596', 'pele3157', '2026-06-24 09:42:57.000000', '67777777777777', 4, null);
 
-INSERT INTO ebock.favorite VALUES('pele3157', 1, '2026-06-23 21:26:00');
+INSERT INTO favorite VALUES('pele3157', 1, '2026-06-23 21:26:00');
 
-INSERT INTO ebock.item_del_option VALUES(1, 1),
+INSERT INTO item_del_option VALUES(1, 1),
                                         (1, 2),
                                         (3, 2),
                                         (4, 1),
                                         (4, 2);
 
-INSERT INTO ebock.payment_option VALUES(DEFAULT,'Interac'),
+INSERT INTO payment_option VALUES(DEFAULT,'Interac'),
                                        (DEFAULT,'Cash');
 
-INSERT INTO ebock.item_paym_option VALUES(1, 2),
+INSERT INTO item_paym_option VALUES(1, 2),
                                          (2, 1),
                                          (5, 1),
                                          (5, 2),
                                          (4, 1),
                                          (4, 2);
 
-INSERT INTO ebock.tag_item VALUES(1, 3),
+INSERT INTO tag_item VALUES(1, 3),
                                  (3, 2),
                                  (5, 2),
                                  (5, 1);
 
-INSERT INTO ebock.order_ (created_at, updated_at, quantity, item_id, buyer_cip) VALUES
+INSERT INTO order_ (created_at, updated_at, quantity, item_id, buyer_cip) VALUES
                                                                                     ('2026-06-17 13:19:25.189001', '2026-06-17 13:19:25.189001-04', '1', 4, 'bela3439'),
                                                                                     ('2026-06-17 13:19:42.383485', '2026-06-17 13:19:42.383485-04', '1', 4, 'dubw5596'),
                                                                                     ('2026-06-17 13:20:30.012509', '2026-06-17 13:20:30.012509-04', '1', 4, 'herl2700'),
                                                                                     ('2026-06-17 13:21:42.914472', '2026-06-17 13:21:42.914472-04', '1', 4, 'pele3157'),
                                                                                     ('2026-06-17 13:51:21.237211', '2026-06-17 13:51:21.237211-04', '1', 4, 'boum7113'),
                                                                                     ('2026-06-17 13:55:15.742924', '2026-06-17 13:55:15.742924-04', '1', 5, 'larj4236');
-INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
+INSERT INTO order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
                                                                                          ('2026-06-17 13:59:05.849555', 'Salut !', false, 6, 'larj4236'),
                                                                                          ('2026-06-17 14:02:17.389151', 'Bonjour à vous!', false, 6, 'pele3157'),
                                                                                          ('2026-06-17 14:02:53.56755', 'J''aimerais acheter cet article, mon ordinateur est à 67% actuellement, je suis cooked', false, 6, 'larj4236'),
@@ -364,53 +365,53 @@ INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_
                                                                                          ('2026-06-18 09:54:44.600569', 'Bon matin !', false, 6, 'larj4236'),
                                                                                          ('2026-06-18 09:55:03.857547', 'shut up', false, 6, 'pele3157');
 
-INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
+INSERT INTO order_message (timestamp_, content, is_read, order_id, sender_cip) VALUES
                                                                                          ('2026-07-02 13:11:51.000000', '67777777', true, 2, 'dubw5596'),
                                                                                          ('2026-07-02 13:13:51.000000', 'ban', true, 2, 'larj4236');
 
-ALTER TABLE ebock.address ADD COLUMN city VARCHAR(50) NOT NULL DEFAULT '';
-ALTER TABLE ebock.address ALTER COLUMN city DROP DEFAULT;
-ALTER TABLE ebock.user_ ALTER COLUMN address_id DROP DEFAULT;
+ALTER TABLE address ADD COLUMN city VARCHAR(50) NOT NULL DEFAULT '';
+ALTER TABLE address ALTER COLUMN city DROP DEFAULT;
+ALTER TABLE user_ ALTER COLUMN address_id DROP DEFAULT;
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
 DROP COLUMN is_admin,
     DROP COLUMN enabled;
 
-ALTER TABLE ebock.user_
+ALTER TABLE user_
     ALTER COLUMN address_id DROP NOT NULL;
 
-ALTER TABLE ebock.category
+ALTER TABLE category
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.delivery_option
+ALTER TABLE delivery_option
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.payment_option
+ALTER TABLE payment_option
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.wear
+ALTER TABLE wear
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.tag
+ALTER TABLE tag
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.comment_
+ALTER TABLE comment_
     ALTER COLUMN comment_id_1 DROP NOT NULL;
 
-INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
 VALUES (NOW(), 'Cet article est-il toujours disponible ?', null, null, 5, 'larj4236');
 
-INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
 VALUES (NOW(), 'Oui', null, 1, 5, 'pele3157');
 
-INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
 VALUES (NOW(), 'Et si je vous offre 2$ pour ce produit ?', null, null, 5, 'herl2700');
 
-INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
 VALUES (NOW(), 'Je peux passer le chercher dans 6 ou 7 jours.', null, null, 5, 'bela3439');
 
-INSERT INTO ebock.comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
 VALUES (NOW(), 'Je vous attendais et vous étiez pas là...', null, 4, 5, 'pele3157');
 
-ALTER TABLE ebock.comment_
+ALTER TABLE comment_
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
