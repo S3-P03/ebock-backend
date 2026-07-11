@@ -15,7 +15,18 @@ pipeline {
 
         stage('Start fresh PostgreSQL') {
             steps {
-                sh 'docker compose -f /home/debian up -d --force-recreate --renew-anon-volumes postgres'
+                sh '''
+                    docker rm -f postgres || true
+                    docker run -d --name postgres \
+                        --network debian-default \
+                        -e POSTGRES_DB=tesdb \
+                        -e POSTGRES_USER=postgres \
+                        -e POSTGRES_PASSWORD=postgres \
+                        -p 5433:5432 \
+                        --memory=800m \
+                        postgres:17 \
+                        postgres -c shared_buffers=256MB -c worm_mem=16MB -c max_connections=10
+                '''
             }
         }
 
