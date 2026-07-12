@@ -89,21 +89,11 @@ public class WearServiceTest {
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
         int wearId = 0;
-        when(wearMapper.getCountById(wearId)).thenReturn(1);
         // act
         Response result = wearService.delete(wearId);
 
         // assert
         verify(wearMapper, times(1)).delete(wearId);
         assertEquals(204, result.getStatus());
-    }
-
-    @Test
-    void testDelete_ThrowsNotFound_Inexistent() {
-        // arrange
-        int wearId = 0;
-        when(wearMapper.getCountById(wearId)).thenReturn(0);
-        // act and assert
-        assertThrows(NotFoundException.class, () -> wearService.delete(wearId));
     }
 }

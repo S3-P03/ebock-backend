@@ -31,15 +31,4 @@ public class PaymentOptionIT {
                 .then()
                 .statusCode(204);
     }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void paymentOptionDelete_Returns404_InexistentPaymentOption() {
-        given()
-                .pathParam("id", 111)
-                .when()
-                .delete("/paymentOption/{id}")
-                .then()
-                .statusCode(404);
-    }
 }

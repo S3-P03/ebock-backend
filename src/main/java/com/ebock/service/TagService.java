@@ -60,8 +60,6 @@ public class TagService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id) {
-        if(tagMapper.getCountById(id) == 0)
-            throw new NotFoundException("Tag not found");
         tagMapper.delete(id);
         return Response.noContent().build();
     }

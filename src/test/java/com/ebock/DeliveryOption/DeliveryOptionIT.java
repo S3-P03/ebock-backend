@@ -31,15 +31,4 @@ public class DeliveryOptionIT {
                 .then()
                 .statusCode(204);
     }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void deliveryOptionDelete_Returns404_InexistentDeliveryOption() {
-        given()
-                .pathParam("id", 111)
-                .when()
-                .delete("/deliveryOption/{id}")
-                .then()
-                .statusCode(404);
-    }
 }

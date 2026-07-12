@@ -51,21 +51,11 @@ public class DeliveryOptionServiceTest {
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
         int deliveryOptnId = 0;
-        when(deliveryOptionMapper.getCountById(deliveryOptnId)).thenReturn(1);
         // act
         Response result = deliveryOptionService.delete(deliveryOptnId);
 
         // assert
         verify(deliveryOptionMapper, times(1)).delete(deliveryOptnId);
         assertEquals(204, result.getStatus());
-    }
-
-    @Test
-    void testDelete_ThrowsNotFound_Inexistent() {
-        // arrange
-        int deliveryOptnId = 0;
-        when(deliveryOptionMapper.getCountById(deliveryOptnId)).thenReturn(0);
-        // act and assert
-        assertThrows(NotFoundException.class, () -> deliveryOptionService.delete(deliveryOptnId));
     }
 }

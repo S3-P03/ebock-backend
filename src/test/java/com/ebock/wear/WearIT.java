@@ -19,15 +19,4 @@ public class WearIT {
                 .then()
                 .statusCode(204);
     }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void wearDelete_Returns404_InexistentWear() {
-        given()
-                .pathParam("id", 111)
-                .when()
-                .delete("/wear/{id}")
-                .then()
-                .statusCode(404);
-    }
 }

@@ -51,21 +51,11 @@ public class PaymentOptionServiceTest {
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
         int paymentOptnId = 0;
-        when(paymentOptionMapper.getCountById(paymentOptnId)).thenReturn(1);
         // act
         Response result = paymentOptionService.delete(paymentOptnId);
 
         // assert
         verify(paymentOptionMapper, times(1)).delete(paymentOptnId);
         assertEquals(204, result.getStatus());
-    }
-
-    @Test
-    void testDelete_ThrowsNotFound_Inexistent() {
-        // arrange
-        int paymentOptnId = 0;
-        when(paymentOptionMapper.getCountById(paymentOptnId)).thenReturn(0);
-        // act and assert
-        assertThrows(NotFoundException.class, () -> paymentOptionService.delete(paymentOptnId));
     }
 }

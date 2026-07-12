@@ -22,10 +22,4 @@
         update ebock.wear set deleted_at = now() where wear_id = #{wearId}
     </update>
 
-    <select id="getCountById" resultType="int">
-        SELECT count(w.wear_id)
-        FROM ebock.wear w
-        WHERE w.wear_id = #{id};
-    </select>
-
 </mapper>

@@ -60,8 +60,6 @@ public class WearService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id) {
-        if(wearMapper.getCountById(id) == 0)
-            throw new NotFoundException("Wear not found");
         wearMapper.delete(id);
         return Response.noContent().build();
     }

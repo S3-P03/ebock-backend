@@ -19,15 +19,4 @@ public class TagIT {
                 .then()
                 .statusCode(204);
     }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void tagDelete_Returns404_InexistentTag() {
-        given()
-                .pathParam("id", 111)
-                .when()
-                .delete("/tag/{id}")
-                .then()
-                .statusCode(404);
-    }
 }

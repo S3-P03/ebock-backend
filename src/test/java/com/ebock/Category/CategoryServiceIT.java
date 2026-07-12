@@ -132,7 +132,6 @@ public class CategoryServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     @Test
     public void testDelete_ValidRequest_ShouldReturn204() {
-        when(categoryMapper.getCountById(1)).thenReturn(1);
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)

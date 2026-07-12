@@ -119,7 +119,6 @@ public class TagServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     @Test
     public void testDelete_ValidRequest_ShouldReturn204() {
-        when(tagMapper.getCountById(1)).thenReturn(1);
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)

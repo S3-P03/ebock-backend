@@ -85,21 +85,11 @@ public class TagServiceTest {
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
         int tagId = 0;
-        when(tagMapper.getCountById(tagId)).thenReturn(1);
         // act
         Response result = tagService.delete(tagId);
 
         // assert
         verify(tagMapper, times(1)).delete(tagId);
         assertEquals(204, result.getStatus());
-    }
-
-    @Test
-    void testDelete_ThrowsNotFound_Inexistent() {
-        // arrange
-        int tagId = 0;
-        when(tagMapper.getCountById(tagId)).thenReturn(0);
-        // act and assert
-        assertThrows(NotFoundException.class, () -> tagService.delete(tagId));
     }
 }

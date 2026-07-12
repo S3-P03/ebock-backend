@@ -12,5 +12,4 @@ public interface PaymentOptionMapper {
     void insert(@Param("paymentOption") PaymentOption paymentOption);
     void update(@Param("paymentOption") PaymentOption paymentOption);
     void delete(@Param("paymentOptionId") int paymentOptionId);
-    int getCountById(@Param("id") int id);
 }

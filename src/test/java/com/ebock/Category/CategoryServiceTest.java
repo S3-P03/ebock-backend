@@ -86,21 +86,11 @@ public class CategoryServiceTest {
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
         int categoryId = 0;
-        when(categoryMapper.getCountById(categoryId)).thenReturn(1);
         // act
         Response result = categoryService.delete(categoryId);
 
         // assert
         verify(categoryMapper, times(1)).delete(categoryId);
         assertEquals(204, result.getStatus());
-    }
-
-    @Test
-    void testDelete_ThrowsNotFound_Inexistent() {
-        // arrange
-        int categoryId = 0;
-        when(categoryMapper.getCountById(categoryId)).thenReturn(0);
-        // act and assert
-        assertThrows(NotFoundException.class, () -> categoryService.delete(categoryId));
     }
 }

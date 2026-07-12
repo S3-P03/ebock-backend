@@ -119,7 +119,6 @@ public class WearServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     @Test
     public void testDelete_ValidRequest_ShouldReturn204() {
-        when(wearMapper.getCountById(1)).thenReturn(1);
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)

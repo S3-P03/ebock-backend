@@ -12,5 +12,4 @@ public interface WearMapper {
     void insert(@Param("wear") Wear wear);
     void update(@Param("wear") Wear wear);
     void delete(@Param("wearId") int wearId);
-    int getCountById(@Param("id") int id);
 }

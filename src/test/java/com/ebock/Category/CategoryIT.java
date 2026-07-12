@@ -19,15 +19,4 @@ public class CategoryIT {
                 .then()
                 .statusCode(204);
     }
-
-    @Test
-    @TestSecurity(user = "admin", roles = {"admin"})
-    void categoryDelete_Returns404_InexistentCategory() {
-        given()
-                .pathParam("id", 111)
-                .when()
-                .delete("/category/{id}")
-                .then()
-                .statusCode(404);
-    }
 }

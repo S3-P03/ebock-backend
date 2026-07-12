@@ -24,10 +24,4 @@
         update ebock.payment_option set deleted_at = now() where payment_optn_id = #{paymentOptionId}
     </update>
 
-    <select id="getCountById" resultType="int">
-        SELECT count(p.payment_optn_id)
-        FROM ebock.payment_option p
-        WHERE p.payment_optn_id = #{id};
-    </select>
-
 </mapper>
