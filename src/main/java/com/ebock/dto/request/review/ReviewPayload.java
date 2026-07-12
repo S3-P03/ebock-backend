@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 
 public class ReviewPayload {
     @NotBlank
-    @Size(max=50)
+    @Size(max=360)
     public String content;
     @Min(1)
     @Max(5)

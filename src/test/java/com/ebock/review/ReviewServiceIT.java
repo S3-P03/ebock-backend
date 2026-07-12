@@ -77,7 +77,7 @@ public class ReviewServiceIT {
                 .when()
                 .post("/review/{cip}")
                 .then()
-                .statusCode(200);
+                .statusCode(201);
 
         Mockito.verify(reviewMapper, Mockito.times(1)).update(eq("larj4236"), eq("pele3157"), any(ReviewPayload.class));
     }
@@ -97,7 +97,7 @@ public class ReviewServiceIT {
                 .when()
                 .post("/review/{cip}")
                 .then()
-                .statusCode(200);
+                .statusCode(201);
 
         Mockito.verify(reviewMapper, Mockito.times(1)).insert(eq("dubw5596"), eq("larj4236"), any(ReviewPayload.class));
     }
