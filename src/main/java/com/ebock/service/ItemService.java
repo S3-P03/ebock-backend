@@ -2,9 +2,11 @@ package com.ebock.service;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
+import com.ebock.dto.request.comment.CommentPayload;
 import com.ebock.dto.request.item.FilterItemParameters;
 import com.ebock.dto.request.item.ItemCreatePayload;
 import com.ebock.dto.request.item.ItemUpdatePayload;
+import com.ebock.dto.response.comment.CommentDetailsResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
@@ -45,6 +47,8 @@ public class ItemService {
     UserMapper userMapper;
     @Inject
     ItemConverter itemConverter;
+    @Inject
+    CommentMapper commentMapper;
     @Context
     SecurityContext securityContext;
 
@@ -215,5 +219,25 @@ public class ItemService {
         }
 
         return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}/comment")
+    @PermitAll
+    public List<CommentDetailsResponse> listItemComments(@PathParam("id") Integer id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+
+        return commentMapper.getDetailledComments(id);
+    }
+
+    @POST
+    @Path("/{id}/comment")
+    @Authenticated
+    public Response insertComment(@PathParam("id") Integer id, @Valid CommentPayload commentPayload){
+        String cip = securityContext.getUserPrincipal().getName();
+
+        commentMapper.insert(id, cip, commentPayload);
+        return Response.status(Response.Status.CREATED).build();
     }
 }
