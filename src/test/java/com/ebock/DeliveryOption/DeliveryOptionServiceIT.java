@@ -18,6 +18,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 public class DeliveryOptionServiceIT {
@@ -131,6 +132,7 @@ public class DeliveryOptionServiceIT {
     @TestSecurity(user = "admin", roles = {"admin"})
     @Test
     public void testDelete_ValidRequest_ShouldReturn204() {
+        when(deliveryOptionMapper.getCountById(1)).thenReturn(1);
         given()
                 .contentType(ContentType.JSON)
                 .body(validPayload)

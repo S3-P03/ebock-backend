@@ -22,4 +22,10 @@
         update ebock.tag set deleted_at = now() where tag_id = #{tagId}
     </update>
 
+    <select id="getCountById" resultType="int">
+        SELECT count(t.tag_id)
+        FROM ebock.tag t
+        WHERE t.tag_id = #{id};
+    </select>
+
 </mapper>

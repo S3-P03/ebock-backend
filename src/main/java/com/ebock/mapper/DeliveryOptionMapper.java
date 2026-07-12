@@ -12,4 +12,5 @@ public interface DeliveryOptionMapper {
     void insert(@Param("deliveryOption") DeliveryOption deliveryOption);
     void update(@Param("deliveryOption") DeliveryOption deliveryOption);
     void delete(@Param("deliveryOptionId") int deliveryOptionId);
+    int getCountById(@Param("id") int id);
 }

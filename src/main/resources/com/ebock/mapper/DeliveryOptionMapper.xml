@@ -24,4 +24,10 @@
         update ebock.delivery_option set deleted_at = now() where delivery_optn_id = #{deliveryOptionId}
     </update>
 
+    <select id="getCountById" resultType="int">
+        SELECT count(d.delivery_optn_id)
+        FROM ebock.delivery_option d
+        WHERE d.delivery_optn_id = #{id};
+    </select>
+
 </mapper>

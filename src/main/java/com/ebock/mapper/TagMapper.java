@@ -12,4 +12,5 @@ public interface TagMapper {
     void insert(@Param("tag") Tag tag);
     void update(@Param("tag") Tag tag);
     void delete(@Param("tagId") int tagId);
+    int getCountById(@Param("id") int id);
 }

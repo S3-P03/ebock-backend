@@ -58,6 +58,8 @@ public class CategoryService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id) {
+        if(categoryMapper.getCountById(id) == 0)
+            throw new NotFoundException("Category not found");
         categoryMapper.delete(id);
         return Response.noContent().build();
     }

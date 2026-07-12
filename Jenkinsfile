@@ -13,6 +13,23 @@ pipeline {
             }
         }
 
+        stage('Start fresh PostgreSQL') {
+            steps {
+                sh '''
+                    docker rm -f postgres || true
+                    docker run -d --name postgres \
+                        --network debian_default \
+                        -e POSTGRES_DB=testdb \
+                        -e POSTGRES_USER=postgres \
+                        -e POSTGRES_PASSWORD=postgres \
+                        -p 5433:5432 \
+                        --memory=800m \
+                        postgres:17 \
+                        postgres -c shared_buffers=256MB -c work_mem=16MB -c max_connections=10
+                '''
+            }
+        }
+
         stage('Wait for PostgreSQL') {
             steps {
                 sh '''
@@ -59,34 +76,17 @@ pipeline {
             }
         }
 
-         stage('Run Migrations') {
-            steps {
-                sh '''
-                MIGRATION_DIR="src/test/resources/migrations"
-
-                for f in $(ls ${MIGRATION_DIR}/*.sql | sort -V); do
-                    echo "Applying migration: $f"
-                    PGPASSWORD=postgres psql \
-                        -h postgres \
-                        -U postgres \
-                        -d testdb \
-                        -v ON_ERROR_STOP=1 \
-                        -f "$f"
-                done
-                '''
-            }
-        }
-
         stage('Build and Test') {
             steps {
                 sh 'chmod +x gradlew'
-                sh './gradlew clean test \
+                sh './gradlew \
                       -Dquarkus.datasource.jdbc.url=jdbc:postgresql://postgres:5432/testdb \
                       -Dquarkus.datasource.username=postgres \
                       -Dquarkus.datasource.password=postgres \
                       -Dquarkus.datasource.devservices.enabled=false \
                       -Dquarkus.devservices.enabled=false \
                       -Dquarkus.profile=ci \
+                      clean test \
                       --stacktrace'
             }
         }

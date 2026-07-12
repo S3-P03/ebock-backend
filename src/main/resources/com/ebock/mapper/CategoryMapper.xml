@@ -22,4 +22,10 @@
         update ebock.category set deleted_at = now() where category_id = #{categoryId}
     </update>
 
+    <select id="getCountById" resultType="int">
+        SELECT count(c.category_id)
+        FROM ebock.category c
+        WHERE c.category_id = #{id};
+    </select>
+
 </mapper>

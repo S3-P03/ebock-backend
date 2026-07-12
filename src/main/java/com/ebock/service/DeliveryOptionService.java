@@ -60,6 +60,8 @@ public class DeliveryOptionService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id) {
+        if(deliveryOptionMapper.getCountById(id) == 0)
+            throw new NotFoundException("Delivery option not found");
         deliveryOptionMapper.delete(id);
         return Response.noContent().build();
     }

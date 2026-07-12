@@ -12,4 +12,5 @@ public interface CategoryMapper {
     void insert(@Param("category") Category category);
     void update(@Param("category") Category category);
     void delete(@Param("categoryId") int categoryId);
+    int getCountById(@Param("id") int id);
 }

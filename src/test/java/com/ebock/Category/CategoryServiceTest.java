@@ -6,6 +6,7 @@ import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
 import com.ebock.service.CategoryService;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -83,13 +85,22 @@ public class CategoryServiceTest {
     @Test
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
-        int tagId = 0;
-
+        int categoryId = 0;
+        when(categoryMapper.getCountById(categoryId)).thenReturn(1);
         // act
-        Response result = categoryService.delete(tagId);
+        Response result = categoryService.delete(categoryId);
 
         // assert
-        verify(categoryMapper, times(1)).delete(tagId);
+        verify(categoryMapper, times(1)).delete(categoryId);
         assertEquals(204, result.getStatus());
+    }
+
+    @Test
+    void testDelete_ThrowsNotFound_Inexistent() {
+        // arrange
+        int categoryId = 0;
+        when(categoryMapper.getCountById(categoryId)).thenReturn(0);
+        // act and assert
+        assertThrows(NotFoundException.class, () -> categoryService.delete(categoryId));
     }
 }

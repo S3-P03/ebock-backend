@@ -60,6 +60,8 @@ public class PaymentOptionService {
     @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id) {
+        if(paymentOptionMapper.getCountById(id) == 0)
+            throw new NotFoundException("Payment option not found");
         paymentOptionMapper.delete(id);
         return Response.noContent().build();
     }
