@@ -25,11 +25,5 @@
         UPDATE ebock.comment_ set deleted_at = now() where comment_id = #{id}
     </update>
 
-    <select id="getCountById" resultType="int">
-        SELECT count(c.comment_id)
-        FROM ebock.comment_ c
-        WHERE c.comment_id = #{id};
-    </select>
-
 
 </mapper>

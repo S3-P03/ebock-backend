@@ -14,5 +14,4 @@ public interface CommentMapper {
                 @Param("cip") String cip,
                 @Param("comment") CommentPayload comment);
     void delete(@Param("id") Integer id);
-    int getCountById(@Param("id") Integer id);
 }
