@@ -11,6 +11,7 @@ import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.KeycloakBuilder;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.RoleRepresentation;
 import org.keycloak.representations.idm.UserRepresentation;
 
 import java.util.List;
@@ -191,6 +192,53 @@ public class KeycloakAdapter {
         credential.setTemporary(false);
 
         keycloak.realm(realm).users().get(userId).resetPassword(credential);
+    }
+
+    /**
+     * Add the dark role to a user
+     * @param cip to add
+     */
+    public void addDarkRoleToUser(String cip) {
+        if (!isCipValid(cip)) {
+            throw new BadRequestException("Invalid cip");
+        }
+
+        UserRepresentation userRepresentation = getUserByCip(cip);
+
+        try {
+            // Get the user
+            UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
+            RoleRepresentation role = keycloak.realm(realm).roles().get("dark").toRepresentation();
+
+            // Add the role
+            userResource.roles().realmLevel().add(List.of(role));
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User or role not found");
+        }
+    }
+
+
+    /**
+     * Remove the dark role to a user
+     * @param cip to remove
+     */
+    public void removeDarkRoleToUser(String cip) {
+        if (!isCipValid(cip)) {
+            throw new BadRequestException("Invalid cip");
+        }
+
+        UserRepresentation userRepresentation = getUserByCip(cip);
+
+        try {
+            // Get the user
+            UserResource userResource = keycloak.realm(realm).users().get(userRepresentation.getId());
+            RoleRepresentation role = keycloak.realm(realm).roles().get("dark").toRepresentation();
+
+            // Remove the role
+            userResource.roles().realmLevel().remove(List.of(role));
+        } catch (NotFoundException e) {
+            throw new NotFoundException("User or role not found");
+        }
     }
 
     /**
