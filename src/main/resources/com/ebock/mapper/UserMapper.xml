@@ -20,11 +20,10 @@
                first_name,
                last_name,
                email,
-               is_admin,
-               enabled,
                created_at,
-               updated_at)
-        VALUES (#{cip}, #{firstName}, #{lastName}, #{email}, false, true, now(), now());
+               updated_at,
+               address_id)
+        VALUES (#{cip}, #{firstName}, #{lastName}, #{email}, now(), now(), 1);
     </insert>
     <update id="updateUser">
         UPDATE ebock.user_

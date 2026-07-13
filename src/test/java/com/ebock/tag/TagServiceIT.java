@@ -18,6 +18,7 @@ import java.util.List;
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 public class TagServiceIT {

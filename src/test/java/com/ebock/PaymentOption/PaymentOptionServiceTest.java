@@ -5,6 +5,7 @@ import com.ebock.converter.PaymentOptionConverter;
 import com.ebock.dto.response.paymentOption.PaymentOptionResponse;
 import com.ebock.mapper.PaymentOptionMapper;
 import com.ebock.service.PaymentOptionService;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,13 +50,12 @@ public class PaymentOptionServiceTest {
     @Test
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
-        int tagId = 0;
-
+        int paymentOptnId = 0;
         // act
-        Response result = paymentOptionService.delete(tagId);
+        Response result = paymentOptionService.delete(paymentOptnId);
 
         // assert
-        verify(paymentOptionMapper, times(1)).delete(tagId);
+        verify(paymentOptionMapper, times(1)).delete(paymentOptnId);
         assertEquals(204, result.getStatus());
     }
 }

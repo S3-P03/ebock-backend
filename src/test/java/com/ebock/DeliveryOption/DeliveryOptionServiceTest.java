@@ -5,6 +5,7 @@ import com.ebock.converter.DeliveryOptionConverter;
 import com.ebock.dto.response.deliveryOption.DeliveryOptionResponse;
 import com.ebock.mapper.DeliveryOptionMapper;
 import com.ebock.service.DeliveryOptionService;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -48,13 +50,12 @@ public class DeliveryOptionServiceTest {
     @Test
     void testDeleteCallsDeleteAndReturnsResult() {
         // arrange
-        int tagId = 0;
-
+        int deliveryOptnId = 0;
         // act
-        Response result = deliveryOptionService.delete(tagId);
+        Response result = deliveryOptionService.delete(deliveryOptnId);
 
         // assert
-        verify(deliveryOptionMapper, times(1)).delete(tagId);
+        verify(deliveryOptionMapper, times(1)).delete(deliveryOptnId);
         assertEquals(204, result.getStatus());
     }
 }

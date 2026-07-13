@@ -1,6 +1,7 @@
 package com.ebock.DeliveryOption;
 
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.security.TestSecurity;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
@@ -18,5 +19,16 @@ public class DeliveryOptionIT {
                 .statusCode(200)
                 .body("[0].deliveryOptnId", is(1))
                 .body("[0].name", is("Livraison"));
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void deliveryOptionDelete_DeletesDeliveryOption() {
+        given()
+                .pathParam("id", 3)
+                .when()
+                .delete("/deliveryOption/{id}")
+                .then()
+                .statusCode(204);
     }
 }
