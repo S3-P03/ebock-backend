@@ -5,12 +5,12 @@
 <mapper namespace="com.ebock.mapper.ItemImageMapper">
 
     <delete id="deleteByItemId">
-        delete from ebock.item_image
+        delete from item_image
         where item_id = #{itemId}
     </delete>
 
     <insert id="insert">
-        insert into ebock.item_image (item_id, guid, displayorder)
+        insert into item_image (item_id, guid, displayorder)
         values
         <foreach collection="images" item="image" separator=",">
             (#{itemId}, #{image.guid}, #{image.displayorder})
