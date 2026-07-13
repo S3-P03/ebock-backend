@@ -30,6 +30,7 @@ public class GlobalHeaderFilter implements OASFilter {
             if (pathItem.getPOST() != null) pathItem.getPOST().addParameter(envHeader);
             if (pathItem.getPUT() != null) pathItem.getPUT().addParameter(envHeader);
             if (pathItem.getDELETE() != null) pathItem.getDELETE().addParameter(envHeader);
+            if (pathItem.getPATCH() != null) pathItem.getPATCH().addParameter(envHeader);
         }
     }
 }
