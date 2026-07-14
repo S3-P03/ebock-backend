@@ -247,11 +247,14 @@ public class ItemService {
     }
 
     @DELETE
-    @Path("/{id}/delete")
+    @Path("/{id}")
     @RolesAllowed("admin")
     public Response delete(@PathParam("id") int id){
         itemMapper.delete(id);
-        itemMapper.archiveRoomsById(id);
+        int rowsAffected = itemMapper.archiveRoomsById(id);
+
+        if(rowsAffected == 0 && itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
         return Response.noContent().build();
     }
 }

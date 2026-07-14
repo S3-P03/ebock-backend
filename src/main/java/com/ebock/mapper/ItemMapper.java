@@ -25,5 +25,5 @@ public interface ItemMapper {
     void update(@Param("sellerCip") String sellerCip, @Param("item") Item item);
     int getSoldItemsCountByCip(@Param("cip") String cip);
     void delete(@Param("id") int id);
-    void archiveRoomsById(@Param("id") int id);
+    int archiveRoomsById(@Param("id") int id);
 }
