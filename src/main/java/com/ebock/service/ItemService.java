@@ -14,6 +14,7 @@ import com.ebock.mapper.*;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -184,6 +185,10 @@ public class ItemService {
             throw new ForbiddenException("Not your item");
         }
 
+        if(item.quantity == 0){
+            itemMapper.archiveRoomsById(item.itemId);
+        }
+
         itemMapper.update(cip, item);
 
         // Update tags
@@ -239,5 +244,14 @@ public class ItemService {
 
         commentMapper.insert(id, cip, commentPayload);
         return Response.status(Response.Status.CREATED).build();
+    }
+
+    @DELETE
+    @Path("/{id}/delete")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id){
+        itemMapper.delete(id);
+        itemMapper.archiveRoomsById(id);
+        return Response.noContent().build();
     }
 }
