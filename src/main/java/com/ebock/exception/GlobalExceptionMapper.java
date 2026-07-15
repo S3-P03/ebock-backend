@@ -4,6 +4,7 @@ import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
+import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
 import org.apache.ibatis.exceptions.PersistenceException;
 import org.jboss.resteasy.reactive.server.ServerExceptionMapper;

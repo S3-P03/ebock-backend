@@ -554,34 +554,24 @@ public class ItemServiceTest {
 
     @Test
     void commentInsert_ThrowsNotFound_InexistentItemId() {
-
         // arrange
-        Integer inexistentId = 10;
+        Integer inexistentId = 100;
         CommentPayload payload = new CommentPayload();
 
-        when(securityContext.getUserPrincipal()).thenReturn(principal);
-        when(principal.getName()).thenReturn("pele3157");
-
-        // Mock the insert method to throw an exception
-        doThrow(new BadRequestException())
-                .when(commentMapper).insert(inexistentId, "pele3157", payload);
-
         // Act & Assert
-        assertThrows(BadRequestException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             itemService.insertComment(inexistentId, payload);
         });
-
-        verify(commentMapper, times(1)).insert(anyInt(), anyString(), any());
     }
 
     @Test
     void commentInsert_Inserts_ExistentItemId() {
-
         // arrange
-        int validId = 5;
+        int validId = 1;
         String cip = "pele3157";
         CommentPayload payload = new CommentPayload();
 
+        when(itemMapper.getItemCountById(validId)).thenReturn(1);
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn(cip);
 

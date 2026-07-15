@@ -210,7 +210,7 @@
         SELECT COUNT(i.item_id)
         FROM ebock.user_ u
         INNER JOIN ebock.item i ON i.seller_cip = u.cip
-        WHERE i.seller_cip = #{cip} AND i.sold;
+        WHERE i.seller_cip = #{cip} AND i.quantity = 0;
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="item.itemId">
