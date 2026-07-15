@@ -204,6 +204,8 @@ public class ItemServiceTest {
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
         Item item = new Item();
         item.sellerCip = sellerCip;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -212,7 +214,7 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);
@@ -243,6 +245,8 @@ public class ItemServiceTest {
         payload.deliveryOptionList = List.of();
         Item item = new Item();
         item.sellerCip = sellerCip;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -251,7 +255,7 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);
@@ -282,6 +286,8 @@ public class ItemServiceTest {
         payload.paymentOptionList = null;
         Item item = new Item();
         item.sellerCip = sellerCip;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -290,7 +296,7 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);

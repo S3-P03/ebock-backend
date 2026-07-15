@@ -113,8 +113,11 @@ public class ItemServiceIT {
         Item existingItem = new Item();
         existingItem.sellerCip = "testuser";
         existingItem.itemId = 99;
-
         Mockito.when(itemMapper.findById(99)).thenReturn(existingItem);
+
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
+        Mockito.when(itemConverter.toBusiness(any(ItemUpdatePayload.class))).thenReturn(convertedItem);
 
         // Act and assert
         given()
