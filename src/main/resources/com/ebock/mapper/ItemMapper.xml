@@ -194,7 +194,8 @@
                i.name,
                i.description,
                i.seller_cip,
-               i.price::numeric
+               i.price::numeric,
+               i.quantity
         FROM ebock.item i
         WHERE i.item_id = #{id};
     </select>

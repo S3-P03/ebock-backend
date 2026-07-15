@@ -185,47 +185,48 @@ public class ItemService {
             throw new ForbiddenException("Not your item");
         }
 
-        if(existingItem.quantity != 0) {
+        if(existingItem.quantity == 0) {
+            throw new ForbiddenException("Cannot modify item out of stock");
+        }
 
-            if (item.quantity == 0) {
-                itemMapper.archiveRoomsById(item.itemId);
-            }
+        if (item.quantity == 0) {
+            itemMapper.archiveRoomsById(item.itemId);
+        }
 
-            itemMapper.update(cip, item);
+        itemMapper.update(cip, item);
 
-            // Update tags
-            if (itemUpdatePayload.tagList != null) {
-                itemTagMapper.deleteByItemId(itemId);
-                if (!itemUpdatePayload.tagList.isEmpty()) {
-                    itemTagMapper.insert(item.itemId, itemUpdatePayload.tagList);
-                }
-            }
-
-            // Update images
-            if (itemUpdatePayload.imageList != null) {
-                itemImageMapper.deleteByItemId(itemId);
-                if (!itemUpdatePayload.imageList.isEmpty()) {
-                    itemImageMapper.insert(item.itemId, itemUpdatePayload.imageList);
-                }
-            }
-
-            // Update payment option
-            if (itemUpdatePayload.paymentOptionList != null) {
-                itemPaymentOptionMapper.deleteByItemId(itemId);
-                if (!itemUpdatePayload.paymentOptionList.isEmpty()) {
-                    itemPaymentOptionMapper.insert(item.itemId, itemUpdatePayload.paymentOptionList);
-                }
-            }
-
-            // Update delivery option
-            if (itemUpdatePayload.deliveryOptionList != null) {
-                itemDeliveryOptionMapper.deleteByItemId(itemId);
-                if (!itemUpdatePayload.deliveryOptionList.isEmpty()) {
-                    itemDeliveryOptionMapper.insert(item.itemId, itemUpdatePayload.deliveryOptionList);
-                }
+        // Update tags
+        if (itemUpdatePayload.tagList != null) {
+            itemTagMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.tagList.isEmpty()) {
+                itemTagMapper.insert(item.itemId, itemUpdatePayload.tagList);
             }
         }
-        
+
+        // Update images
+        if (itemUpdatePayload.imageList != null) {
+            itemImageMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.imageList.isEmpty()) {
+                itemImageMapper.insert(item.itemId, itemUpdatePayload.imageList);
+            }
+        }
+
+        // Update payment option
+        if (itemUpdatePayload.paymentOptionList != null) {
+            itemPaymentOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.paymentOptionList.isEmpty()) {
+                itemPaymentOptionMapper.insert(item.itemId, itemUpdatePayload.paymentOptionList);
+            }
+        }
+
+        // Update delivery option
+        if (itemUpdatePayload.deliveryOptionList != null) {
+            itemDeliveryOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.deliveryOptionList.isEmpty()) {
+                itemDeliveryOptionMapper.insert(item.itemId, itemUpdatePayload.deliveryOptionList);
+            }
+        }
+
         return Response.noContent().build();
     }
 

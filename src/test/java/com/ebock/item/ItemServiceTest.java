@@ -204,6 +204,7 @@ public class ItemServiceTest {
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
         Item convertedItem = new Item();
         convertedItem.quantity = 1;
 
@@ -245,6 +246,7 @@ public class ItemServiceTest {
         payload.deliveryOptionList = List.of();
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
         Item convertedItem = new Item();
         convertedItem.quantity = 1;
 
@@ -286,6 +288,7 @@ public class ItemServiceTest {
         payload.paymentOptionList = null;
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
         Item convertedItem = new Item();
         convertedItem.quantity = 1;
 
@@ -353,6 +356,7 @@ public class ItemServiceTest {
         payload.quantity = 0;
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
         Item convertedItem = new Item();
         convertedItem.quantity = 0;
 

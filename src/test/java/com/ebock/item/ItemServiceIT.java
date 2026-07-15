@@ -113,6 +113,7 @@ public class ItemServiceIT {
         Item existingItem = new Item();
         existingItem.sellerCip = "testuser";
         existingItem.itemId = 99;
+        existingItem.quantity = 1;
         Mockito.when(itemMapper.findById(99)).thenReturn(existingItem);
 
         Item convertedItem = new Item();
