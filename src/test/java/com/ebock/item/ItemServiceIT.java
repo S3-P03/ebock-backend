@@ -113,8 +113,12 @@ public class ItemServiceIT {
         Item existingItem = new Item();
         existingItem.sellerCip = "testuser";
         existingItem.itemId = 99;
-
+        existingItem.quantity = 1;
         Mockito.when(itemMapper.findById(99)).thenReturn(existingItem);
+
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
+        Mockito.when(itemConverter.toBusiness(any(ItemUpdatePayload.class))).thenReturn(convertedItem);
 
         // Act and assert
         given()
@@ -173,5 +177,61 @@ public class ItemServiceIT {
                 .statusCode(Response.Status.NOT_FOUND.getStatusCode());
 
         Mockito.verify(itemMapper, Mockito.never()).update(any(), any());
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    public void testDelete_ReturnsNoContent() {
+        // Arrange
+        Mockito.when(itemMapper.archiveRoomsById(99)).thenReturn(1);
+
+        // Act & Assert
+        given()
+                .when()
+                .delete("/item/99")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+        Mockito.verify(itemMapper, Mockito.times(1)).delete(99);
+        Mockito.verify(itemMapper, Mockito.times(1)).archiveRoomsById(99);
+        Mockito.verify(itemMapper, Mockito.never()).getItemCountById(Mockito.anyInt());
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    public void testDelete_ReturnsNotFound() {
+        // Arrange
+        Mockito.when(itemMapper.archiveRoomsById(99)).thenReturn(0);
+        Mockito.when(itemMapper.getItemCountById(99)).thenReturn(0);
+
+        // Act & Assert
+        given()
+                .when()
+                .delete("/item/99")
+                .then()
+                .statusCode(Response.Status.NOT_FOUND.getStatusCode());
+
+        Mockito.verify(itemMapper, Mockito.times(1)).delete(99);
+        Mockito.verify(itemMapper, Mockito.times(1)).archiveRoomsById(99);
+        Mockito.verify(itemMapper, Mockito.times(1)).getItemCountById(99);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    public void testDelete_ReturnsNoContent_ItemExistsNoRoomsOpen() {
+        // Arrange
+        Mockito.when(itemMapper.archiveRoomsById(99)).thenReturn(0);
+        Mockito.when(itemMapper.getItemCountById(99)).thenReturn(1);
+
+        // Act & Assert
+        given()
+                .when()
+                .delete("/item/99")
+                .then()
+                .statusCode(Response.Status.NO_CONTENT.getStatusCode());
+
+        Mockito.verify(itemMapper).delete(99);
+        Mockito.verify(itemMapper).archiveRoomsById(99);
+        Mockito.verify(itemMapper).getItemCountById(99);
     }
 }

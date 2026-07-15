@@ -24,7 +24,6 @@ public interface ItemConverter {
     @Mapping(target = "addedAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "sold", ignore = true)
-    @Mapping(target = "archived", ignore = true)
     @Mapping(target = "sellerCip", ignore = true)
     Item toBusiness(ItemCreatePayload payload);
 
@@ -32,7 +31,6 @@ public interface ItemConverter {
     @Mapping(target = "addedAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "sold", ignore = true)
-    @Mapping(target = "archived", ignore = true)
     @Mapping(target = "sellerCip", ignore = true)
     Item toBusiness(ItemUpdatePayload payload);
     ItemInsertResponse toInsertResponse(Item item);

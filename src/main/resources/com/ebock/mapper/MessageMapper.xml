@@ -59,7 +59,9 @@
                  INNER JOIN ebock.item i ON i.item_id = o.item_id
                  INNER JOIN ebock.user_ u ON u.cip = i.seller_cip
                  INNER JOIN ebock.user_ u2 ON u2.cip = o.buyer_cip
-        WHERE u.cip = #{cip} OR u2.cip = #{cip}
+        WHERE (u.cip = #{cip}
+           OR u2.cip = #{cip})
+           AND o.archived_at IS NULL;
     </select>
 
     <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">

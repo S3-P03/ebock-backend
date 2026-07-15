@@ -11,7 +11,6 @@ import java.util.List;
 
 @Mapper
 public interface ItemMapper {
-    //tous les items pas archived du vendeur
     List<ItemResponse> getAllItemsSeller(@Param("cip") String cip);
     ItemDetailsResponse getItemDetails(@Param("id") int id);
     int getItemCountById(@Param("id") int id);
@@ -25,4 +24,6 @@ public interface ItemMapper {
     void insert(@Param("item") Item item);
     void update(@Param("sellerCip") String sellerCip, @Param("item") Item item);
     int getSoldItemsCountByCip(@Param("cip") String cip);
+    void delete(@Param("id") int id);
+    int archiveRoomsById(@Param("id") int id);
 }

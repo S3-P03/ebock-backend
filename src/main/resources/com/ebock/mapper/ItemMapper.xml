@@ -66,7 +66,9 @@
         INNER JOIN ebock.user_ u ON i.seller_cip = u.cip
         LEFT JOIN ebock.favorite f ON i.item_id = f.item_id AND f.cip = #{cip}
         <where>
-            NOT i.sold AND NOT i.archived
+            NOT i.sold
+                AND i.deleted_at IS NULL
+                AND i.quantity &gt; 0
             <if test="filters != null and filters.minPrice != null">
                 AND i.price::numeric &gt;= #{filters.minPrice}
             </if>
@@ -156,7 +158,8 @@
              LEFT JOIN ebock.tag_item it ON i.item_id = it.item_id
              LEFT JOIN ebock.item_image im ON im.item_id = i.item_id
         WHERE i.seller_cip = #{cip} AND (im.displayorder = 1 OR im.guid IS NULL)
-          AND NOT i.archived;
+          AND i.deleted_at IS NULL
+          AND i.quantity &gt; 0;
     </select>
 
     <select id="getItemDetails" resultMap="ItemDetailsResponseMap">
@@ -182,7 +185,8 @@
                  LEFT JOIN ebock.item_del_option id ON id.item_id = i.item_id
                  LEFT JOIN ebock.delivery_option d ON id.delivery_optn_id = d.delivery_optn_id
         WHERE i.item_id = #{id}
-          AND NOT i.archived;
+          AND i.deleted_at IS NULL
+          AND i.quantity &gt; 0;
     </select>
 
     <select id="findById" resultType="com.ebock.business.Item">
@@ -190,7 +194,8 @@
                i.name,
                i.description,
                i.seller_cip,
-               i.price::numeric
+               i.price::numeric,
+               i.quantity
         FROM ebock.item i
         WHERE i.item_id = #{id};
     </select>
@@ -210,8 +215,8 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="item.itemId">
         insert into ebock.item (name, description, price, added_at, updated_at, sold, quantity,
-                                archived, category_id, wear_id, seller_cip)
-        values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity}, false,
+                                category_id, wear_id, seller_cip)
+        values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity},
                 #{item.categoryId}, #{item.wearId}, #{item.sellerCip})
     </insert>
 
@@ -250,6 +255,14 @@
         </set>
         WHERE item_id = #{item.itemId}
         AND seller_cip = #{sellerCip}
+    </update>
+
+    <update id="delete">
+        UPDATE ebock.item set deleted_at = now() where item_id = #{id}
+    </update>
+
+    <update id="archiveRoomsById">
+        UPDATE ebock.order_ SET archived_at = now() WHERE item_id = #{id};
     </update>
 
 </mapper>

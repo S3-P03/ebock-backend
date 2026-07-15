@@ -15,7 +15,7 @@ public class ItemUpdatePayload {
     @DecimalMin(value="0.00")
     public BigDecimal price;
 
-    @Min(value=1)
+    @Min(value=0)
     public Integer quantity;
 
     @Min(value=1)

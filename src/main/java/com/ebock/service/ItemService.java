@@ -14,6 +14,7 @@ import com.ebock.mapper.*;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -184,6 +185,14 @@ public class ItemService {
             throw new ForbiddenException("Not your item");
         }
 
+        if(existingItem.quantity == 0) {
+            throw new ForbiddenException("Cannot modify item out of stock");
+        }
+
+        if (item.quantity == 0) {
+            itemMapper.archiveRoomsById(item.itemId);
+        }
+
         itemMapper.update(cip, item);
 
         // Update tags
@@ -239,5 +248,17 @@ public class ItemService {
 
         commentMapper.insert(id, cip, commentPayload);
         return Response.status(Response.Status.CREATED).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id){
+        itemMapper.delete(id);
+        int rowsAffected = itemMapper.archiveRoomsById(id);
+
+        if(rowsAffected == 0 && itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        return Response.noContent().build();
     }
 }
