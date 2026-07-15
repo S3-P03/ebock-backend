@@ -29,7 +29,7 @@ public class EnvironmentHeaderFilter implements ContainerRequestFilter, Containe
         }
 
         if (environment.equals("dark_ebock") && !securityContext.isUserInRole("dark")){
-            throw new ForbiddenException("You don't have access to dark ebock");
+            throw new ForbiddenException("You don't have access to [REDACTED]");
         }
 
         SchemaContextHolder.setEnvironment(environment);
