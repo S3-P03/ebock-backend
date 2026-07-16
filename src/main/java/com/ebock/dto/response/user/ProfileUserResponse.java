@@ -5,4 +5,5 @@ public class ProfileUserResponse {
     public String firstName;
     public String lastName;
     public String email;
+    public String profilePictureGuid;
 }
