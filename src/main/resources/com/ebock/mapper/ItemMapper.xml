@@ -215,8 +215,8 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="item.itemId">
         insert into ebock.item (name, description, price, added_at, updated_at, sold, quantity,
-                                archived, category_id, wear_id, seller_cip)
-        values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity}, false,
+                                category_id, wear_id, seller_cip)
+        values (#{item.name}, #{item.description}, #{item.price}, now(), now(), false, #{item.quantity},
                 #{item.categoryId}, #{item.wearId}, #{item.sellerCip})
     </insert>
 
