@@ -416,12 +416,12 @@ VALUES (NOW(), 'Je vous attendais et vous étiez pas là...', null, 4, 5, 'pele3
 ALTER TABLE comment_
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.item
+ALTER TABLE item
     ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
 
-ALTER TABLE ebock.item DROP COLUMN archived;
+ALTER TABLE item DROP COLUMN archived;
 
-ALTER TABLE ebock.order_
+ALTER TABLE order_
     ADD COLUMN archived_at TIMESTAMPTZ DEFAULT NULL;
 
 
