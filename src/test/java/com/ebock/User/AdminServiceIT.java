@@ -73,6 +73,58 @@ public class AdminServiceIT {
 
     @Test
     @TestSecurity(user = "user", roles = {"user"})
+    void addDark_ShouldReturn403_WhenNotAdmin() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/addDark")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void addDark_ShouldReturn404_WhenUserNotExist() {
+        String cip = "aaaa1111";
+        doThrow(new NotFoundException("User not found")).when(keycloakAdapter).addDarkRoleToUser(cip);
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/addDark")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    @TestSecurity(user = "user", roles = {"user"})
+    void removeDark_ShouldReturn403_WhenNotAdmin() {
+        String cip = "dubw5596";
+
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/removeDark")
+                .then()
+                .statusCode(403);
+    }
+
+    @Test
+    @TestSecurity(user = "admin", roles = {"admin"})
+    void removeDark_ShouldReturn404_WhenUserNotExist() {
+        String cip = "aaaa1111";
+        doThrow(new NotFoundException("User not found")).when(keycloakAdapter).removeDarkRoleToUser(cip);
+        given()
+                .pathParam("cip", cip)
+                .when()
+                .put("/user/{cip}/removeDark")
+                .then()
+                .statusCode(404);
+    }
+
+    @Test
+    @TestSecurity(user = "user", roles = {"user"})
     void disableUser_ShouldReturn403_WhenNotAdmin() {
         String cip = "dubw5596";
 

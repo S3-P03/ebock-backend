@@ -205,6 +205,24 @@ public class UserService {
     }
 
     @PUT
+    @Path("/{cip}/addDark")
+    @RolesAllowed("admin")
+    public Response addDark(@PathParam("cip") String cip) {
+        keycloakAdapter.addDarkRoleToUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{cip}/removeDark")
+    @RolesAllowed("admin")
+    public Response removeDark(@PathParam("cip") String cip) {
+        keycloakAdapter.removeDarkRoleToUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
     @Path("/updateProfilePicture")
     @Authenticated
     public Response editProfilePicture(EditProfilePicturePayload payload){

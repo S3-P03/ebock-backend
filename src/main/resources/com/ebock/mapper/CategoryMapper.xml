@@ -6,20 +6,20 @@
 
     <select id="getAllCategories" resultType="com.ebock.business.Category">
         select *
-        from ebock.category
+        from category
         WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="category.categoryId">
-        insert into ebock.category (name, parent_category) values (#{category.name}, #{category.parentCategory})
+        insert into category (name, parent_category) values (#{category.name}, #{category.parentCategory})
     </insert>
 
     <update id="update">
-        update ebock.category set name = #{category.name}, parent_category=#{category.parentCategory} where category_id = #{category.categoryId}
+        update category set name = #{category.name}, parent_category=#{category.parentCategory} where category_id = #{category.categoryId}
     </update>
 
     <update id="delete">
-        update ebock.category set deleted_at = now() where category_id = #{categoryId}
+        update category set deleted_at = now() where category_id = #{categoryId}
     </update>
 
 </mapper>

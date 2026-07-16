@@ -5,12 +5,12 @@
 <mapper namespace="com.ebock.mapper.ItemDeliveryOptionMapper">
 
     <delete id="deleteByItemId">
-        delete from ebock.item_del_option
+        delete from item_del_option
         where item_id = #{itemId}
     </delete>
 
     <insert id="insert">
-        insert into ebock.item_del_option (item_id, delivery_optn_id)
+        insert into item_del_option (item_id, delivery_optn_id)
         values
         <foreach collection="deliveryOptions" item="deliveryOptnId" separator=",">
             (#{itemId}, #{deliveryOptnId})
