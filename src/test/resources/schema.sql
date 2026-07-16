@@ -830,3 +830,14 @@ INSERT INTO order_ (created_at, updated_at, quantity, item_id, buyer_cip) VALUES
                                                                               ('2026-06-17 13:21:42.914472', '2026-06-17 13:21:42.914472-04', '1', 4, 'pele3157'),
                                                                               ('2026-06-17 13:51:21.237211', '2026-06-17 13:51:21.237211-04', '1', 4, 'boum7113'),
                                                                               ('2026-06-17 13:55:15.742924', '2026-06-17 13:55:15.742924-04', '1', 5, 'larj4236');
+
+ALTER TABLE comment_
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE item
+    ADD COLUMN deleted_at TIMESTAMPTZ DEFAULT NULL;
+
+ALTER TABLE item DROP COLUMN archived;
+
+ALTER TABLE order_
+    ADD COLUMN archived_at TIMESTAMPTZ DEFAULT NULL;
