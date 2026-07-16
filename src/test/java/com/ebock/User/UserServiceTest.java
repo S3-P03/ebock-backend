@@ -386,4 +386,23 @@ public class UserServiceTest {
         assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
         verify(userMapper).updateProfilePicture(cip, payload.guid);
     }
+
+    @Test
+    void editProfilePicture_emptyGuid_shouldCallDbAndReturnOk(){
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        EditProfilePicturePayload payload = new EditProfilePicturePayload();
+        payload.guid = "";
+
+        // Act
+        Response response = userService.editProfilePicture(payload);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(userMapper).updateProfilePicture(cip, null);
+    }
 }

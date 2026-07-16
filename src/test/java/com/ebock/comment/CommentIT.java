@@ -46,7 +46,7 @@ public class CommentIT {
 
     @Test
     @TestSecurity(user = "testuser", roles = {"user"})
-    void commentInsert_Returns400_InexistentItem() {
+    void commentInsert_Returns404_InexistentItem() {
         given()
                 .contentType(ContentType.JSON)
                 .body(validCommentPayload)
@@ -54,7 +54,7 @@ public class CommentIT {
                 .when()
                 .post("/item/{id}/comment")
                 .then()
-                .statusCode(400);
+                .statusCode(404);
     }
 
     @Test

@@ -210,7 +210,9 @@ public class UserService {
     public Response editProfilePicture(EditProfilePicturePayload payload){
         String cip = this.securityContext.getUserPrincipal().getName();
 
-        userMapper.updateProfilePicture(cip, payload.guid);
+        String guid = (payload.guid == null || payload.guid.isBlank()) ? null : payload.guid;
+
+        userMapper.updateProfilePicture(cip, guid);
 
         return Response.noContent().build();
     }

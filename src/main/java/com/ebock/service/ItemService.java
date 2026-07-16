@@ -244,6 +244,9 @@ public class ItemService {
     @Path("/{id}/comment")
     @Authenticated
     public Response insertComment(@PathParam("id") Integer id, @Valid CommentPayload commentPayload){
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+
         String cip = securityContext.getUserPrincipal().getName();
 
         commentMapper.insert(id, cip, commentPayload);
