@@ -9,7 +9,8 @@
                c.content,
                c.comment_id_1 AS idParentComment,
                c.comment_id AS idComment,
-               c.timestamp_
+               c.timestamp_,
+               u.profile_picture_guid
         FROM comment_ c
             INNER JOIN user_ u ON u.cip = c.sender_cip
         WHERE c.item_id = #{id}
