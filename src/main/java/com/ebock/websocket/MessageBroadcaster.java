@@ -11,7 +11,9 @@ public class MessageBroadcaster {
     @Inject
     OpenConnections connections;
 
-    public void broadcast(MessageResponse message) {
-        connections.forEach(conn -> conn.sendTextAndAwait(message));
+    public void broadcast(String room, MessageResponse message) {
+        connections.stream()
+                .filter(conn -> room.equals(conn.pathParam("room")))
+                .forEach(conn -> conn.sendTextAndAwait(message));
     }
 }

@@ -108,7 +108,7 @@ public class MessageService {
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
         validateAuthorization(cip, roomResponse);
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
-        messageBroadcaster.broadcast(saved);
+        messageBroadcaster.broadcast(Integer.toString(id), saved);
         return saved;
     }
 
