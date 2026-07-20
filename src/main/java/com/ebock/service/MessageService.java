@@ -106,10 +106,16 @@ public class MessageService {
         String cip = this.securityContext.getUserPrincipal().getName();
         validateUser(cip);
         validateRoom(id);
+
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
         validateAuthorization(cip, roomResponse);
+
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
         messageBroadcaster.broadcast(Integer.toString(id), saved);
+
+        if(messageMapper.isRoomArchived(id))
+            messageMapper.reverseArchiveRoomById(id);
+
         return saved;
     }
 
@@ -124,7 +130,7 @@ public class MessageService {
         if(messageMapper.isRoomArchived(id))
             throw new ForbiddenException("Cannot archive a room that is already archived");
 
-        itemMapper.archiveRoomsById(id);
+        messageMapper.reverseArchiveRoomById(id);
         return Response.noContent().build();
     }
 

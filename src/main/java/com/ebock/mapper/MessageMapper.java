@@ -19,4 +19,5 @@ public interface MessageMapper {
     int getSellerReplyCountByBuyer(@Param("reviewerCip") String reviewerCip, @Param("reviewedCip") String reviewedCip);
     boolean isRoomArchived(@Param("id") int id);
     int isSellerOfRoomByIds(@Param("roomId") int roomId, @Param("cip") String cip);
+    void reverseArchiveRoomById(@Param("id") int id);
 }

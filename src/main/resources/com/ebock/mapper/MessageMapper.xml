@@ -152,4 +152,14 @@
                  INNER JOIN ebock.item i ON i.item_id = o.item_id
         WHERE o.order_id = #{roomId} AND i.seller_cip = #{cip};
     </select>
+
+    <update id="reverseArchiveRoomById">
+        UPDATE ebock.order_
+        SET archived_at =
+                CASE
+                    WHEN archived_at IS NULL THEN now()
+                    ELSE NULL
+                    END
+        WHERE order_id = #{id};
+    </update>
 </mapper>
