@@ -63,9 +63,10 @@
                  INNER JOIN item i ON i.item_id = o.item_id
                  INNER JOIN user_ u ON u.cip = i.seller_cip
                  INNER JOIN user_ u2 ON u2.cip = o.buyer_cip
-        WHERE (u.cip = #{cip}
-           OR u2.cip = #{cip})
-           AND o.archived_at IS NULL;
+        WHERE u2.cip = 'larj4236' OR
+            CASE WHEN u.cip = 'larj4236' THEN o.archived_at IS NULL
+                 ELSE FALSE
+                END;
     </select>
 
     <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">
