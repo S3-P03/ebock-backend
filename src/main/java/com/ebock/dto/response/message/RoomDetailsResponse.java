@@ -7,7 +7,9 @@ public class RoomDetailsResponse {
     public String sellerCip;
     public String sellerFirstName;
     public String sellerLastName;
+    public String sellerProfilePicGuid;
     public String buyerCip;
     public String buyerFirstName;
     public String buyerLastName;
+    public String buyerProfilePicGuid;
 }
