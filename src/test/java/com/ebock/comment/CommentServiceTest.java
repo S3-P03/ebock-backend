@@ -27,7 +27,7 @@ public class CommentServiceTest {
     CommentService commentService;
     
     @Test
-    void commentDelete_Deletes_() {
+    void commentDelete_Deletes() {
         // act
         Response response = commentService.delete(1);
 

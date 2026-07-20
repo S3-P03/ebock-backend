@@ -27,9 +27,11 @@
         <result property="sellerCip" column="seller_cip"/>
         <result property="sellerFirstName" column="seller_first_name"/>
         <result property="sellerLastName" column="seller_last_name"/>
+        <result property="sellerProfilePicGuid" column="seller_profile_pic"/>
         <result property="buyerCip" column="buyer_cip"/>
         <result property="buyerFirstName" column="buyer_first_name"/>
         <result property="buyerLastName" column="buyer_last_name"/>
+        <result property="buyerProfilePicGuid" column="buyer_profile_pic"/>
     </resultMap>
 
     <select id="getAllRoomMessages" resultMap="MessageResponseMap">
@@ -52,9 +54,11 @@
                i.seller_cip as seller_cip,
                u.first_name as seller_first_name,
                u.last_name as seller_last_name,
+               u.profile_picture_guid as seller_profile_pic,
                o.buyer_cip as buyer_cip,
                u2.first_name as buyer_first_name,
-               u2.last_name as buyer_last_name
+               u2.last_name as buyer_last_name,
+               u2.profile_picture_guid as buyer_profile_pic
         FROM order_ o
                  INNER JOIN item i ON i.item_id = o.item_id
                  INNER JOIN user_ u ON u.cip = i.seller_cip
@@ -71,9 +75,11 @@
                i.seller_cip as seller_cip,
                u.first_name as seller_first_name,
                u.last_name as seller_last_name,
+               u.profile_picture_guid as seller_profile_pic,
                o.buyer_cip as buyer_cip,
                u2.first_name as buyer_first_name,
-               u2.last_name as buyer_last_name
+               u2.last_name as buyer_last_name,
+               u2.profile_picture_guid as buyer_profile_pic
         FROM order_ o
         INNER JOIN item i ON i.item_id = o.item_id
         INNER JOIN user_ u ON u.cip = i.seller_cip

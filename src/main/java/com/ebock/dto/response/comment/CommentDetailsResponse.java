@@ -7,6 +7,7 @@ public class CommentDetailsResponse {
     Integer idParentComment;
     Integer idComment;
     String timestamp;
+    String profilePictureGuid;
 
     public String getFirstName() {
         return firstName;
@@ -30,5 +31,9 @@ public class CommentDetailsResponse {
 
     public String getTimestamp() {
         return timestamp;
+    }
+
+    public String getProfilePictureGuid() {
+        return profilePictureGuid;
     }
 }
