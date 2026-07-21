@@ -203,7 +203,7 @@ INSERT INTO tag (name) VALUES ('Électronique'), ('Neuf'), ('Cours'), ('Usager')
 
 INSERT INTO log_category (log_category_name) VALUES ('User Actions'), ('Item Management'), ('Orders'), ('Comments'), ('System Events');
 
-INSERT INTO wear (name) VALUES ('Factory New'), ('Minimal Wear'), ('Field-Tested'), ('Well-Worn'), ('Battle-Scarred');
+INSERT INTO wear (name) VALUES ('Neuve'), ('Très peu usée'), ('Testée sur le terrain'), ('Usée'), ('Marquée par les combats');
 
 INSERT INTO item
 (name, description, price, added_at, updated_at, sold, quantity, archived, category_id, wear_id, seller_cip)

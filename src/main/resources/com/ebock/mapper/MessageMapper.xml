@@ -63,9 +63,10 @@
                  INNER JOIN item i ON i.item_id = o.item_id
                  INNER JOIN user_ u ON u.cip = i.seller_cip
                  INNER JOIN user_ u2 ON u2.cip = o.buyer_cip
-        WHERE (u.cip = #{cip}
-           OR u2.cip = #{cip})
-           AND o.archived_at IS NULL;
+        WHERE u2.cip = #{cip} OR
+            CASE WHEN u.cip = #{cip} THEN o.archived_at IS NULL
+                 ELSE FALSE
+                END;
     </select>
 
     <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">
@@ -135,4 +136,31 @@
                  RIGHT JOIN order_message om ON o.order_id = om.order_id
         WHERE o.buyer_cip = #{reviewerCip} AND om.sender_cip = #{reviewedCip};
     </select>
+
+    <select id="isRoomArchived" resultType="boolean">
+        SELECT
+            CASE
+                WHEN archived_at IS NULL THEN FALSE
+                WHEN archived_at IS NOT NULL THEN TRUE
+                END AS is_archived
+        FROM ebock.order_
+        WHERE order_id = #{id};
+    </select>
+    
+    <select id="isSellerOfRoomByIds" resultType="int">
+        SELECT count(o.order_id)
+        FROM ebock.order_ o
+                 INNER JOIN ebock.item i ON i.item_id = o.item_id
+        WHERE o.order_id = #{roomId} AND i.seller_cip = #{cip};
+    </select>
+
+    <update id="toggleArchiveRoomById">
+        UPDATE ebock.order_
+        SET archived_at =
+                CASE
+                    WHEN archived_at IS NULL THEN now()
+                    ELSE NULL
+                    END
+        WHERE order_id = #{id};
+    </update>
 </mapper>

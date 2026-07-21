@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -105,11 +106,32 @@ public class MessageService {
         String cip = this.securityContext.getUserPrincipal().getName();
         validateUser(cip);
         validateRoom(id);
+
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
         validateAuthorization(cip, roomResponse);
+
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
         messageBroadcaster.broadcast(Integer.toString(id), saved);
+
+        if(messageMapper.isRoomArchived(id))
+            messageMapper.toggleArchiveRoomById(id);
+
         return saved;
+    }
+
+    @POST
+    @Path("/room/{id}/archive")
+    @Authenticated
+    public Response archiveRoom(@PathParam("id") int id){
+        String cip = securityContext.getUserPrincipal().getName();
+
+        if(messageMapper.isSellerOfRoomByIds(id, cip) != 1)
+            throw new ForbiddenException("Authenticated user is not the seller");
+        if(messageMapper.isRoomArchived(id))
+            throw new ForbiddenException("Cannot archive a room that is already archived");
+
+        messageMapper.toggleArchiveRoomById(id);
+        return Response.noContent().build();
     }
 
     void validateUser(String cip) {
