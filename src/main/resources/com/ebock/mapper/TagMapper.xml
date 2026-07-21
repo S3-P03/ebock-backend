@@ -12,6 +12,8 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="tag.tagId">
         insert into tag (name) values (#{tag.name})
+        on conflict (name)
+        do update set deleted_at = null, name = EXCLUDED.name;
     </insert>
 
     <update id="update">

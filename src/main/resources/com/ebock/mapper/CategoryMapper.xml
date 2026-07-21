@@ -12,6 +12,8 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="category.categoryId">
         insert into category (name, parent_category) values (#{category.name}, #{category.parentCategory})
+        on conflict (name)
+        do update set deleted_at = null, name = EXCLUDED.name;
     </insert>
 
     <update id="update">
