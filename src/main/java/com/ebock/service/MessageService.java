@@ -114,7 +114,7 @@ public class MessageService {
         messageBroadcaster.broadcast(Integer.toString(id), saved);
 
         if(messageMapper.isRoomArchived(id))
-            messageMapper.reverseArchiveRoomById(id);
+            messageMapper.toggleArchiveRoomById(id);
 
         return saved;
     }
@@ -130,7 +130,7 @@ public class MessageService {
         if(messageMapper.isRoomArchived(id))
             throw new ForbiddenException("Cannot archive a room that is already archived");
 
-        messageMapper.reverseArchiveRoomById(id);
+        messageMapper.toggleArchiveRoomById(id);
         return Response.noContent().build();
     }
 

@@ -9,7 +9,9 @@ import com.ebock.mapper.*;
 import com.ebock.service.MessageService;
 import com.ebock.websocket.MessageBroadcaster;
 import io.quarkus.security.UnauthorizedException;
+import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,8 +23,9 @@ import java.security.Principal;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MessageServiceTest {
@@ -299,4 +302,48 @@ public class MessageServiceTest {
         // act and assert
         assertThrows(UnauthorizedException.class, () -> messageService.postMessage(payload, 1));
     }
+
+    @Test
+    void testArchiveRoomArchivesRoom() {
+        // arrange
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("larj4236");
+        when(messageMapper.isSellerOfRoomByIds(1, "larj4236")).thenReturn(1);
+        when(messageMapper.isRoomArchived(1)).thenReturn(false);
+
+        // act
+        Response response = messageService.archiveRoom(1);
+
+        // assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(messageMapper).toggleArchiveRoomById(1);
+    }
+
+    @Test
+    void testArchiveRoomUserIsNotSellerThrowsForbidden() {
+        // arrange
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("larj4236");
+        when(messageMapper.isSellerOfRoomByIds(1, "larj4236")).thenReturn(0);
+
+        // act & assert
+        assertThrows(ForbiddenException.class, () -> messageService.archiveRoom(1));
+
+        verify(messageMapper, never()).toggleArchiveRoomById(1);
+    }
+
+    @Test
+    void testArchiveRoomAlreadyArchivedThrowsForbidden() {
+        // arrange
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn("larj4236");
+        when(messageMapper.isSellerOfRoomByIds(1, "larj4236")).thenReturn(1);
+        when(messageMapper.isRoomArchived(1)).thenReturn(true);
+
+        // act & assert
+        assertThrows(ForbiddenException.class, () -> messageService.archiveRoom(1));
+
+        verify(messageMapper, never()).toggleArchiveRoomById(1);
+    }
+
 }
