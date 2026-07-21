@@ -13,6 +13,8 @@
     <insert id="insert" useGeneratedKeys="true" keyProperty="paymentOption.paymentOptnId">
         insert into payment_option (name)
         values (#{paymentOption.name})
+        on conflict (name)
+        do update set deleted_at = null, name = EXCLUDED.name;
     </insert>
 
     <update id="update">
