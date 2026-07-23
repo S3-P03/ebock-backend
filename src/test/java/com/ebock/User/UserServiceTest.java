@@ -5,13 +5,13 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
-import com.ebock.dto.request.user.EditAddressPayload;
-import com.ebock.dto.request.user.EditUserPayload;
-import com.ebock.dto.request.user.UserChangePasswordPayload;
-import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.request.user.*;
+import com.ebock.dto.response.user.ListUtilisateursResponse;
+import com.ebock.dto.response.user.ListUtilisateursUserResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
+import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
 import com.ebock.service.UserService;
 import jakarta.ws.rs.BadRequestException;
@@ -26,6 +26,8 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.security.Principal;
+import java.util.Collections;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -34,6 +36,7 @@ import static org.mockito.Mockito.*;
 public class UserServiceTest {
 
     @Mock UserMapper userMapper;
+    @Mock ItemMapper itemMapper;
     @Mock AddressMapper addressMapper;
     @Mock SecurityContext securityContext;
     @Mock JsonWebToken jwt;
@@ -100,6 +103,7 @@ public class UserServiceTest {
         payload.address.street = "Sommet de Orford";
         payload.address.civicNumber = 1;
         payload.address.apptNumber = 1;
+        payload.address.city = "Sherbrooke";
         payload.address.provinceCode = "QC";
         payload.address.country = "Québec";
 
@@ -140,6 +144,7 @@ public class UserServiceTest {
         payload.address.street = "Sommet de Orford";
         payload.address.civicNumber = 1;
         payload.address.apptNumber = 1;
+        payload.address.city = "Sherbrooke";
         payload.address.provinceCode = "QC";
         payload.address.country = "Québec";
 
@@ -258,7 +263,7 @@ public class UserServiceTest {
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
         when(userMapper.getUserInfo("larj4236")).thenReturn(user);
         when(userConverter.toSellerUserResponse(user)).thenReturn(expected);
-
+        when(itemMapper.getSoldItemsCountByCip("larj4236")).thenReturn(1);
         SellerUserResponse result = userService.cipStorefront("larj4236");
 
         assertEquals(expected, result);
@@ -317,5 +322,87 @@ public class UserServiceTest {
 
         // Act & Assert
         assertThrows(NotFoundException.class, () -> userService.getProfile());
+    }
+
+    @Test
+    void listUser_shouldReturnMappedUsers() {
+        // Arrange
+        List<UserRepresentation> mockRepresentations = Collections.singletonList(new UserRepresentation());
+        List<ListUtilisateursUserResponse> mockDTOs = Collections.singletonList(new ListUtilisateursUserResponse());
+
+        when(keycloakAdapter.getAllUsers()).thenReturn(mockRepresentations);
+        when(userConverter.toResponseFromUserRepresentation(mockRepresentations)).thenReturn(mockDTOs);
+
+        // Act
+        ListUtilisateursResponse result = userService.listUser();
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(mockDTOs, result.utilisateurs);
+        verify(keycloakAdapter).getAllUsers();
+    }
+
+    @Test
+    void enableUser_shouldCallAdapterAndReturnOk() {
+        // Arrange
+        String cip = "test1234";
+
+        // Act
+        Response response = userService.enableUser(cip);
+
+        // Assert
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(keycloakAdapter).enableUser(cip);
+    }
+
+    @Test
+    void disableUser_shouldCallAdapterAndReturnOk() {
+        // Arrange
+        String cip = "test1234";
+
+        // Act
+        Response response = userService.disableUser(cip);
+
+        // Assert
+        assertEquals(Response.Status.OK.getStatusCode(), response.getStatus());
+        verify(keycloakAdapter).disableUser(cip);
+    }
+
+    @Test
+    void editProfilePicture_shouldCallDbAndReturnOk(){
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        EditProfilePicturePayload payload = new EditProfilePicturePayload();
+        payload.guid = "aaaabbbbccccdddd";
+
+        // Act
+        Response response = userService.editProfilePicture(payload);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(userMapper).updateProfilePicture(cip, payload.guid);
+    }
+
+    @Test
+    void editProfilePicture_emptyGuid_shouldCallDbAndReturnOk(){
+        // Arrange
+        String cip = "dubw5596";
+        Principal principal = mock(Principal.class);
+        when(principal.getName()).thenReturn(cip);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+
+        EditProfilePicturePayload payload = new EditProfilePicturePayload();
+        payload.guid = "";
+
+        // Act
+        Response response = userService.editProfilePicture(payload);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+        verify(userMapper).updateProfilePicture(cip, null);
     }
 }

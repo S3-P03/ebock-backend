@@ -6,6 +6,8 @@ import com.ebock.dto.request.tag.TagPayload;
 import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.TagMapper;
 import com.ebock.service.TagService;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -16,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class TagServiceTest {
-
     @Mock
     TagMapper tagMapper;
 
@@ -77,5 +79,17 @@ public class TagServiceTest {
         // assert
         verify(tagMapper, times(1)).update(tag);
         assertEquals(expected, result);
+    }
+
+    @Test
+    void testDeleteCallsDeleteAndReturnsResult() {
+        // arrange
+        int tagId = 0;
+        // act
+        Response result = tagService.delete(tagId);
+
+        // assert
+        verify(tagMapper, times(1)).delete(tagId);
+        assertEquals(204, result.getStatus());
     }
 }

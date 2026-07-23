@@ -6,15 +6,22 @@
 
     <select id="getAllTags" resultType="com.ebock.business.Tag">
         select *
-        from ebock.tag
+        from tag
+        WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="tag.tagId">
-        insert into ebock.tag (name) values (#{tag.name})
+        insert into tag (name) values (#{tag.name})
+        on conflict (name)
+        do update set deleted_at = null, name = EXCLUDED.name;
     </insert>
 
     <update id="update">
-        update ebock.tag set name = #{tag.name} where tag_id = #{tag.tagId}
+        update tag set name = #{tag.name} where tag_id = #{tag.tagId}
+    </update>
+
+    <update id="delete">
+        update tag set deleted_at = now() where tag_id = #{tagId}
     </update>
 
 </mapper>

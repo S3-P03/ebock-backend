@@ -2,7 +2,6 @@ package com.ebock.exception;
 
 import io.quarkus.security.UnauthorizedException;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.core.Response;
 import org.apache.ibatis.exceptions.PersistenceException;
@@ -93,6 +92,16 @@ public class GlobalExceptionMapper {
                         .entity(Map.of(
                                 "error", "Conflict",
                                 "message", "There is a conflict error."
+                        ))
+                        .build();
+            }
+
+            // "23503" = Foreign Key Constraint Violations
+            if ("23503".equals(sqlState)) {
+                return Response.status(Response.Status.BAD_REQUEST)
+                        .entity(Map.of(
+                                "error", "Data Integrity Violation",
+                                "message", "FK constraint violation"
                         ))
                         .build();
             }

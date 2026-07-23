@@ -27,9 +27,11 @@
         <result property="sellerCip" column="seller_cip"/>
         <result property="sellerFirstName" column="seller_first_name"/>
         <result property="sellerLastName" column="seller_last_name"/>
+        <result property="sellerProfilePicGuid" column="seller_profile_pic"/>
         <result property="buyerCip" column="buyer_cip"/>
         <result property="buyerFirstName" column="buyer_first_name"/>
         <result property="buyerLastName" column="buyer_last_name"/>
+        <result property="buyerProfilePicGuid" column="buyer_profile_pic"/>
     </resultMap>
 
     <select id="getAllRoomMessages" resultMap="MessageResponseMap">
@@ -39,8 +41,8 @@
                u.first_name as sender_first_name,
                u.last_name as sender_last_name,
                om.timestamp_ as timestamp_
-        FROM ebock.order_message om
-        INNER JOIN ebock.user_ u ON om.sender_cip = u.cip
+        FROM order_message om
+        INNER JOIN user_ u ON om.sender_cip = u.cip
         WHERE om.order_id = #{id}
         ORDER BY timestamp_ ASC
     </select>
@@ -52,14 +54,19 @@
                i.seller_cip as seller_cip,
                u.first_name as seller_first_name,
                u.last_name as seller_last_name,
+               u.profile_picture_guid as seller_profile_pic,
                o.buyer_cip as buyer_cip,
                u2.first_name as buyer_first_name,
-               u2.last_name as buyer_last_name
-        FROM ebock.order_ o
-                 INNER JOIN ebock.item i ON i.item_id = o.item_id
-                 INNER JOIN ebock.user_ u ON u.cip = i.seller_cip
-                 INNER JOIN ebock.user_ u2 ON u2.cip = o.buyer_cip
-        WHERE u.cip = #{cip} OR u2.cip = #{cip}
+               u2.last_name as buyer_last_name,
+               u2.profile_picture_guid as buyer_profile_pic
+        FROM order_ o
+                 INNER JOIN item i ON i.item_id = o.item_id
+                 INNER JOIN user_ u ON u.cip = i.seller_cip
+                 INNER JOIN user_ u2 ON u2.cip = o.buyer_cip
+        WHERE u2.cip = #{cip} OR
+            CASE WHEN u.cip = #{cip} THEN o.archived_at IS NULL
+                 ELSE FALSE
+                END;
     </select>
 
     <select id="getRoomInformation" resultMap="RoomDetailsResponseMap">
@@ -69,24 +76,26 @@
                i.seller_cip as seller_cip,
                u.first_name as seller_first_name,
                u.last_name as seller_last_name,
+               u.profile_picture_guid as seller_profile_pic,
                o.buyer_cip as buyer_cip,
                u2.first_name as buyer_first_name,
-               u2.last_name as buyer_last_name
-        FROM ebock.order_ o
-        INNER JOIN ebock.item i ON i.item_id = o.item_id
-        INNER JOIN ebock.user_ u ON u.cip = i.seller_cip
-        INNER JOIN ebock.user_ u2 ON u2.cip = o.buyer_cip
+               u2.last_name as buyer_last_name,
+               u2.profile_picture_guid as buyer_profile_pic
+        FROM order_ o
+        INNER JOIN item i ON i.item_id = o.item_id
+        INNER JOIN user_ u ON u.cip = i.seller_cip
+        INNER JOIN user_ u2 ON u2.cip = o.buyer_cip
         WHERE o.order_id = #{id}
     </select>
 
     <select id="getRoomCountById" resultType="int">
         SELECT COUNT(*)
-        FROM ebock.order_ o
+        FROM order_ o
         WHERE o.order_id = #{id};
     </select>
 
     <select id="createRoom" resultMap="RoomResponseMap">
-            INSERT INTO ebock.order_ (created_at, updated_at, quantity, item_id, buyer_cip)
+            INSERT INTO order_ (created_at, updated_at, quantity, item_id, buyer_cip)
             VALUES (NOW(), NOW(), 1, #{itemId}, #{cip})
             RETURNING
                 order_id as room_id,
@@ -94,13 +103,13 @@
                 buyer_cip,
             (
                 SELECT seller_cip
-                FROM ebock.item
-                WHERE ebock.item.item_id = ebock.order_.item_id
+                FROM item
+                WHERE item.item_id = order_.item_id
             );
     </select>
 
     <select id="insert" resultMap="MessageResponseMap">
-        INSERT INTO ebock.order_message (timestamp_, content, is_read, order_id, sender_cip)
+        INSERT INTO order_message (timestamp_, content, is_read, order_id, sender_cip)
         VALUES (NOW(), #{content}, false, #{roomId}, #{cip})
         RETURNING
             order_id as room_id,
@@ -109,15 +118,49 @@
             (
                 SELECT
                 u.first_name as sender_first_name
-                FROM ebock.user_ u
-                WHERE u.cip = ebock.order_message.sender_cip
+                FROM user_ u
+                WHERE u.cip = order_message.sender_cip
             ),
             (
                 SELECT
                 u.last_name as sender_last_name
-                FROM ebock.user_ u
-                WHERE u.cip = ebock.order_message.sender_cip
+                FROM user_ u
+                WHERE u.cip = order_message.sender_cip
             ),
             timestamp_;
     </select>
+
+    <select id="getSellerReplyCountByBuyer" resultType="int">
+        SELECT count(o.order_id)
+        FROM order_ o
+                 RIGHT JOIN order_message om ON o.order_id = om.order_id
+        WHERE o.buyer_cip = #{reviewerCip} AND om.sender_cip = #{reviewedCip};
+    </select>
+
+    <select id="isRoomArchived" resultType="boolean">
+        SELECT
+            CASE
+                WHEN archived_at IS NULL THEN FALSE
+                WHEN archived_at IS NOT NULL THEN TRUE
+                END AS is_archived
+        FROM order_
+        WHERE order_id = #{id};
+    </select>
+    
+    <select id="isSellerOfRoomByIds" resultType="int">
+        SELECT count(o.order_id)
+        FROM order_ o
+                 INNER JOIN item i ON i.item_id = o.item_id
+        WHERE o.order_id = #{roomId} AND i.seller_cip = #{cip};
+    </select>
+
+    <update id="toggleArchiveRoomById">
+        UPDATE order_
+        SET archived_at =
+                CASE
+                    WHEN archived_at IS NULL THEN now()
+                    ELSE NULL
+                    END
+        WHERE order_id = #{id};
+    </update>
 </mapper>

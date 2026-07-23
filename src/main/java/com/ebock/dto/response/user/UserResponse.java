@@ -5,5 +5,5 @@ public class UserResponse {
     public String firstName;
     public String lastName;
     public String email;
-    public String profilePictureUrl;
+    public String profilePictureGuid;
 }

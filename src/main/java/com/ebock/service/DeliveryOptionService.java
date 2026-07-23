@@ -7,11 +7,13 @@ import com.ebock.dto.response.deliveryOption.DeliveryOptionResponse;
 import com.ebock.mapper.DeliveryOptionMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -28,7 +30,7 @@ public class DeliveryOptionService {
     SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<DeliveryOptionResponse> list() {
         List<DeliveryOption> deliveryOptions = this.deliveryOptionMapper.getAllDeliveryOptions();
@@ -36,8 +38,8 @@ public class DeliveryOptionService {
     }
 
     @POST
-    @Path("/insert")
-    @Authenticated
+    @Path("")
+    @RolesAllowed("admin")
     public DeliveryOptionResponse insert(@Valid DeliveryOptionPayload payload) {
         DeliveryOption deliveryOption = deliveryOptionConverter.toBusiness(payload);
         this.deliveryOptionMapper.insert(deliveryOption);
@@ -45,13 +47,21 @@ public class DeliveryOptionService {
     }
 
     @PUT
-    @Path("/update/{id}")
-    @Authenticated
+    @Path("/{id}")
+    @RolesAllowed("admin")
     public DeliveryOptionResponse update(@PathParam("id") int id, @Valid DeliveryOptionPayload payload) {
         DeliveryOption deliveryOption = deliveryOptionConverter.toBusiness(payload);
         deliveryOption.deliveryOptnId = id;
         this.deliveryOptionMapper.update(deliveryOption);
         return deliveryOptionConverter.toResponse(deliveryOption);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id) {
+        deliveryOptionMapper.delete(id);
+        return Response.noContent().build();
     }
 
 }

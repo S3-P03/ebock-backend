@@ -1,11 +1,15 @@
 # ebock-backend
-Serveur
+This repository contains the files for the REST API of EBock, built in Java, using Quarkus and MyBatis.
 
-# ebock-backend
+Copy the .env file from the Teams group into the root of this project. This file contains environment variables that are required to run the projet.
 
-This project uses Quarkus, the Supersonic Subatomic Java Framework.
 
-If you want to learn more about Quarkus, please visit its website: <https://quarkus.io/>.
+## Requirements
+Make sure you have these installed before proceeding with this repository :
+
+    - IntelliJ 
+    - Java
+    - Gradle JVM : Oracle OpenJDK 26.0.1 (Similar Gradle versions are also functional)
 
 ## Running the application in dev mode
 
@@ -15,7 +19,8 @@ You can run your application in dev mode that enables live coding using:
 ./gradlew quarkusDev
 ```
 
-> **_NOTE:_**  Quarkus now ships with a Dev UI, which is available in dev mode only at <http://localhost:8080/q/dev/>.
+If you use IntelliJ (recommended), you can also run the application using the play button with the option **ebock-backend.main**.
+If any changes are detected to the files while running, the next API call will restart the API with the new changes.
 
 ## Packaging and running the application
 
@@ -38,28 +43,24 @@ If you want to build an _über-jar_, execute the following command:
 
 The application, packaged as an _über-jar_, is now runnable using `java -jar build/*-runner.jar`.
 
-## Creating a native executable
+## Structure
+The project is divided into packages, each containing a certain type of class for the API : 
 
-You can create a native executable using:
+    - adapter : Adapter to communicate with authentication system.
+    - business : Model classes that match the expected mapping from the database.
+    - converter : Interfaces to convert Payload to Business, or Business to Response.
+    - dto/request : Model classes for the payloads used in request bodies.
+    - dto/response : Model classes for the expected responses from API requests.
+    - exception : Custom exception handlers.
+    - mapper : MyBatis interfaces that associate a function to a SQL query.
+    - service : Classes associated to API paths that are called by the client. These classes handle the logic and call the adapters, mappers and converters when necessary.
+    - websocket : Websockets to browse real-time information to clients connected to the related websocket.
+    - utils : Other useful custom functions used in the application.
 
-```shell script
-./gradlew build -Dquarkus.native.enabled=true
-```
-
-Or, if you don't have GraalVM installed, you can run the native executable build in a container using:
-
-```shell script
-./gradlew build -Dquarkus.native.enabled=true -Dquarkus.native.container-build=true
-```
-
-You can then execute your native executable with: `./build/ebock-backend-1.0-SNAPSHOT-runner`
-
-If you want to learn more about building native executables, please consult <https://quarkus.io/guides/gradle-tooling>.
-
-## Provided Code
-
-### REST
-
-Easily start your REST Web Services
-
-[Related guide section...](https://quarkus.io/guides/getting-started-reactive#reactive-jax-rs-resources)
+## Contribution
+Work must not be done directly in the main and dev branches. A branch must be created for every task, named after the associated Jira ticket.
+Commits must specify the changes done.
+Every feature is expected to be tested, using the **src/test** package, with unit tests and integration tests.
+Once a feature is functional, tested and documented, a pull request must be opened toward the **dev** branch. Two reviews must then be submitted.
+Once two contributors have reviewed the pull request, the creator can merge into dev using **Squash & merge**.
+**IMPORTANT : The branch should be deleted once the pull request is merged.**

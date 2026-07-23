@@ -24,7 +24,7 @@ public class ItemDetailsIT {
                 .body("price", is(67.67f))
                 .body("quantity", is(1))
                 .body("category", is("Sports"))
-                .body("wear", is("Factory New"))
+                .body("wear", is("Neuve"))
                 .body("paymentOptions", hasItems("Interac", "Cash"))
                 .body("deliveryOptions", hasItems("Livraison", "Ramassage"))
                 .body("sellerCip", is("larj4236"));

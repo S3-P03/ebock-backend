@@ -11,4 +11,5 @@ public interface CategoryMapper {
     List<Category> getAllCategories();
     void insert(@Param("category") Category category);
     void update(@Param("category") Category category);
+    void delete(@Param("categoryId") int categoryId);
 }

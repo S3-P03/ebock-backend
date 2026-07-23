@@ -6,15 +6,22 @@
 
     <select id="getAllWears" resultType="com.ebock.business.Wear">
         select *
-        from ebock.wear
+        from wear
+        WHERE deleted_at IS NULL
     </select>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="wear.wearId">
-        insert into ebock.wear (name) values (#{wear.name})
+        insert into wear (name) values (#{wear.name})
+        on conflict (name)
+        do update set deleted_at = null, name = EXCLUDED.name;
     </insert>
 
     <update id="update">
-        update ebock.wear set name = #{wear.name} where wear_id = #{wear.wearId}
+        update wear set name = #{wear.name} where wear_id = #{wear.wearId}
+    </update>
+
+    <update id="delete">
+        update wear set deleted_at = now() where wear_id = #{wearId}
     </update>
 
 </mapper>

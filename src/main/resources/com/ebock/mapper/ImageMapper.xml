@@ -12,7 +12,7 @@
 
     <select id="getImageFromGuid" resultType="com.ebock.business.Image">
         select *
-        from ebock.image_
+        from image_
         where guid=#{guid}
     </select>
 
@@ -20,12 +20,12 @@
         SELECT ii.item_id,
                im.guid,
                ii.displayorder
-        FROM ebock.image_ im
-        INNER JOIN ebock.item_image ii ON ii.guid = im.guid
+        FROM image_ im
+        INNER JOIN item_image ii ON ii.guid = im.guid
         WHERE ii.item_id=#{id}
     </select>
 
     <insert id="insert">
-        insert into ebock.image_ (guid, original_filename, file_extension, created_at) values (#{image.guid}, #{image.originalFilename}, #{image.fileExtension}, now())
+        insert into image_ (guid, original_filename, file_extension, created_at) values (#{image.guid}, #{image.originalFilename}, #{image.fileExtension}, now())
     </insert>
 </mapper>

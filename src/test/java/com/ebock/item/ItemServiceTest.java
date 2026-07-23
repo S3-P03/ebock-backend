@@ -1,14 +1,15 @@
 package com.ebock.item;
 
 import com.ebock.business.Item;
-import com.ebock.business.ItemDeliveryOption;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.request.item.FilterItemPayload;
+import com.ebock.dto.request.comment.CommentPayload;
+import com.ebock.dto.request.item.FilterItemParameters;
+import com.ebock.dto.request.item.ItemCreatePayload;
 import com.ebock.dto.request.item.ItemImageElement;
-import com.ebock.dto.request.item.ItemPayload;
+import com.ebock.dto.request.item.ItemUpdatePayload;
+import com.ebock.dto.response.comment.CommentDetailsResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemResponse;
-import com.ebock.dto.response.tag.TagResponse;
 import com.ebock.mapper.ItemImageMapper;
 import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.ItemTagMapper;
@@ -58,6 +59,8 @@ public class ItemServiceTest {
     SecurityContext securityContext;
     @Mock
     Principal principal;
+    @Mock
+    CommentMapper commentMapper;
 
     @InjectMocks
     ItemService itemService;
@@ -67,7 +70,7 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -94,7 +97,7 @@ public class ItemServiceTest {
         // arrange
         String requestCip = "pele3157";
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(requestCip))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(requestCip))).thenReturn(expected);
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -111,7 +114,7 @@ public class ItemServiceTest {
     void testList_Works_WhenNotConnected(){
         //arrange
         List<ItemResponse> expected = new ArrayList<>();
-        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemPayload.class), eq(""))).thenReturn(expected);
+        when(itemMapper.getPaginatedItem(eq(1), eq(25), any(FilterItemParameters.class), eq(""))).thenReturn(expected);
 
         //act
         List<ItemResponse> result = itemService.list(1,  null,null,null,null,null,null,null,null,null);
@@ -164,7 +167,7 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "asdf6767";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         Item item = new Item();
         item.sellerCip = sellerCip;
 
@@ -194,13 +197,16 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = List.of(1, 2, 3);
         payload.deliveryOptionList = List.of(4,5,6);
         payload.paymentOptionList = List.of(7,8,9);
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -209,7 +215,7 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);
@@ -233,13 +239,16 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = List.of();
         payload.imageList = List.of();
         payload.paymentOptionList = List.of();
         payload.deliveryOptionList = List.of();
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -248,7 +257,7 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);
@@ -272,13 +281,16 @@ public class ItemServiceTest {
         String requestCip = "dubw5596";
         String sellerCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
         payload.tagList = null;
         payload.imageList = null;
         payload.deliveryOptionList = null;
         payload.paymentOptionList = null;
         Item item = new Item();
         item.sellerCip = sellerCip;
+        item.quantity = 1;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 1;
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -287,20 +299,20 @@ public class ItemServiceTest {
         // Mock db return
         when(itemMapper.findById(itemId)).thenReturn(item);
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
 
         // Act
         itemService.update(itemId, payload);
 
         // Assert
         Mockito.verify(itemMapper, Mockito.times(1)).update(anyString(), any(Item.class));
-        Mockito.verify(itemTagMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemTagMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemTagMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemImageMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemImageMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemImageMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemDeliveryOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
-        Mockito.verify(itemPaymentOptionMapper, Mockito.times(1)).deleteByItemId(anyInt());
+        Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).deleteByItemId(anyInt());
         Mockito.verify(itemPaymentOptionMapper, Mockito.times(0)).insert(anyInt(), anyList());
     }
 
@@ -310,7 +322,7 @@ public class ItemServiceTest {
         int itemId = 5;
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemUpdatePayload payload = new ItemUpdatePayload();
 
         // Mock request cip
         when(securityContext.getUserPrincipal()).thenReturn(principal);
@@ -334,11 +346,44 @@ public class ItemServiceTest {
     }
 
     @Test
+    void testUpdate_ArchivesRooms_QuantityIs0(){
+        // Arrange
+        int itemId = 5;
+        String requestCip = "dubw5596";
+        String sellerCip = "dubw5596";
+
+        ItemUpdatePayload payload = new ItemUpdatePayload();
+        payload.quantity = 0;
+        Item item = new Item();
+        item.sellerCip = sellerCip;
+        item.quantity = 1;
+        Item convertedItem = new Item();
+        convertedItem.quantity = 0;
+
+        // Mock request cip
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(requestCip);
+
+        // Mock db return
+        when(itemMapper.findById(itemId)).thenReturn(item);
+        // Mock converter
+        when(itemConverter.toBusiness(payload)).thenReturn(convertedItem);
+        // Mock archive
+        when(itemMapper.archiveRoomsById(itemId)).thenReturn(1);
+
+        // Act
+        itemService.update(itemId, payload);
+
+        // Assert
+        Mockito.verify(itemMapper, Mockito.times(1)).archiveRoomsById(itemId);
+    }
+
+    @Test
     void testInsert_Works_WhenFullPayload(){
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.tagList = List.of(1, 2, 3);
         payload.imageList = List.of(new ItemImageElement(), new ItemImageElement());
 
@@ -347,7 +392,9 @@ public class ItemServiceTest {
         when(principal.getName()).thenReturn(requestCip);
 
         // Mock converter
-        when(itemConverter.toBusiness(payload)).thenReturn(new Item());
+        Item item = new Item();
+        item.itemId = 1;
+        when(itemConverter.toBusiness(payload)).thenReturn(item);
 
         // Act
         itemService.insert(payload);
@@ -363,7 +410,7 @@ public class ItemServiceTest {
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.imageList = null;
         payload.tagList = null;
 
@@ -388,7 +435,7 @@ public class ItemServiceTest {
         // Arrange
         String requestCip = "dubw5596";
 
-        ItemPayload payload = new ItemPayload();
+        ItemCreatePayload payload = new ItemCreatePayload();
         payload.imageList = List.of();
         payload.tagList = List.of();
 
@@ -477,4 +524,117 @@ public class ItemServiceTest {
         // act and assert
         assertThrows(UnauthorizedException.class, () -> itemService.removeFavorite(1));
     }
+
+    @Test
+    void commentDetails_ThrowsNotFound_InexistentItemId(){
+        //arrange
+        int inexistentId = 10;
+        when(itemMapper.getItemCountById(inexistentId)).thenReturn(0);
+
+        //act and assert
+        assertThrows(NotFoundException.class, () -> {
+            itemService.listItemComments(inexistentId);
+        });
+    }
+
+    @Test
+    void commentDetails_Works_ExistentItemId(){
+        //arrange
+        int validId = 1;
+        List<CommentDetailsResponse> expected = new ArrayList<>();
+        when(itemMapper.getItemCountById(validId)).thenReturn(1);
+        when(commentMapper.getDetailledComments(validId)).thenReturn(expected);
+
+        //act
+        List<CommentDetailsResponse> result = itemService.listItemComments(validId);
+
+        //assert
+        assertEquals(expected, result);
+    }
+
+    @Test
+    void commentInsert_ThrowsNotFound_InexistentItemId() {
+        // arrange
+        Integer inexistentId = 100;
+        CommentPayload payload = new CommentPayload();
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> {
+            itemService.insertComment(inexistentId, payload);
+        });
+    }
+
+    @Test
+    void commentInsert_Inserts_ExistentItemId() {
+        // arrange
+        int validId = 1;
+        String cip = "pele3157";
+        CommentPayload payload = new CommentPayload();
+
+        when(itemMapper.getItemCountById(validId)).thenReturn(1);
+        when(securityContext.getUserPrincipal()).thenReturn(principal);
+        when(principal.getName()).thenReturn(cip);
+
+        // act
+        Response response = itemService.insertComment(validId, payload);
+
+        // assert
+        assertEquals(Response.Status.CREATED.getStatusCode(), response.getStatus());
+
+        verify(commentMapper).insert(validId, cip, payload);
+    }
+
+    @Test
+    void testDelete_Works_ExistentItem() {
+        // Arrange
+        int itemId = 5;
+
+        when(itemMapper.archiveRoomsById(itemId)).thenReturn(1);
+
+        // Act
+        Response response = itemService.delete(itemId);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        verify(itemMapper, times(1)).delete(itemId);
+        verify(itemMapper, times(1)).archiveRoomsById(itemId);
+        verify(itemMapper, never()).getItemCountById(anyInt());
+    }
+
+    @Test
+    void testDelete_ThrowsNotFound_InexistentItem() {
+        // Arrange
+        int itemId = 999;
+
+        when(itemMapper.archiveRoomsById(itemId)).thenReturn(0);
+        when(itemMapper.getItemCountById(itemId)).thenReturn(0);
+
+        // Act & Assert
+        assertThrows(NotFoundException.class, () -> itemService.delete(itemId));
+
+        verify(itemMapper, times(1)).delete(itemId);
+        verify(itemMapper, times(1)).archiveRoomsById(itemId);
+        verify(itemMapper, times(1)).getItemCountById(itemId);
+    }
+
+    @Test
+    void testDelete_Works_ExistentItemNoRoomsOpen() {
+        // Arrange
+        int itemId = 5;
+
+        when(itemMapper.archiveRoomsById(itemId)).thenReturn(0);
+        when(itemMapper.getItemCountById(itemId)).thenReturn(1);
+
+        // Act
+        Response response = itemService.delete(itemId);
+
+        // Assert
+        assertEquals(Response.Status.NO_CONTENT.getStatusCode(), response.getStatus());
+
+        verify(itemMapper, times(1)).delete(itemId);
+        verify(itemMapper, times(1)).archiveRoomsById(itemId);
+        verify(itemMapper, times(1)).getItemCountById(itemId);
+    }
+
 }

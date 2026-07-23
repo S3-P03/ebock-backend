@@ -11,4 +11,5 @@ public interface DeliveryOptionMapper {
     List<DeliveryOption> getAllDeliveryOptions();
     void insert(@Param("deliveryOption") DeliveryOption deliveryOption);
     void update(@Param("deliveryOption") DeliveryOption deliveryOption);
+    void delete(@Param("deliveryOptionId") int deliveryOptionId);
 }

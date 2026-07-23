@@ -11,6 +11,7 @@ import com.ebock.mapper.UserMapper;
 import com.ebock.websocket.MessageBroadcaster;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,6 +19,7 @@ import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.SecurityContext;
 
 import java.util.List;
@@ -42,6 +44,9 @@ public class MessageService {
 
     @Inject
     MessageBroadcaster messageBroadcaster;
+
+    @Inject
+    RoutingContext routingContext;
 
     @GET
     @Path("/room/{id}")
@@ -77,6 +82,14 @@ public class MessageService {
             throw new NotFoundException("Connected user not found");
         if (itemMapper.getItemCountById(room.itemId) == 0)
             throw new NotFoundException("Item not found");
+        List<RoomDetailsResponse> userRooms = messageMapper.getAllUserRooms(cip);
+        for (RoomDetailsResponse userRoom : userRooms) {
+            if (userRoom.itemId == room.itemId) {
+                RoomResponse response = new RoomResponse();
+                response.roomId = userRoom.roomId;
+                return response;
+            }
+        }
         return messageMapper.createRoom(room.itemId, cip);
     }
 
@@ -95,13 +108,39 @@ public class MessageService {
     @Authenticated
     public MessageResponse postMessage(@Valid MessagePayload message, @PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
+        String environment = routingContext.request().getHeader("Environment");
+        if(environment == null) {
+            environment = "ebock";
+        }
+
         validateUser(cip);
         validateRoom(id);
+
         RoomDetailsResponse roomResponse = this.messageMapper.getRoomInformation(id);
         validateAuthorization(cip, roomResponse);
+
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
-        messageBroadcaster.broadcast(saved);
+        messageBroadcaster.broadcast(environment, Integer.toString(id), saved);
+
+        if(messageMapper.isRoomArchived(id))
+            messageMapper.toggleArchiveRoomById(id);
+
         return saved;
+    }
+
+    @POST
+    @Path("/room/{id}/archive")
+    @Authenticated
+    public Response archiveRoom(@PathParam("id") int id){
+        String cip = securityContext.getUserPrincipal().getName();
+
+        if(messageMapper.isSellerOfRoomByIds(id, cip) != 1)
+            throw new ForbiddenException("Authenticated user is not the seller");
+        if(messageMapper.isRoomArchived(id))
+            throw new ForbiddenException("Cannot archive a room that is already archived");
+
+        messageMapper.toggleArchiveRoomById(id);
+        return Response.noContent().build();
     }
 
     void validateUser(String cip) {

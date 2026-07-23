@@ -11,4 +11,5 @@ public interface TagMapper {
     List<Tag> getAllTags();
     void insert(@Param("tag") Tag tag);
     void update(@Param("tag") Tag tag);
+    void delete(@Param("tagId") int tagId);
 }

@@ -2,8 +2,11 @@ package com.ebock.service;
 
 import com.ebock.business.Item;
 import com.ebock.converter.ItemConverter;
-import com.ebock.dto.request.item.FilterItemPayload;
-import com.ebock.dto.request.item.ItemPayload;
+import com.ebock.dto.request.comment.CommentPayload;
+import com.ebock.dto.request.item.FilterItemParameters;
+import com.ebock.dto.request.item.ItemCreatePayload;
+import com.ebock.dto.request.item.ItemUpdatePayload;
+import com.ebock.dto.response.comment.CommentDetailsResponse;
 import com.ebock.dto.response.item.ItemDetailsResponse;
 import com.ebock.dto.response.item.ItemInsertResponse;
 import com.ebock.dto.response.item.ItemResponse;
@@ -11,6 +14,7 @@ import com.ebock.mapper.*;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -44,6 +48,8 @@ public class ItemService {
     UserMapper userMapper;
     @Inject
     ItemConverter itemConverter;
+    @Inject
+    CommentMapper commentMapper;
     @Context
     SecurityContext securityContext;
 
@@ -61,16 +67,16 @@ public class ItemService {
                                    @RestQuery @Separator(",") List<Integer> wears,
                                    @RestQuery @Separator(",") List<Integer> deliveries,
                                    @RestQuery @Separator(",") List<Integer> payments) {
-        FilterItemPayload filterItemPayload = new FilterItemPayload();
-        filterItemPayload.minPrice = minP;
-        filterItemPayload.maxPrice = maxP;
-        filterItemPayload.maxDistance = maxD;
-        filterItemPayload.favorite = fav;
-        filterItemPayload.listCategoryId = categories;
-        filterItemPayload.listTagId = tags;
-        filterItemPayload.listWearId = wears;
-        filterItemPayload.listDeliveryId = deliveries;
-        filterItemPayload.listPaymentId = payments;
+        FilterItemParameters filterItemParameters = new FilterItemParameters();
+        filterItemParameters.minPrice = minP;
+        filterItemParameters.maxPrice = maxP;
+        filterItemParameters.maxDistance = maxD;
+        filterItemParameters.favorite = fav;
+        filterItemParameters.listCategoryId = categories;
+        filterItemParameters.listTagId = tags;
+        filterItemParameters.listWearId = wears;
+        filterItemParameters.listDeliveryId = deliveries;
+        filterItemParameters.listPaymentId = payments;
         int pageSize = 25;
 
         if (pageNumber < 1) {
@@ -81,7 +87,7 @@ public class ItemService {
             cip = securityContext.getUserPrincipal().getName();
         } catch (Exception e){}
 
-        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemPayload, cip);
+        return this.itemMapper.getPaginatedItem(pageNumber, pageSize, filterItemParameters, cip);
     }
 
     @GET
@@ -131,10 +137,10 @@ public class ItemService {
     }
 
     @POST
-    @Path("/insert")
+    @Path("")
     @Authenticated
     @Transactional
-    public ItemInsertResponse insert(@Valid ItemPayload itemInsertPayload){
+    public ItemInsertResponse insert(@Valid ItemCreatePayload itemInsertPayload){
         Item item = itemConverter.toBusiness(itemInsertPayload);
         String cip = securityContext.getUserPrincipal().getName();
         item.sellerCip = cip;
@@ -161,11 +167,11 @@ public class ItemService {
     }
 
     @PUT
-    @Path("/update/{id}")
+    @Path("/{id}")
     @Authenticated
     @Transactional
-    public ItemInsertResponse update(@PathParam("id") int itemId, @Valid ItemPayload itemInsertPayload){
-        Item item = itemConverter.toBusiness(itemInsertPayload);
+    public Response update(@PathParam("id") int itemId, @Valid ItemUpdatePayload itemUpdatePayload){
+        Item item = itemConverter.toBusiness(itemUpdatePayload);
         item.itemId = itemId;
 
         String cip = securityContext.getUserPrincipal().getName();
@@ -179,32 +185,83 @@ public class ItemService {
             throw new ForbiddenException("Not your item");
         }
 
+        if(existingItem.quantity == 0) {
+            throw new ForbiddenException("Cannot modify item out of stock");
+        }
+
+        if (item.quantity == 0) {
+            itemMapper.archiveRoomsById(item.itemId);
+        }
+
         itemMapper.update(cip, item);
 
         // Update tags
-        itemTagMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.tagList != null && !itemInsertPayload.tagList.isEmpty()) {
-            itemTagMapper.insert(item.itemId, itemInsertPayload.tagList);
+        if (itemUpdatePayload.tagList != null) {
+            itemTagMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.tagList.isEmpty()) {
+                itemTagMapper.insert(item.itemId, itemUpdatePayload.tagList);
+            }
         }
 
         // Update images
-        itemImageMapper.deleteByItemId(itemId);
-        if(itemInsertPayload.imageList != null && !itemInsertPayload.imageList.isEmpty()){
-            itemImageMapper.insert(item.itemId, itemInsertPayload.imageList);
+        if (itemUpdatePayload.imageList != null) {
+            itemImageMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.imageList.isEmpty()) {
+                itemImageMapper.insert(item.itemId, itemUpdatePayload.imageList);
+            }
         }
 
         // Update payment option
-        itemPaymentOptionMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.paymentOptionList != null && !itemInsertPayload.paymentOptionList.isEmpty()) {
-            itemPaymentOptionMapper.insert(item.itemId, itemInsertPayload.paymentOptionList);
+        if (itemUpdatePayload.paymentOptionList != null) {
+            itemPaymentOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.paymentOptionList.isEmpty()) {
+                itemPaymentOptionMapper.insert(item.itemId, itemUpdatePayload.paymentOptionList);
+            }
         }
 
         // Update delivery option
-        itemDeliveryOptionMapper.deleteByItemId(itemId);
-        if (itemInsertPayload.deliveryOptionList != null && !itemInsertPayload.deliveryOptionList.isEmpty()) {
-            itemDeliveryOptionMapper.insert(item.itemId, itemInsertPayload.deliveryOptionList);
+        if (itemUpdatePayload.deliveryOptionList != null) {
+            itemDeliveryOptionMapper.deleteByItemId(itemId);
+            if (!itemUpdatePayload.deliveryOptionList.isEmpty()) {
+                itemDeliveryOptionMapper.insert(item.itemId, itemUpdatePayload.deliveryOptionList);
+            }
         }
 
-        return itemConverter.toInsertResponse(item);
+        return Response.noContent().build();
+    }
+
+    @GET
+    @Path("/{id}/comment")
+    @PermitAll
+    public List<CommentDetailsResponse> listItemComments(@PathParam("id") Integer id) {
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+
+        return commentMapper.getDetailledComments(id);
+    }
+
+    @POST
+    @Path("/{id}/comment")
+    @Authenticated
+    public Response insertComment(@PathParam("id") Integer id, @Valid CommentPayload commentPayload){
+        if(itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+
+        String cip = securityContext.getUserPrincipal().getName();
+
+        commentMapper.insert(id, cip, commentPayload);
+        return Response.status(Response.Status.CREATED).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id){
+        itemMapper.delete(id);
+        int rowsAffected = itemMapper.archiveRoomsById(id);
+
+        if(rowsAffected == 0 && itemMapper.getItemCountById(id) == 0)
+            throw new NotFoundException("Item not found");
+        return Response.noContent().build();
     }
 }

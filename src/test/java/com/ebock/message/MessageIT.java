@@ -3,6 +3,7 @@ package com.ebock.message;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
+import io.restassured.http.ContentType;
 import jakarta.ws.rs.core.SecurityContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -196,5 +197,22 @@ public class MessageIT {
                 .get("/message/room")
                 .then()
                 .statusCode(404);
+    }
+    
+    @Test
+    @TestSecurity(user = "larj4236")
+    void archiveRoomUserIsNotSellerReturns403() {
+        Principal mockPrincipal = mock(Principal.class);
+        when(mockPrincipal.getName()).thenReturn("larj4236");
+        when(securityContext.getUserPrincipal()).thenReturn(mockPrincipal);
+
+        given()
+                .pathParam("id", 6)
+                .contentType(ContentType.JSON)
+                .body("{}")
+                .when()
+                .post("/message/room/{id}/archive")
+                .then()
+                .statusCode(403);
     }
 }

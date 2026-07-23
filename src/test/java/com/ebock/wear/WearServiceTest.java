@@ -12,6 +12,8 @@ import com.ebock.mapper.TagMapper;
 import com.ebock.mapper.WearMapper;
 import com.ebock.service.TagService;
 import com.ebock.service.WearService;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -80,5 +83,17 @@ public class WearServiceTest {
         // assert
         verify(wearMapper, times(1)).update(wear);
         assertEquals(expected, result);
+    }
+
+    @Test
+    void testDeleteCallsDeleteAndReturnsResult() {
+        // arrange
+        int wearId = 0;
+        // act
+        Response result = wearService.delete(wearId);
+
+        // assert
+        verify(wearMapper, times(1)).delete(wearId);
+        assertEquals(204, result.getStatus());
     }
 }

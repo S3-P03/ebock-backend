@@ -5,14 +5,13 @@ import com.ebock.converter.CategoryConverter;
 import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
-import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
+import jakarta.ws.rs.core.Response;
 
 import java.util.List;
 
@@ -24,11 +23,9 @@ public class CategoryService {
     CategoryMapper categoryMapper;
     @Inject
     CategoryConverter categoryConverter;
-    @Context
-    SecurityContext securityContext;
 
     @GET
-    @Path("/list/")
+    @Path("")
     @PermitAll
     public List<CategoryResponse> list() {
         List<Category> categories = this.categoryMapper.getAllCategories();
@@ -36,8 +33,8 @@ public class CategoryService {
     }
 
     @POST
-    @Path("/insert")
-    @Authenticated
+    @Path("")
+    @RolesAllowed("admin")
     public CategoryResponse insert(@Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         this.categoryMapper.insert(category);
@@ -45,12 +42,20 @@ public class CategoryService {
     }
 
     @PUT
-    @Path("/update/{id}")
-    @Authenticated
+    @Path("/{id}")
+    @RolesAllowed("admin")
     public CategoryResponse update(@PathParam("id") int id, @Valid CategoryPayload payload) {
         Category category = categoryConverter.toBusiness(payload);
         category.categoryId = id;
         this.categoryMapper.update(category);
         return categoryConverter.toResponse(category);
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("admin")
+    public Response delete(@PathParam("id") int id) {
+        categoryMapper.delete(id);
+        return Response.noContent().build();
     }
 }

@@ -4,6 +4,7 @@ import com.ebock.business.Wear;
 import com.ebock.dto.request.wear.WearPayload;
 import com.ebock.dto.response.wear.WearResponse;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
@@ -11,6 +12,9 @@ import java.util.List;
 public interface WearConverter {
     WearResponse toResponse(Wear wear);
     List<WearResponse> toResponse(List<Wear> wears);
+
+    @Mapping(target = "wearId", ignore = true)
+    @Mapping(target = "deletedAt", ignore = true)
     Wear toBusiness(WearPayload payload);
 }
 

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ebock.mapper.CommentMapper">
+    <select id="getDetailledComments" resultType="com.ebock.dto.response.comment.CommentDetailsResponse">
+        SELECT u.first_name,
+               u.last_name,
+               c.content,
+               c.comment_id_1 AS idParentComment,
+               c.comment_id AS idComment,
+               c.timestamp_,
+               u.profile_picture_guid
+        FROM comment_ c
+            INNER JOIN user_ u ON u.cip = c.sender_cip
+        WHERE c.item_id = #{id}
+            AND c.deleted_at IS NULL;
+    </select>
+
+    <insert id="insert">
+        INSERT INTO comment_(timestamp_, content, updated_at, comment_id_1, item_id, sender_cip)
+        VALUES (NOW(), #{comment.content}, null, #{comment.idParent}, #{id}, #{cip});
+    </insert>
+
+    <update id="delete">
+        UPDATE comment_ set deleted_at = now() where comment_id = #{id}
+    </update>
+
+
+</mapper>

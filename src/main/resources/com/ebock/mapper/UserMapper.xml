@@ -12,22 +12,21 @@
                profile_picture_guid,
                created_at,
                address_id
-        FROM ebock.user_
+        FROM user_
         WHERE cip = #{cip}
     </select>
     <insert id="createUser">
-        INSERT INTO ebock.user_ (cip,
+        INSERT INTO user_ (cip,
                first_name,
                last_name,
                email,
-               is_admin,
-               enabled,
                created_at,
-               updated_at)
-        VALUES (#{cip}, #{firstName}, #{lastName}, #{email}, false, true, now(), now());
+               updated_at,
+               address_id)
+        VALUES (#{cip}, #{firstName}, #{lastName}, #{email}, now(), now(), 1);
     </insert>
     <update id="updateUser">
-        UPDATE ebock.user_
+        UPDATE user_
         SET first_name = #{firstName},
             last_name = #{lastName},
             email = #{email},
@@ -36,7 +35,7 @@
     </update>
 
     <update id="updateUserAddress">
-        UPDATE ebock.user_
+        UPDATE user_
         SET address_id = #{addressId},
             updated_at = now()
         WHERE cip = #{cip}
@@ -44,8 +43,14 @@
 
     <select id="getUserCountByCip" resultType="int">
         SELECT COUNT(*)
-        FROM ebock.user_ u
+        FROM user_ u
         WHERE u.cip = #{cip};
     </select>
+
+    <update id="updateProfilePicture">
+        UPDATE user_
+        SET profile_picture_guid = #{guid}
+        WHERE cip = #{cip};
+    </update>
 
 </mapper>

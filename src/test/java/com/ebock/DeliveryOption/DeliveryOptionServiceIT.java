@@ -17,6 +17,8 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.Mockito.when;
 
 @QuarkusTest
 public class DeliveryOptionServiceIT {
@@ -53,7 +55,7 @@ public class DeliveryOptionServiceIT {
 
         given()
                 .when()
-                .get("/deliveryOption/list")
+                .get("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -67,7 +69,7 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
                 .then()
                 .statusCode(200);
 
@@ -80,10 +82,64 @@ public class DeliveryOptionServiceIT {
                 .contentType(ContentType.JSON)
                 .body(validPayload)
                 .when()
-                .post("/deliveryOption/insert")
+                .post("/deliveryOption")
                 .then()
                 .statusCode(401);
 
         Mockito.verify(deliveryOptionMapper, Mockito.never()).insert(any());
+    }
+
+    @Test
+    public void testUpdate_Unauthenticated_ShouldReturn401() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .put("/deliveryOption/1")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.never()).insert(any());
+    }
+
+    @Test
+    public void testDelete_Unauthenticated_ShouldReturn401() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/deliveryOption/1")
+                .then()
+                .statusCode(401);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.never()).delete(anyInt());
+    }
+
+    @TestSecurity(user = "user", roles = {"user"})
+    @Test
+    public void testDelete_InvalidRole_ShouldReturn403() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/deliveryOption/1")
+                .then()
+                .statusCode(403);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.never()).delete(anyInt());
+    }
+
+    @TestSecurity(user = "admin", roles = {"admin"})
+    @Test
+    public void testDelete_ValidRequest_ShouldReturn204() {
+        given()
+                .contentType(ContentType.JSON)
+                .body(validPayload)
+                .when()
+                .delete("/deliveryOption/1")
+                .then()
+                .statusCode(204);
+
+        Mockito.verify(deliveryOptionMapper, Mockito.times(1)).delete(1);
     }
 }

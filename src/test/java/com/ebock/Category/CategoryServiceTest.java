@@ -6,6 +6,8 @@ import com.ebock.dto.request.category.CategoryPayload;
 import com.ebock.dto.response.category.CategoryResponse;
 import com.ebock.mapper.CategoryMapper;
 import com.ebock.service.CategoryService;
+import jakarta.ws.rs.NotFoundException;
+import jakarta.ws.rs.core.Response;
 import org.mockito.Mock;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -77,5 +80,17 @@ public class CategoryServiceTest {
         // assert
         verify(categoryMapper, times(1)).update(category);
         assertEquals(expected, result);
+    }
+
+    @Test
+    void testDeleteCallsDeleteAndReturnsResult() {
+        // arrange
+        int categoryId = 0;
+        // act
+        Response result = categoryService.delete(categoryId);
+
+        // assert
+        verify(categoryMapper, times(1)).delete(categoryId);
+        assertEquals(204, result.getStatus());
     }
 }

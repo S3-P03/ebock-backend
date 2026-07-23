@@ -5,15 +5,20 @@ import com.ebock.business.Address;
 import com.ebock.business.User;
 import com.ebock.converter.AddressConverter;
 import com.ebock.converter.UserConverter;
+import com.ebock.dto.request.image.ImagePayload;
+import com.ebock.dto.request.user.EditProfilePicturePayload;
 import com.ebock.dto.request.user.UserChangePasswordPayload;
 import com.ebock.dto.request.user.EditPayload;
+import com.ebock.dto.response.user.ListUtilisateursResponse;
 import com.ebock.dto.response.user.ProfileResponse;
 import com.ebock.dto.response.user.SellerUserResponse;
 import com.ebock.dto.response.user.UserResponse;
 import com.ebock.mapper.AddressMapper;
+import com.ebock.mapper.ItemMapper;
 import com.ebock.mapper.UserMapper;
 import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -25,6 +30,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.representations.idm.UserRepresentation;
 
+import java.util.List;
 import java.util.Objects;
 
 @Path("/user")
@@ -33,6 +39,8 @@ import java.util.Objects;
 public class UserService {
     @Inject
     UserMapper userMapper;
+    @Inject
+    ItemMapper itemMapper;
     @Inject
     AddressMapper addressMapper;
     @Context
@@ -85,7 +93,9 @@ public class UserService {
     ) {
         if(userMapper.getUserCountByCip(cip) == 0)
             throw new NotFoundException("User not found");
-        return userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+        SellerUserResponse sellerUserResponse = userConverter.toSellerUserResponse(this.userMapper.getUserInfo(cip));
+        sellerUserResponse.soldItemsCount = itemMapper.getSoldItemsCountByCip(cip);
+        return sellerUserResponse;
     }
 
     @GET
@@ -98,7 +108,10 @@ public class UserService {
 
         if(user==null) throw new NotFoundException("User not found");
 
-        Address address = addressMapper.getAddressById(user.addressId);
+        Address address = new Address();
+        if (user.addressId != null) {
+            address = addressMapper.getAddressById(user.addressId);
+        }
 
         ProfileResponse response = new ProfileResponse();
         response.user = userConverter.toProfileUserResponse(user);
@@ -158,6 +171,71 @@ public class UserService {
         }
 
         return Response.ok().build();
+    }
+
+    @GET
+    @Path("/list/")
+    @RolesAllowed("admin")
+    public ListUtilisateursResponse listUser() {
+        // Fetch all users
+        List<UserRepresentation> userRepresentations = keycloakAdapter.getAllUsers();
+
+        // Convert to response
+        ListUtilisateursResponse response = new ListUtilisateursResponse();
+        response.utilisateurs = userConverter.toResponseFromUserRepresentation(userRepresentations);
+
+        return response;
+    }
+
+    @PUT
+    @Path("/{cip}/enable")
+    @RolesAllowed("admin")
+    public Response enableUser(@PathParam("cip") String cip) {
+        // Enable the user
+        keycloakAdapter.enableUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{cip}/disable")
+    @RolesAllowed("admin")
+    public Response disableUser(@PathParam("cip") String cip) {
+        // Disable the user
+        keycloakAdapter.disableUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{cip}/addDark")
+    @RolesAllowed("admin")
+    public Response addDark(@PathParam("cip") String cip) {
+        keycloakAdapter.addDarkRoleToUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/{cip}/removeDark")
+    @RolesAllowed("admin")
+    public Response removeDark(@PathParam("cip") String cip) {
+        keycloakAdapter.removeDarkRoleToUser(cip);
+
+        return Response.ok().build();
+    }
+
+    @PUT
+    @Path("/updateProfilePicture")
+    @Authenticated
+    public Response editProfilePicture(EditProfilePicturePayload payload){
+        String cip = this.securityContext.getUserPrincipal().getName();
+
+        String guid = (payload.guid == null || payload.guid.isBlank()) ? null : payload.guid;
+
+        userMapper.updateProfilePicture(cip, guid);
+
+        return Response.noContent().build();
     }
 
     /**
