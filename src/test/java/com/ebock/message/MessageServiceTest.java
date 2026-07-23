@@ -9,6 +9,8 @@ import com.ebock.mapper.*;
 import com.ebock.service.MessageService;
 import com.ebock.websocket.MessageBroadcaster;
 import io.quarkus.security.UnauthorizedException;
+import io.vertx.core.http.HttpServerRequest;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.ws.rs.ForbiddenException;
 import jakarta.ws.rs.NotFoundException;
 import jakarta.ws.rs.core.Response;
@@ -42,6 +44,10 @@ public class MessageServiceTest {
     SecurityContext securityContext;
     @Mock
     Principal principal;
+    @Mock
+    RoutingContext routingContext;
+    @Mock
+    HttpServerRequest httpServerRequest;
 
     @InjectMocks
     MessageService messageService;
@@ -247,6 +253,8 @@ public class MessageServiceTest {
         MessagePayload payload = new MessagePayload();
         payload.content = "Test";
 
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.getHeader("Environment")).thenReturn("ebock");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
@@ -264,6 +272,8 @@ public class MessageServiceTest {
         // arrange
         MessagePayload payload = new MessagePayload();
 
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.getHeader("Environment")).thenReturn("ebock");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(0);
@@ -276,6 +286,8 @@ public class MessageServiceTest {
         // arrange
         MessagePayload payload = new MessagePayload();
 
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.getHeader("Environment")).thenReturn("ebock");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);
@@ -294,6 +306,8 @@ public class MessageServiceTest {
         MessageResponse expected = new MessageResponse();
         MessagePayload payload = new MessagePayload();
 
+        when(routingContext.request()).thenReturn(httpServerRequest);
+        when(httpServerRequest.getHeader("Environment")).thenReturn("ebock");
         when(securityContext.getUserPrincipal()).thenReturn(principal);
         when(principal.getName()).thenReturn("larj4236");
         when(userMapper.getUserCountByCip("larj4236")).thenReturn(1);

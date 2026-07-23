@@ -1,9 +1,11 @@
 package com.ebock.websocket;
 
+import com.ebock.dto.response.message.ConsumedToken;
 import io.quarkus.oidc.AccessTokenCredential;
 import io.quarkus.security.identity.IdentityProviderManager;
 import io.quarkus.security.identity.SecurityIdentity;
 import io.quarkus.security.identity.request.TokenAuthenticationRequest;
+import io.quarkus.security.runtime.QuarkusSecurityIdentity;
 import io.quarkus.vertx.http.runtime.security.ChallengeData;
 import io.quarkus.vertx.http.runtime.security.HttpAuthenticationMechanism;
 import io.quarkus.vertx.http.runtime.security.HttpCredentialTransport;
@@ -32,15 +34,18 @@ public class WsAuthenticationMechanism implements HttpAuthenticationMechanism {
             return Uni.createFrom().nullItem();
         }
 
-        String accessToken = tokenService.consume(ticket);
-        if (accessToken == null) {
+        ConsumedToken consumedToken = tokenService.consume(ticket);
+        if (consumedToken == null) {
             return Uni.createFrom().nullItem();
         }
 
-        TokenAuthenticationRequest request = new TokenAuthenticationRequest(new AccessTokenCredential(accessToken));
+        TokenAuthenticationRequest request = new TokenAuthenticationRequest(new AccessTokenCredential(consumedToken.accessToken()));
         HttpSecurityUtils.setRoutingContextAttribute(request, context);
 
-        return identityProviderManager.authenticate(request);
+        return identityProviderManager.authenticate(request)
+                .map(identity -> QuarkusSecurityIdentity.builder(identity)
+                        .addAttribute("env", consumedToken.environment())
+                        .build());
     }
 
     @Override
