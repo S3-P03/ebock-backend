@@ -11,9 +11,10 @@ public class MessageBroadcaster {
     @Inject
     OpenConnections connections;
 
-    public void broadcast(String room, MessageResponse message) {
+    public void broadcast(String env, String room, MessageResponse message) {
         connections.stream()
                 .filter(conn -> room.equals(conn.pathParam("room")))
+                .filter(conn -> env.equals(conn.userData().get(ChatSocket.ENV_KEY)))
                 .forEach(conn -> conn.sendTextAndAwait(message));
     }
 }

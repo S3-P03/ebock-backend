@@ -4,6 +4,7 @@ public class ProfileAddressResponse {
     public int addressId;
     public Integer civicNumber;
     public Integer apptNumber;
+    public String city;
     public String street;
     public String postalCode;
     public String provinceCode;

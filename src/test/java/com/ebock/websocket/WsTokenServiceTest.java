@@ -1,8 +1,10 @@
 package com.ebock.websocket;
 
+import com.ebock.dto.response.message.ConsumedToken;
 import com.ebock.dto.response.message.WsTokenResponse;
 import io.quarkus.oidc.AccessTokenCredential;
 import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.core.Response;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -29,6 +31,9 @@ public class WsTokenServiceTest {
     @InjectMocks
     WsTokenService wsTokenService;
 
+    private static final String ENV_EBOCK = "ebock";
+    private static final String ENV_DARK_EBOCK = "dark_ebock";
+
     @Test
     void testIssueTokenReturnsTokenForAuthenticatedUser() {
         // arrange
@@ -36,7 +41,7 @@ public class WsTokenServiceTest {
         when(accessTokenCredential.getToken()).thenReturn("real-access-token");
 
         // act
-        Response response = wsTokenService.issueToken();
+        Response response = wsTokenService.issueToken(ENV_EBOCK);
 
         // assert
         assertEquals(200, response.getStatus());
@@ -45,25 +50,61 @@ public class WsTokenServiceTest {
     }
 
     @Test
-    void testIssueTokenStoresAccessTokenRetrievableByConsume() {
+    void testIssueTokenDefaultsToEbockWhenEnvironmentMissing() {
         // arrange
         when(identity.getCredential(AccessTokenCredential.class)).thenReturn(accessTokenCredential);
         when(accessTokenCredential.getToken()).thenReturn("real-access-token");
 
         // act
-        Response response = wsTokenService.issueToken();
+        Response response = wsTokenService.issueToken(null);
         WsTokenResponse body = (WsTokenResponse) response.getEntity();
-        String result = wsTokenService.consume(body.token());
+        ConsumedToken result = wsTokenService.consume(body.token());
 
         // assert
-        assertEquals("real-access-token", result);
+        assertEquals(200, response.getStatus());
+        assertNotNull(result);
+        assertEquals(ENV_EBOCK, result.environment());
+    }
+
+    @Test
+    void testIssueTokenDefaultsToEbockWhenEnvironmentInvalid() {
+        // arrange
+        when(identity.getCredential(AccessTokenCredential.class)).thenReturn(accessTokenCredential);
+        when(accessTokenCredential.getToken()).thenReturn("real-access-token");
+
+        // act
+        Response response = wsTokenService.issueToken("not-a-real-env");
+        WsTokenResponse body = (WsTokenResponse) response.getEntity();
+        ConsumedToken result = wsTokenService.consume(body.token());
+
+        // assert
+        assertEquals(200, response.getStatus());
+        assertNotNull(result);
+        assertEquals(ENV_EBOCK, result.environment());
+    }
+
+    @Test
+    void testIssueTokenStoresAccessTokenAndEnvironmentRetrievableByConsume() {
+        // arrange
+        when(identity.getCredential(AccessTokenCredential.class)).thenReturn(accessTokenCredential);
+        when(accessTokenCredential.getToken()).thenReturn("real-access-token");
+
+        // act
+        Response response = wsTokenService.issueToken(ENV_DARK_EBOCK);
+        WsTokenResponse body = (WsTokenResponse) response.getEntity();
+        ConsumedToken result = wsTokenService.consume(body.token());
+
+        // assert
+        assertNotNull(result);
+        assertEquals("real-access-token", result.accessToken());
+        assertEquals(ENV_DARK_EBOCK, result.environment());
     }
 
     @Test
     void testIssueReturnsNonNullUniqueToken() {
         // act
-        String token1 = wsTokenService.issue("token-a");
-        String token2 = wsTokenService.issue("token-b");
+        String token1 = wsTokenService.issue("token-a", ENV_EBOCK);
+        String token2 = wsTokenService.issue("token-b", ENV_EBOCK);
 
         // assert
         assertNotNull(token1);
@@ -72,25 +113,27 @@ public class WsTokenServiceTest {
     }
 
     @Test
-    void testConsumeReturnsAccessTokenForValidToken() {
+    void testConsumeReturnsAccessTokenAndEnvironmentForValidToken() {
         // arrange
-        String token = wsTokenService.issue("my-access-token");
+        String token = wsTokenService.issue("my-access-token", ENV_EBOCK);
 
         // act
-        String result = wsTokenService.consume(token);
+        ConsumedToken result = wsTokenService.consume(token);
 
         // assert
-        assertEquals("my-access-token", result);
+        assertNotNull(result);
+        assertEquals("my-access-token", result.accessToken());
+        assertEquals(ENV_EBOCK, result.environment());
     }
 
     @Test
     void testConsumeIsSingleUse() {
         // arrange
-        String token = wsTokenService.issue("my-access-token");
+        String token = wsTokenService.issue("my-access-token", ENV_EBOCK);
 
         // act
         wsTokenService.consume(token); // first use
-        String secondAttempt = wsTokenService.consume(token); // reuse
+        ConsumedToken secondAttempt = wsTokenService.consume(token); // reuse
 
         // assert
         assertNull(secondAttempt);
@@ -99,7 +142,7 @@ public class WsTokenServiceTest {
     @Test
     void testConsumeReturnsNullForUnknownToken() {
         // act
-        String result = wsTokenService.consume("does-not-exist");
+        ConsumedToken result = wsTokenService.consume("does-not-exist");
 
         // assert
         assertNull(result);
@@ -108,11 +151,11 @@ public class WsTokenServiceTest {
     @Test
     void testConsumeReturnsNullAfterExpiry() throws Exception {
         // arrange
-        String token = wsTokenService.issue("my-access-token");
+        String token = wsTokenService.issue("my-access-token", ENV_EBOCK);
         forceEntryToBeExpired(wsTokenService, token);
 
         // act
-        String result = wsTokenService.consume(token);
+        ConsumedToken result = wsTokenService.consume(token);
 
         // assert
         assertNull(result);
@@ -125,9 +168,9 @@ public class WsTokenServiceTest {
         Map<String, Object> tokens = (Map<String, Object>) tokensField.get(service);
 
         Class<?> entryClass = Class.forName("com.ebock.websocket.WsTokenService$Entry");
-        var entryConstructor = entryClass.getDeclaredConstructor(String.class, Instant.class);
+        var entryConstructor = entryClass.getDeclaredConstructor(String.class, String.class, Instant.class);
         entryConstructor.setAccessible(true);
-        Object expiredEntry = entryConstructor.newInstance("my-access-token", Instant.now().minusSeconds(1));
+        Object expiredEntry = entryConstructor.newInstance("my-access-token", ENV_EBOCK, Instant.now().minusSeconds(1));
 
         tokens.put(token, expiredEntry);
     }

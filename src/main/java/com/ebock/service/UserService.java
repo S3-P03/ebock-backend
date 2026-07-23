@@ -108,7 +108,10 @@ public class UserService {
 
         if(user==null) throw new NotFoundException("User not found");
 
-        Address address = addressMapper.getAddressById(user.addressId);
+        Address address = new Address();
+        if (user.addressId != null) {
+            address = addressMapper.getAddressById(user.addressId);
+        }
 
         ProfileResponse response = new ProfileResponse();
         response.user = userConverter.toProfileUserResponse(user);

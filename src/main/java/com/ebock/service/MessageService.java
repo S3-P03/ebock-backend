@@ -11,6 +11,7 @@ import com.ebock.mapper.UserMapper;
 import com.ebock.websocket.MessageBroadcaster;
 import io.quarkus.security.Authenticated;
 import io.quarkus.security.UnauthorizedException;
+import io.vertx.ext.web.RoutingContext;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -43,6 +44,9 @@ public class MessageService {
 
     @Inject
     MessageBroadcaster messageBroadcaster;
+
+    @Inject
+    RoutingContext routingContext;
 
     @GET
     @Path("/room/{id}")
@@ -104,6 +108,11 @@ public class MessageService {
     @Authenticated
     public MessageResponse postMessage(@Valid MessagePayload message, @PathParam("id") int id) {
         String cip = this.securityContext.getUserPrincipal().getName();
+        String environment = routingContext.request().getHeader("Environment");
+        if(environment == null) {
+            environment = "ebock";
+        }
+
         validateUser(cip);
         validateRoom(id);
 
@@ -111,7 +120,7 @@ public class MessageService {
         validateAuthorization(cip, roomResponse);
 
         MessageResponse saved = messageMapper.insert(message.content, cip, id);
-        messageBroadcaster.broadcast(Integer.toString(id), saved);
+        messageBroadcaster.broadcast(environment, Integer.toString(id), saved);
 
         if(messageMapper.isRoomArchived(id))
             messageMapper.toggleArchiveRoomById(id);
